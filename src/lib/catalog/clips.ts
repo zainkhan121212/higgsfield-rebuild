@@ -8,7 +8,8 @@ export interface Clip {
   title: string;
 }
 
-export const clipUrl = (id: number) => `https://assets.mixkit.co/videos/${id}/${id}-720.mp4`;
+/** 360p for tiles (≈1MB), 720p for the player (≈6MB). */
+export const clipUrl = (id: number, quality: 360 | 720 = 360) => `https://assets.mixkit.co/videos/${id}/${id}-${quality}.mp4`;
 
 /** preset id → clip that best matches the recipe */
 export const PRESET_CLIPS: Record<string, Clip> = {

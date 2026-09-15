@@ -141,7 +141,7 @@ export interface VideoResult {
 }
 
 // Free-license stock clips for General (no preset) simulated renders.
-const SAMPLE_CLIPS = [40640, 40733, 41160, 42039, 33896, 40367, 35230, 1367].map(clipUrl);
+const SAMPLE_CLIPS = [40640, 40733, 41160, 42039, 33896, 40367, 35230, 1367].map((id) => clipUrl(id, 720));
 
 export async function generateVideo(req: VideoRequest): Promise<VideoResult> {
   const { width, height } = dimsFor(req.ratio, req.resolution === "1080p" ? 1920 : 1280);
@@ -161,7 +161,7 @@ export async function generateVideo(req: VideoRequest): Promise<VideoResult> {
   // Simulated: a believable wait, then the stock clip that matches the
   // preset (or, for General, one picked by seed).
   await sleep(6000 + Math.random() * 6000);
-  const url = req.presetId && req.presetId !== "general" ? clipUrl(clipForPreset(req.presetId).id) : SAMPLE_CLIPS[hash(req.seed) % SAMPLE_CLIPS.length];
+  const url = req.presetId && req.presetId !== "general" ? clipUrl(clipForPreset(req.presetId).id, 720) : SAMPLE_CLIPS[hash(req.seed) % SAMPLE_CLIPS.length];
   return { url, width, height, simulated: true };
 }
 

@@ -29,7 +29,7 @@ export function AutoVideo({
         if (e.isIntersecting) setNear(true);
         setVisible(e.isIntersecting);
       },
-      { rootMargin: "200px 0px", threshold: 0.1 },
+      { rootMargin: "0px", threshold: 0.2 },
     );
     io.observe(el);
     return () => io.disconnect();
