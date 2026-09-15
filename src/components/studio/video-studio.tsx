@@ -38,7 +38,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
   const [rightTab, setRightTab] = useState<"history" | "how">("history");
   const textarea = useRef<HTMLTextAreaElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  const { items, loaded, submit, patch, remove } = useGenerations("video");
+  const { items, submit, patch, remove } = useGenerations("video");
 
   useEffect(() => {
     const m = search.get("model");
@@ -241,10 +241,8 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
           ))}
         </div>
         <div className="thin-scroll flex-1 overflow-y-auto p-4 lg:h-[calc(var(--studio-h)-41px)]">
-          {rightTab === "how" || (loaded && items.length === 0) ? (
+          {rightTab === "how" || items.length === 0 ? (
             <HowItWorks onStart={() => { setRightTab("history"); textarea.current?.focus(); }} onPreset={() => setPickerOpen(true)} />
-          ) : !loaded ? (
-            <div className="mx-auto mt-24 h-6 w-6 animate-spin rounded-full border-2 border-line border-t-lime" />
           ) : (
             <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))" }}>
               {items.map((g) => (
