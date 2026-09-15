@@ -125,7 +125,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
           <>
             {/* Preset card */}
             <button onClick={() => setPickerOpen(true)} className="group relative h-[124px] overflow-hidden rounded-xl text-left">
-              <PresetThumb preset={preset} className="absolute inset-0" />
+              <PresetThumb preset={preset} motion="auto" className="absolute inset-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute bottom-3 left-3">
                 <div className="display text-lg text-lime">{preset.name}</div>

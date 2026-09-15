@@ -103,7 +103,7 @@ export async function run(id: string): Promise<Generation> {
     const preset = getPreset(params.presetId);
     const fullPrompt = [gen.prompt, preset.promptSuffix].filter(Boolean).join(", ");
     const res = await generateVideo({
-      model, prompt: fullPrompt, ratio: params.ratio, resolution: params.resolution, durationSec: params.durationSec, seed: gen.id,
+      model, presetId: params.presetId, prompt: fullPrompt, ratio: params.ratio, resolution: params.resolution, durationSec: params.durationSec, seed: gen.id,
     });
     return await db.generation.update({
       where: { id },

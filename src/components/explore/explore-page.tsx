@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { PRESETS, getPreset } from "@/lib/catalog/presets";
 import { getModel } from "@/lib/catalog/models";
 import { PresetThumb } from "@/components/studio/preset-thumb";
+import { AutoVideo } from "@/components/studio/auto-video";
+import { FEATURE_CLIPS, GENJUTSU_CLIPS, PROJECT_CLIPS, clipUrl } from "@/lib/catalog/clips";
 import { Pill } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FeedGrid } from "./feed-grid";
@@ -11,10 +13,10 @@ import { FeedGrid } from "./feed-grid";
 export const dynamic = "force-dynamic";
 
 const FEATURES = [
-  { title: "Higgsfield Genjutsu", body: "One upload in. Endless new visions out.", href: "/ai/video?model=genjutsu", bg: "linear-gradient(135deg,#0b1f1a 0%,#0a0a0a 60%)", accent: "#4ade80", badge: "New model", preset: "world_morphing" },
-  { title: "Higgsfield Effects", body: "Viral video presets — 20 camera and VFX recipes, free to try.", href: "/effects", bg: "linear-gradient(135deg,#2a1230 0%,#0a0a0a 60%)", accent: "#f472b6", badge: "Free", preset: "burning_man" },
-  { title: "Soul Cinema", body: "Cinema-grade stills. Anamorphic, moody, ready for the grade.", href: "/ai/image?model=soul_cinema", bg: "linear-gradient(135deg,#2a1a0b 0%,#0a0a0a 60%)", accent: "#fbbf24", preset: "nightline" },
-  { title: "Nano Banana 2", body: "Pro quality at Flash speed. 1 credit per image.", href: "/ai/image?model=nano_banana_2", bg: "linear-gradient(135deg,#0b1a2a 0%,#0a0a0a 60%)", accent: "#60a5fa", badge: "Top", preset: "wild_ride" },
+  { title: "Higgsfield Genjutsu", body: "One upload in. Endless new visions out.", href: "/ai/video?model=genjutsu", bg: "linear-gradient(135deg,#0b1f1a 0%,#0a0a0a 60%)", accent: "#4ade80", badge: "New model", preset: "world_morphing", clip: FEATURE_CLIPS.genjutsu },
+  { title: "Higgsfield Effects", body: "Viral video presets — 20 camera and VFX recipes, free to try.", href: "/effects", bg: "linear-gradient(135deg,#2a1230 0%,#0a0a0a 60%)", accent: "#f472b6", badge: "Free", preset: "burning_man", clip: FEATURE_CLIPS.effects },
+  { title: "Soul Cinema", body: "Cinema-grade stills. Anamorphic, moody, ready for the grade.", href: "/ai/image?model=soul_cinema", bg: "linear-gradient(135deg,#2a1a0b 0%,#0a0a0a 60%)", accent: "#fbbf24", preset: "nightline", clip: FEATURE_CLIPS.soul_cinema },
+  { title: "Nano Banana 2", body: "Pro quality at Flash speed. 1 credit per image.", href: "/ai/image?model=nano_banana_2", bg: "linear-gradient(135deg,#0b1a2a 0%,#0a0a0a 60%)", accent: "#60a5fa", badge: "Top", preset: "wild_ride", clip: FEATURE_CLIPS.nano_banana },
 ];
 
 const TOOLS = [
@@ -43,7 +45,8 @@ export async function ExplorePage() {
         {FEATURES.map((f) => (
           <Link key={f.title} href={f.href} className="group w-[82vw] shrink-0 snap-start sm:w-[420px]">
             <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-white/8" style={{ background: f.bg }}>
-              <PresetThumb preset={getPreset(f.preset)} size="wide" className="absolute inset-0 opacity-70 transition-transform duration-700 group-hover:scale-105" />
+              <PresetThumb preset={getPreset(f.preset)} size="wide" className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
+              <AutoVideo src={clipUrl(f.clip.id)} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
               <div className="absolute inset-0 opacity-60" style={{ background: `radial-gradient(60% 60% at 80% 20%, ${f.accent}33, transparent 70%)` }} />
               <div className="absolute inset-x-5 top-1/2 -translate-y-1/2">
@@ -115,7 +118,7 @@ export async function ExplorePage() {
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {featuredPresets.slice(0, 10).map((p, i) => (
             <Link key={p.id} href={`/ai/video?preset=${p.id}`} className={cn("group relative overflow-hidden rounded-xl", i % 5 === 1 ? "aspect-[3/4]" : "aspect-[3/4]")}>
-              <PresetThumb preset={p} className="absolute inset-0 transition-transform duration-500 group-hover:scale-105" />
+              <PresetThumb preset={p} motion="auto" className="absolute inset-0 transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="display absolute bottom-3 left-3 text-[15px]">{p.name}</div>
             </Link>
@@ -139,6 +142,36 @@ export async function ExplorePage() {
               Learn more
             </Link>
           </div>
+        </div>
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {GENJUTSU_CLIPS.map((c) => (
+            <Link key={c.id} href="/ai/video?model=genjutsu" className="relative aspect-[4/5] overflow-hidden rounded-xl bg-bg-elev">
+              <AutoVideo src={clipUrl(c.id)} className="absolute inset-0" />
+              <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium backdrop-blur">{c.title}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Studio projects */}
+      <section className="mt-12">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="display text-3xl">Studio originals</h2>
+            <p className="mt-1 text-[13px] text-fg-2">Short pieces cut on this stack. Free-license footage, our grade.</p>
+          </div>
+        </div>
+        <div className="scrollbar-none -mx-3 mt-4 flex snap-x gap-3 overflow-x-auto px-3 sm:-mx-5 sm:px-5">
+          {PROJECT_CLIPS.map((p) => (
+            <Link key={p.clip.id} href="/ai/video" className="group w-[70vw] shrink-0 snap-start sm:w-[300px]">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-bg-elev">
+                <AutoVideo src={clipUrl(p.clip.id)} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
+                <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium backdrop-blur">Public</span>
+              </div>
+              <div className="display mt-2 text-[15px]">{p.title}</div>
+              <div className="text-[11px] text-fg-3">{p.blurb} · by Higgsfield Studio</div>
+            </Link>
+          ))}
         </div>
       </section>
 

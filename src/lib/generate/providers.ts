@@ -2,6 +2,7 @@ import "server-only";
 import { fal } from "@fal-ai/client";
 import type { ImageModel, VideoModel } from "../catalog/models";
 import { dimsFor } from "../utils";
+import { clipForPreset, clipUrl } from "../catalog/clips";
 
 export const hasFal = () => Boolean(process.env.FAL_KEY);
 export const realVideo = () => hasFal() && process.env.VIDEO_MODE === "real";
@@ -123,6 +124,7 @@ async function warm(url: string, timeoutMs: number, attempts: number) {
 
 export interface VideoRequest {
   model: VideoModel;
+  presetId?: string | null;
   prompt: string;
   ratio: string;
   resolution: string;
@@ -138,17 +140,8 @@ export interface VideoResult {
   simulated: boolean;
 }
 
-// CC-licensed sample clips (Blender Foundation / Google sample bucket).
-const SAMPLE_CLIPS = [
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-];
+// Free-license stock clips for General (no preset) simulated renders.
+const SAMPLE_CLIPS = [40640, 40733, 41160, 42039, 33896, 40367, 35230, 1367].map(clipUrl);
 
 export async function generateVideo(req: VideoRequest): Promise<VideoResult> {
   const { width, height } = dimsFor(req.ratio, req.resolution === "1080p" ? 1920 : 1280);
@@ -165,10 +158,11 @@ export async function generateVideo(req: VideoRequest): Promise<VideoResult> {
     return { url: data.video.url, width, height, simulated: false };
   }
 
-  // Simulated: a believable wait, then a sample clip picked by seed.
+  // Simulated: a believable wait, then the stock clip that matches the
+  // preset (or, for General, one picked by seed).
   await sleep(6000 + Math.random() * 6000);
-  const idx = hash(req.seed) % SAMPLE_CLIPS.length;
-  return { url: SAMPLE_CLIPS[idx], width, height, simulated: true };
+  const url = req.presetId && req.presetId !== "general" ? clipUrl(clipForPreset(req.presetId).id) : SAMPLE_CLIPS[hash(req.seed) % SAMPLE_CLIPS.length];
+  return { url, width, height, simulated: true };
 }
 
 function hash(s: string) {
