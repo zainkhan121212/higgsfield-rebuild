@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 // Keeps a shimmer behind an image until it has actually decoded — generation
@@ -9,10 +9,17 @@ export function LazyImg({ src, alt, className }: { src: string; alt: string; cla
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const failed = attempt >= 4;
+  const imgRef = useRef<HTMLImageElement>(null);
+  // Cached images can finish before hydration attaches onLoad.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth > 0) setReady(true);
+  }, [attempt]);
   return (
     <span className={cn("relative block h-full w-full", !ready && !failed && "shimmer")}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={imgRef}
         key={attempt}
         src={src}
         alt={alt}

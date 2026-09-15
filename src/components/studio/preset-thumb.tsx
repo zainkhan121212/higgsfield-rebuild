@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { presetThumbUrl, type Preset } from "@/lib/catalog/presets";
 import { clipForPreset, clipUrl } from "@/lib/catalog/clips";
 import { cn } from "@/lib/utils";
@@ -22,12 +22,19 @@ export function PresetThumb({
   const [a, b] = preset.gradient;
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const imgRef = useRef<HTMLImageElement>(null);
   const src = presetThumbUrl(preset, size);
+  // Cached images can finish before hydration attaches onLoad.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth > 0) setReady(true);
+  }, [attempt]);
   return (
     <div className={cn("relative overflow-hidden", className)} style={{ background: `radial-gradient(120% 80% at 30% 20%, ${a} 0%, ${b} 70%)` }}>
       {attempt < 4 && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          ref={imgRef}
           key={attempt}
           src={src}
           alt=""
