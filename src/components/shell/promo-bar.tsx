@@ -15,6 +15,9 @@ export function PromoBar() {
       setOpen(true);
     }
   }, []);
+  useEffect(() => {
+    document.documentElement.style.setProperty("--promo-h", open ? "36px" : "0px");
+  }, [open]);
   if (!open) return null;
   return (
     <div className="relative z-40 flex h-9 items-center justify-center gap-3 bg-lime px-4 text-[13px] font-medium text-black">

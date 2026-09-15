@@ -24,6 +24,9 @@
 
 :root {
   color-scheme: dark;
+  --promo-h: 0px;
+  --nav-h: 56px;
+  --studio-h: calc(100dvh - var(--nav-h) - var(--promo-h));
 }
 
 html,
