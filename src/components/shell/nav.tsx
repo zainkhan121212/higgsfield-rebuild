@@ -9,6 +9,7 @@ import { Pill } from "@/components/ui/button";
 import { AccountMenu } from "./account-menu";
 import { Logo } from "./logo";
 import { SearchButton } from "./search";
+import { AuthDialog } from "./auth-dialog";
 
 const PRIMARY = [
   { href: "/", label: "Explore", match: (p: string) => p === "/" },
@@ -82,17 +83,26 @@ export function Nav() {
           {user ? (
             <>
               <Link
-                href="/pricing"
+                href="/account"
                 className="flex h-8 items-center gap-1.5 rounded-full bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424] sm:px-3"
                 title="Credits"
               >
                 <Sparkles className="h-3.5 w-3.5 text-lime" />
                 {user.credits}
               </Link>
-              <button aria-label="Notifications" className="hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex">
-                <Bell className="h-4 w-4" />
-              </button>
-              <AccountMenu />
+              {user.email ? (
+                <>
+                  <button aria-label="Notifications" className="hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex">
+                    <Bell className="h-4 w-4" />
+                  </button>
+                  <AccountMenu />
+                </>
+              ) : (
+                <>
+                  <AuthDialog mode="login" trigger={<button className="h-8 rounded-full bg-black px-3 text-[13px] font-semibold text-fg ring-1 ring-line-2 hover:ring-fg-3">Login</button>} />
+                  <AuthDialog mode="signup" trigger={<button className="h-8 rounded-full bg-lime px-3 text-[13px] font-semibold text-black hover:bg-lime-2">Sign up</button>} />
+                </>
+              )}
             </>
           ) : (
             <>

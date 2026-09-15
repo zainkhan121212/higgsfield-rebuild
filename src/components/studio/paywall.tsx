@@ -27,7 +27,7 @@ export function Paywall({ open, onOpenChange, needed, have }: { open: boolean; o
                   <span className="text-xs font-normal text-fg-2"> /mo</span>
                 </div>
                 <Link
-                  href={`/pricing?plan=${p.id.toLowerCase()}`}
+                  href={`/checkout?plan=${p.id.toLowerCase()}`}
                   className={cn(
                     "mt-3 flex h-10 w-full items-center justify-center rounded-full text-sm font-semibold",
                     p.id === "PRO" ? "bg-lime text-black hover:bg-lime-2" : p.id === "MAX" ? "bg-pink text-white hover:brightness-110" : "bg-white text-black hover:bg-neutral-200",

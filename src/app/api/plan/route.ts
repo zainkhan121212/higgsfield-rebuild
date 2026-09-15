@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getOrCreateUser } from "@/lib/auth";
+import { getOrCreateUser, toSessionUser } from "@/lib/auth";
 import { getPlan } from "@/lib/catalog/plans";
 
 // Demo checkout: no payment provider. Picking a plan grants its monthly
@@ -16,5 +16,5 @@ export async function POST(req: Request) {
     await tx.creditEntry.create({ data: { userId: user.id, delta: grant, reason: `plan:${plan.id.toLowerCase()}` } });
     return u;
   });
-  return NextResponse.json({ user: { id: updated.id, name: updated.name, handle: updated.handle, plan: updated.plan, credits: updated.credits } });
+  return NextResponse.json({ user: toSessionUser(updated) });
 }

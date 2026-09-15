@@ -2,10 +2,11 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type SessionUser = { id: string; name: string; handle: string; plan: string; credits: number };
+export type SessionUser = { id: string; name: string; handle: string; email: string | null; plan: string; credits: number };
 
 type Ctx = {
   user: SessionUser | null;
+  setUser: (u: SessionUser | null) => void;
   setCredits: (n: number) => void;
   refresh: () => Promise<void>;
   ensure: () => Promise<SessionUser>;
@@ -47,6 +48,7 @@ export function SessionProvider({ initialUser, children }: { initialUser: Sessio
   const value = useMemo<Ctx>(
     () => ({
       user,
+      setUser,
       setCredits: (n) => setUser((u) => (u ? { ...u, credits: n } : u)),
       refresh,
       ensure,

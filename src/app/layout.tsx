@@ -4,7 +4,7 @@ import "./globals.css";
 import { Nav } from "@/components/shell/nav";
 import { PromoBar } from "@/components/shell/promo-bar";
 import { SessionProvider } from "@/components/shell/session";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, toSessionUser } from "@/lib/auth";
 import { Toaster } from "@/components/ui/toast";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${inter.variable} ${archivo.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <SessionProvider
-          initialUser={user ? { id: user.id, name: user.name, handle: user.handle, plan: user.plan, credits: user.credits } : null}
+          initialUser={user ? toSessionUser(user) : null}
         >
           <PromoBar />
           <Nav />

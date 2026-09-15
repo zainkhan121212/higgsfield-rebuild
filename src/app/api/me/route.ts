@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getOrCreateUser } from "@/lib/auth";
-
-const dto = (u: { id: string; name: string; handle: string; plan: string; credits: number }) => ({
-  id: u.id, name: u.name, handle: u.handle, plan: u.plan, credits: u.credits,
-});
+import { getOrCreateUser, toSessionUser as dto } from "@/lib/auth";
 
 export async function GET() {
   const user = await getOrCreateUser();

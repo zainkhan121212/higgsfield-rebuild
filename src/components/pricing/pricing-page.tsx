@@ -3,14 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
+import Link from "next/link";
 import { PLANS, type PlanDef } from "@/lib/catalog/plans";
+import { PACKS } from "@/lib/catalog/packs";
 import { useSession } from "@/components/shell/session";
-import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/ui/button";
 
 export function PricingPage() {
-  const { user, refresh } = useSession();
+  const { user } = useSession();
   const router = useRouter();
   const search = useSearchParams();
   const [annual, setAnnual] = useState(true);
@@ -24,15 +25,10 @@ export function PricingPage() {
     if (highlight) document.getElementById(`plan-${highlight}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [highlight]);
 
-  async function choose(plan: PlanDef) {
+  function choose(plan: PlanDef) {
     setBusy(plan.id);
     const credits = plan.id === "PRO" ? proCredits : plan.id === "MAX" ? maxCredits : plan.credits;
-    const res = await fetch("/api/plan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ plan: plan.id, credits }) });
-    setBusy(null);
-    if (!res.ok) return toast("Couldn't change plan", { tone: "error" });
-    await refresh();
-    toast(`You're on ${plan.name}`, { body: `${credits.toLocaleString()} credits added. Demo checkout — nothing was charged.`, tone: "success" });
-    router.push("/ai/image");
+    router.push(`/checkout?plan=${plan.id.toLowerCase()}&credits=${credits}&interval=${annual ? "annual" : "monthly"}`);
   }
 
   const wizardPlan = useMemo(() => (proCredits >= 900 ? "MAX" : "PRO"), [proCredits]);
@@ -44,7 +40,7 @@ export function PricingPage() {
         <Pill tone="pink">Extra discount</Pill>
         <h1 className="display mt-3 text-3xl text-pink sm:text-4xl">Nano Banana 2 &amp; Kling 3.0 unlimited</h1>
         <div className="display text-3xl sm:text-4xl">Every plan is 30% off this week</div>
-        <p className="mt-2 max-w-xl text-[13px] text-fg-2">Demo checkout: choosing a plan grants its credits instantly and nothing is charged. This is a rebuild, not a store.</p>
+        <p className="mt-2 max-w-xl text-[13px] text-fg-2">Checkout runs end to end — order review, card form, receipt — with a test card. Nothing is charged; credits land when the order completes.</p>
       </div>
 
       <div className="mt-12">
@@ -163,6 +159,24 @@ export function PricingPage() {
           })}
         </div>
       )}
+
+      <section className="mt-12">
+        <h2 className="text-2xl font-bold tracking-tight">Or just buy credits</h2>
+        <p className="mt-1 text-[13px] text-fg-2">One-off packs, no subscription. Same credits, same models.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {PACKS.map((p) => (
+            <Link key={p.id} href={`/checkout?pack=${p.id}`} className="rounded-2xl border border-line bg-card p-5 transition hover:border-fg-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[15px] font-semibold">{p.name}</div>
+                {p.perk && <Pill tone="lime">{p.perk}</Pill>}
+              </div>
+              <div className="mt-1 text-[12px] text-fg-3">{p.credits.toLocaleString()} credits</div>
+              <div className="mt-4 flex items-baseline gap-1"><span className="text-3xl font-bold">${p.price}</span><span className="text-[11px] text-fg-3">one-off</span></div>
+              <div className="mt-3 flex h-10 items-center justify-center rounded-full bg-white text-[13px] font-semibold text-black">Buy {p.credits} credits</div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <p className="mt-6 text-center text-[11px] text-fg-3">
         Prices exclude VAT and local taxes. Credits never expire on this instance. Free accounts start with 100 credits and can generate immediately — that is the one place this rebuild deliberately departs from the original.

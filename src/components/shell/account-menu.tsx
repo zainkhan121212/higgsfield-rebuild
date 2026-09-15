@@ -7,7 +7,7 @@ import { useSession } from "./session";
 import { useRouter } from "next/navigation";
 
 export function AccountMenu() {
-  const { user, refresh } = useSession();
+  const { user, refresh, setUser } = useSession();
   const router = useRouter();
   if (!user) return null;
   const pct = Math.min(100, Math.round((user.credits / 100) * 100));
@@ -22,6 +22,7 @@ export function AccountMenu() {
 
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
+    setUser(null);
     router.push("/");
     router.refresh();
   }
@@ -42,7 +43,7 @@ export function AccountMenu() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-lime to-[#6bd400] text-sm font-bold text-black">{initial}</div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{user.name}</div>
-              <div className="text-xs text-fg-2">{planLabel(user.plan)}</div>
+              <div className="truncate text-xs text-fg-2">{user.email ?? planLabel(user.plan)}</div>
             </div>
           </div>
           <div className="mx-1.5 mb-1 rounded-lg bg-bg-elev px-3 py-2.5">
@@ -73,7 +74,7 @@ export function AccountMenu() {
           >
             <UserIcon className="h-4 w-4" /> Change display name
           </DropdownMenu.Item>
-          <Item href="/pricing" icon={<Wallet className="h-4 w-4" />}>
+          <Item href="/account" icon={<Wallet className="h-4 w-4" />}>
             Manage account
           </Item>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />

@@ -22,10 +22,10 @@ Scroll the home page: feature cards, tool tiles, the Effects gallery (every tile
 ## 3:05 — Assets (25s)
 All / Favorites / by type, grid slider, create a folder, move a generation into it.
 
-## 3:30 — Credits & pricing (35s)
-Avatar → account popover (plan, credit bar). Generate until the paywall appears → "Upgrade plan to buy credits" modal, same shape as the original's. Pricing page: monthly/annual, credit sliders, plan wizard. Choose Pro → credits land instantly (demo checkout, nothing charged).
+## 3:30 — Accounts, credits & checkout (45s)
+Nav shows Login / Sign up while you're a guest. Sign up (email + password) → the guest's credits and generations carry over, avatar appears. Pricing page: monthly/annual, credit sliders, one-off packs, plan wizard. Choose Pro → checkout: order review → card form (test card 4242…) → processing → receipt with order number; balance updates live in the nav. Account page shows plan, balance, transactions.
 
-## 4:05 — What was left out & how it was built (45s)
+## 4:15 — What was left out & how it was built (45s)
 - Left out on purpose: Audio, Edit/Layers, Motion Control, Canvas, MCP, Marketing Studio, Academy, Community, Enterprise, real payments.
 - Stack: Next.js 16, Prisma + Supabase Postgres, Vercel (Sydney, next to the DB), Pollinations FLUX for images.
 - Repo: recon notes, plan with the hour-by-hour calls, `CAPTURE-TEST.md`, `.agent-logs/` committed with every step.
