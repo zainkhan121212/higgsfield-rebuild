@@ -27,8 +27,12 @@ export function ModelPicker({
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 0);
-    else setQ("");
   }, [open]);
+
+  function setOpenAndReset(o: boolean) {
+    setOpen(o);
+    if (!o) setQ("");
+  }
 
   // ⌘K / Ctrl+K opens the picker.
   useEffect(() => {
@@ -50,7 +54,7 @@ export function ModelPicker({
   const rest = filtered.filter((m) => !m.featured);
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
+    <Popover.Root open={open} onOpenChange={setOpenAndReset}>
       <Popover.Trigger asChild>
         {variant === "chip" ? (
           <button className={cn("flex h-9 items-center gap-2 rounded-lg bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424]", className)}>

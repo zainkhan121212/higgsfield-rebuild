@@ -24,8 +24,17 @@ export function SessionProvider({ initialUser, children }: { initialUser: Sessio
   // Guests are created lazily on first API call; make sure the nav shows a
   // balance as soon as the page is interactive.
   useEffect(() => {
-    if (!user) refresh();
-  }, [user, refresh]);
+    if (user) return;
+    let cancelled = false;
+    fetch("/api/me", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d) setUser(d.user);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const ensure = useCallback(async () => {
     if (user) return user;

@@ -15,8 +15,8 @@ export function AccountMenu() {
 
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
+    router.push("/");
     router.refresh();
-    location.href = "/";
   }
 
   return (

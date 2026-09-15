@@ -9,11 +9,13 @@ const KEY = "hf_promo_dismissed";
 export function PromoBar() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
+    let dismissed = false;
     try {
-      setOpen(localStorage.getItem(KEY) !== "1");
-    } catch {
-      setOpen(true);
-    }
+      dismissed = localStorage.getItem(KEY) === "1";
+    } catch {}
+    // Deferred so the first paint matches the server (no promo), then it slides in.
+    const t = setTimeout(() => setOpen(!dismissed), 0);
+    return () => clearTimeout(t);
   }, []);
   useEffect(() => {
     document.documentElement.style.setProperty("--promo-h", open ? "36px" : "0px");
