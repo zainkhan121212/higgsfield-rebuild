@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Sparkles, Tag } from "lucide-react";
+import { Bell, Building2, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "./session";
 import { Pill } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { AccountMenu } from "./account-menu";
 import { Logo } from "./logo";
 import { SearchButton } from "./search";
 import { AuthDialog } from "./auth-dialog";
+import { NAV_PAGES } from "@/lib/catalog/pages";
 
 const PRIMARY = [
   { href: "/", label: "Explore", match: (p: string) => p === "/" },
@@ -18,13 +19,13 @@ const PRIMARY = [
   { href: "/asset/all", label: "Assets", match: (p: string) => p.startsWith("/asset") },
 ];
 
-const SECONDARY: { href: string; label: string; badge?: "New" | "Free" }[] = [
-  { href: "/ai/video?model=genjutsu", label: "Genjutsu", badge: "New" },
-  { href: "/effects", label: "Effects", badge: "Free" },
-  { href: "/ai/video?model=kling_3", label: "Kling 3.0" },
-  { href: "/ai/image?model=soul_cinema", label: "Soul Cinema" },
-  { href: "/ai/image?model=nano_banana_2", label: "Nano Banana 2" },
-];
+const SECONDARY: { href: string; label: string; badge?: "New" | "Free" }[] = NAV_PAGES.map((p) => ({
+  href: `/${p.slug}`,
+  label: p.nav,
+  badge: p.slug === "effects" ? "Free" : p.badge,
+}));
+// Effects lives at its own route between Genjutsu and Cinema Studio, like the original.
+SECONDARY.splice(3, 0, { href: "/effects", label: "Effects", badge: "New" });
 
 export function Nav() {
   const pathname = usePathname();
@@ -56,7 +57,11 @@ export function Nav() {
 
         <nav className="scrollbar-none hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
           {SECONDARY.map((item) => (
-            <Link key={item.label} href={item.href} className="flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-fg-2 hover:text-fg">
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn("flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium hover:text-fg", pathname === item.href ? "text-lime" : "text-fg-2")}
+            >
               {item.label}
               {item.badge && <Pill tone={item.badge === "Free" ? "lime" : "gray"}>{item.badge}</Pill>}
             </Link>
@@ -78,6 +83,10 @@ export function Nav() {
             <Pill tone="pink" className="ml-0.5">
               -30%
             </Pill>
+          </Link>
+
+          <Link href="/enterprise" className={cn("hidden h-8 items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-fg-2 hover:text-fg xl:flex", pathname === "/enterprise" && "text-lime")}>
+            <Building2 className="h-3.5 w-3.5" /> Enterprise
           </Link>
 
           {user ? (
