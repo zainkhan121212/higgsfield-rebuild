@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, FolderOpen, Search, Sparkles, Tag } from "lucide-react";
+import { Bell, FolderOpen, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "./session";
 import { Pill } from "@/components/ui/button";
 import { AccountMenu } from "./account-menu";
 import { Logo } from "./logo";
+import { SearchButton } from "./search";
 
 const PRIMARY = [
   { href: "/", label: "Explore", match: (p: string) => p === "/" },
@@ -62,9 +63,7 @@ export function Nav() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <button aria-label="Search" className="hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex">
-            <Search className="h-4 w-4" />
-          </button>
+          <SearchButton className="hidden sm:flex" />
 
           <Link
             href="/pricing"

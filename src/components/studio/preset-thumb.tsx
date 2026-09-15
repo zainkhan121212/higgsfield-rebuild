@@ -1,23 +1,31 @@
-import type { Preset } from "@/lib/catalog/presets";
+"use client";
+
+import { useState } from "react";
+import { presetThumbUrl, type Preset } from "@/lib/catalog/presets";
 import { cn } from "@/lib/utils";
 
-// Gradient tile with a subtle grain, standing in for a preset's sample clip.
-export function PresetThumb({ preset, className }: { preset: Preset; className?: string }) {
+// Sample frame for a preset: a generated still on top of a gradient tile, so
+// the tile looks right before (or without) the image.
+export function PresetThumb({ preset, className, size = "card" }: { preset: Preset; className?: string; size?: "card" | "wide" }) {
   const [a, b] = preset.gradient;
+  const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const src = presetThumbUrl(preset, size);
   return (
-    <div
-      className={cn("overflow-hidden", className)}
-      style={{
-        background: `radial-gradient(120% 80% at 30% 20%, ${a} 0%, ${b} 70%)`,
-      }}
-    >
-      <div
-        className="h-full w-full opacity-40 mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")",
-        }}
-      />
+    <div className={cn("overflow-hidden", className)} style={{ background: `radial-gradient(120% 80% at 30% 20%, ${a} 0%, ${b} 70%)` }}>
+      {attempt < 4 && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={attempt}
+          src={src}
+          alt=""
+          loading="lazy"
+          onLoad={() => setReady(true)}
+          // The keyless CDN rate-limits bursts; back off and retry the same URL.
+          onError={() => setTimeout(() => setAttempt((n) => n + 1), 3000 * (attempt + 1))}
+          className={cn("h-full w-full object-cover transition-opacity duration-700", ready ? "opacity-100" : "opacity-0")}
+        />
+      )}
     </div>
   );
 }

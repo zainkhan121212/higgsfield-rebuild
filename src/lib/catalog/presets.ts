@@ -42,6 +42,32 @@ export const PRESETS: Preset[] = [
   { id: "crash_zoom", name: "Crash Zoom", category: "camera", description: "Aggressive snap zoom.", promptSuffix: "aggressive crash zoom into the subject's face, handheld energy", models: [], gradient: G("#3a1f1f", "#110707") },
 ];
 
+/** Deterministic sample-frame URL for a preset (keyless FLUX endpoint; cached on their CDN after first hit). */
+export function presetThumbUrl(p: Preset, size: "card" | "wide" = "card"): string {
+  const subject = PRESET_SUBJECTS[hashStr(p.id) % PRESET_SUBJECTS.length];
+  const prompt = p.id === "general"
+    ? `${subject}, cinematic film still, natural light, 35mm, shallow depth of field`
+    : `${subject}, ${p.promptSuffix}, cinematic film still, high detail`;
+  const [w, h] = size === "wide" ? [1024, 576] : [768, 1024];
+  const q = new URLSearchParams({ width: String(w), height: String(h), seed: String(hashStr(p.id + size) % 100000), model: "flux", nologo: "true", safe: "true", enhance: "false" });
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${q.toString()}`;
+}
+
+const PRESET_SUBJECTS = [
+  "a young woman in a red trench coat on a rainy city street at night",
+  "a man in a black leather jacket standing in an empty parking garage",
+  "a skateboarder in a white hoodie on a rooftop at golden hour",
+  "a dancer in a flowing yellow dress in a concrete plaza",
+  "a boxer wrapped in hand tape in a dim gym",
+  "a model in an oversized wool coat in a brutalist courtyard",
+];
+
+function hashStr(s: string) {
+  let h = 7;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
 export function getPreset(id?: string | null): Preset {
   return PRESETS.find((p) => p.id === id) ?? PRESETS[0];
 }

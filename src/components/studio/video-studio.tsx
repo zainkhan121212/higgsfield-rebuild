@@ -273,9 +273,9 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
 
 function HowItWorks({ onStart, onPreset }: { onStart: () => void; onPreset: () => void }) {
   const steps = [
-    { title: "Add image", body: "Upload or generate an image to start your animation", bg: "linear-gradient(160deg,#243b2b,#0a120d)" },
-    { title: "Choose preset", body: "Pick a preset to control your image movement", bg: "linear-gradient(160deg,#1f2a4a,#080b14)" },
-    { title: "Get video", body: "Click generate to create your final animated video", bg: "linear-gradient(160deg,#3a1f2d,#140810)" },
+    { title: "Add image", body: "Upload or generate an image to start your animation", preset: "act_natural" },
+    { title: "Choose preset", body: "Pick a preset to control your image movement", preset: "lacewalker" },
+    { title: "Get video", body: "Click generate to create your final animated video", preset: "wild_ride" },
   ];
   return (
     <div className="mx-auto max-w-4xl px-2 py-8 sm:py-14">
@@ -284,7 +284,7 @@ function HowItWorks({ onStart, onPreset }: { onStart: () => void; onPreset: () =
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {steps.map((s, i) => (
           <button key={s.title} onClick={i === 1 ? onPreset : onStart} className="group text-left">
-            <div className="aspect-[4/3] w-full rounded-xl border border-white/8 transition group-hover:border-lime/50" style={{ background: s.bg }} />
+            <PresetThumb preset={getPreset(s.preset)} size="wide" className="aspect-[4/3] w-full rounded-xl border border-white/8 transition group-hover:border-lime/50" />
             <div className="display mt-3 text-lg">{s.title}</div>
             <div className="text-[13px] text-fg-2">{s.body}</div>
           </button>

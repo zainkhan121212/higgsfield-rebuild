@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Film, ImageIcon, Sparkles, Wand2, Zap, Layers, Bot } from "lucide-react";
 import { db } from "@/lib/db";
-import { PRESETS } from "@/lib/catalog/presets";
+import { PRESETS, getPreset } from "@/lib/catalog/presets";
 import { getModel } from "@/lib/catalog/models";
 import { PresetThumb } from "@/components/studio/preset-thumb";
 import { Pill } from "@/components/ui/button";
@@ -11,10 +11,10 @@ import { FeedGrid } from "./feed-grid";
 export const dynamic = "force-dynamic";
 
 const FEATURES = [
-  { title: "Higgsfield Genjutsu", body: "One upload in. Endless new visions out.", href: "/ai/video?model=genjutsu", bg: "linear-gradient(135deg,#0b1f1a 0%,#0a0a0a 60%)", accent: "#4ade80", badge: "New model" },
-  { title: "Higgsfield Effects", body: "Viral video presets — 20 camera and VFX recipes, free to try.", href: "/effects", bg: "linear-gradient(135deg,#2a1230 0%,#0a0a0a 60%)", accent: "#f472b6", badge: "Free" },
-  { title: "Soul Cinema", body: "Cinema-grade stills. Anamorphic, moody, ready for the grade.", href: "/ai/image?model=soul_cinema", bg: "linear-gradient(135deg,#2a1a0b 0%,#0a0a0a 60%)", accent: "#fbbf24" },
-  { title: "Nano Banana 2", body: "Pro quality at Flash speed. 1 credit per image.", href: "/ai/image?model=nano_banana_2", bg: "linear-gradient(135deg,#0b1a2a 0%,#0a0a0a 60%)", accent: "#60a5fa", badge: "Top" },
+  { title: "Higgsfield Genjutsu", body: "One upload in. Endless new visions out.", href: "/ai/video?model=genjutsu", bg: "linear-gradient(135deg,#0b1f1a 0%,#0a0a0a 60%)", accent: "#4ade80", badge: "New model", preset: "world_morphing" },
+  { title: "Higgsfield Effects", body: "Viral video presets — 20 camera and VFX recipes, free to try.", href: "/effects", bg: "linear-gradient(135deg,#2a1230 0%,#0a0a0a 60%)", accent: "#f472b6", badge: "Free", preset: "burning_man" },
+  { title: "Soul Cinema", body: "Cinema-grade stills. Anamorphic, moody, ready for the grade.", href: "/ai/image?model=soul_cinema", bg: "linear-gradient(135deg,#2a1a0b 0%,#0a0a0a 60%)", accent: "#fbbf24", preset: "nightline" },
+  { title: "Nano Banana 2", body: "Pro quality at Flash speed. 1 credit per image.", href: "/ai/image?model=nano_banana_2", bg: "linear-gradient(135deg,#0b1a2a 0%,#0a0a0a 60%)", accent: "#60a5fa", badge: "Top", preset: "wild_ride" },
 ];
 
 const TOOLS = [
@@ -43,6 +43,8 @@ export async function ExplorePage() {
         {FEATURES.map((f) => (
           <Link key={f.title} href={f.href} className="group w-[82vw] shrink-0 snap-start sm:w-[420px]">
             <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-white/8" style={{ background: f.bg }}>
+              <PresetThumb preset={getPreset(f.preset)} size="wide" className="absolute inset-0 opacity-70 transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
               <div className="absolute inset-0 opacity-60" style={{ background: `radial-gradient(60% 60% at 80% 20%, ${f.accent}33, transparent 70%)` }} />
               <div className="absolute inset-x-5 top-1/2 -translate-y-1/2">
                 <div className="display text-3xl leading-none" style={{ color: f.accent }}>
