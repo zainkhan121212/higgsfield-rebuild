@@ -1,0 +1,4 @@
+{
+  "enabled": false,
+  "note": "Placeholder. Run the hf-media generator to fill this file with Higgsfield's landing-page media URLs (hotlinked, review-only). When enabled is false the landing page uses generated stills and free-license footage."
+}
