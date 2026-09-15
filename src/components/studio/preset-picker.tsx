@@ -74,7 +74,7 @@ export function PresetPicker({
                   onClick={() => onPick(p, VIDEO_MODELS.find((m) => m.id === tabModel))}
                   className={cn("group relative aspect-[3/4] overflow-hidden rounded-xl border text-left transition", selected ? "border-lime" : "border-transparent hover:border-line-2")}
                 >
-                  <PresetThumb preset={p} motion="hover" className="absolute inset-0" />
+                  <PresetThumb preset={p} motion="auto" className="absolute inset-0" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
                     <div className="display text-[15px] leading-tight">{p.name}</div>

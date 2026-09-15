@@ -147,7 +147,7 @@ export async function ExplorePage() {
       <div className="scrollbar-none -mx-3 mt-4 flex snap-x gap-3 overflow-x-auto px-3 sm:-mx-5 sm:px-5">
         {L.projects.map((p) => (
           <Link key={p.slug} href="/ai/video" className="group w-[70vw] shrink-0 snap-start sm:w-[286px]">
-            <MediaTile poster={p.poster} video={p.video} hls={p.hls} play="hover" className="aspect-[16/9] rounded-xl" />
+            <MediaTile poster={p.poster} video={p.video} hls={p.hls} play="auto" className="aspect-[16/9] rounded-xl" />
             <div className="mt-2 flex items-center gap-2">
               <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-medium text-fg-2">Public</span>
               <div className="min-w-0">
@@ -322,7 +322,7 @@ function CommunityRow({ row, cols }: { row: Row; cols: number }) {
       <div className={cn("mt-4 grid gap-2", cols >= 6 ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6" : cols === 5 ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" : "grid-cols-2 lg:grid-cols-4")}>
         {row.items.slice(0, cols * 2).map((it, i) => (
           <Link key={i} href={row.href} className="group relative overflow-hidden rounded-xl" style={{ aspectRatio: row.ratio }}>
-            <MediaTile poster={it.poster} video={it.video} play="hover" className="absolute inset-0" />
+            <MediaTile poster={it.poster} video={it.video} play="auto" className="absolute inset-0" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/80 to-transparent p-2 text-[11px] opacity-0 transition group-hover:opacity-100">
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-lime text-[9px] font-bold text-black">{it.author.slice(0, 1).toUpperCase()}</span>
               <span className="truncate">@{it.author}</span>
