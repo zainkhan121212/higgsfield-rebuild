@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Film } from "lucide-react";
+import { LazyImg } from "@/components/studio/lazy-img";
 
 export type FeedItem = {
   id: string;
@@ -30,8 +31,9 @@ export function FeedGrid({ items }: { items: FeedItem[] }) {
           {it.kind === "video" ? (
             <video src={it.url} muted loop playsInline autoPlay preload="metadata" className="w-full" style={{ aspectRatio: it.width && it.height ? `${it.width}/${it.height}` : "16/9" }} />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={it.url} alt={it.prompt} loading="lazy" className="w-full transition-transform duration-500 group-hover:scale-[1.03]" style={{ aspectRatio: it.width && it.height ? `${it.width}/${it.height}` : "1/1" }} />
+            <div className="w-full" style={{ aspectRatio: it.width && it.height ? `${it.width}/${it.height}` : "1/1" }}>
+              <LazyImg src={it.url} alt={it.prompt} className="transition-transform duration-500 group-hover:scale-[1.03]" />
+            </div>
           )}
           <div className="absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/90 to-transparent p-3 opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
             <p className="line-clamp-2 text-[12px] leading-snug">{it.prompt}</p>

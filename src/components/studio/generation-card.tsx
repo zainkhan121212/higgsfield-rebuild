@@ -8,6 +8,7 @@ import { getPreset } from "@/lib/catalog/presets";
 import { cn, timeAgo } from "@/lib/utils";
 import { toast } from "@/components/ui/toast";
 import { Lightbox } from "./lightbox";
+import { LazyImg } from "./lazy-img";
 
 export function GenerationCard({
   g,
@@ -109,8 +110,7 @@ export function GenerationCard({
         <div className={cn("grid gap-2", g.outputs.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
           {g.outputs.map((url, i) => (
             <button key={url} onClick={() => setLightbox(i)} className="group relative overflow-hidden rounded-lg bg-bg-elev" style={{ aspectRatio: ratio, maxHeight: 480 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={g.prompt} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" loading="lazy" />
+              <LazyImg src={url} alt={g.prompt} className="transition-transform duration-300 group-hover:scale-[1.02]" />
               <span className="absolute right-2 top-2 rounded-md bg-black/60 p-1.5 opacity-0 transition-opacity group-hover:opacity-100">
                 <Maximize2 className="h-3.5 w-3.5" />
               </span>

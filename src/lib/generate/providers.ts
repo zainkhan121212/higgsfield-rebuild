@@ -62,13 +62,63 @@ export async function generateImage(req: ImageRequest): Promise<ImageResult> {
     };
   }
 
-  // Simulated: deterministic placeholder photos so the UI has something real
-  // to lay out. Delay mimics a real queue.
+  // No fal key: Pollinations is a keyless FLUX endpoint. The image is really
+  // generated from the prompt; we fetch it server-side so the job only
+  // completes once the CDN has it (subsequent loads are instant).
+  if (process.env.IMAGE_MODE !== "placeholder") {
+    const styled = backend.type === "fal" && backend.styleSuffix ? `${req.prompt}, ${backend.styleSuffix}` : req.prompt;
+    const urls = Array.from({ length: req.batch }, (_, i) => pollinationsUrl(styled, width, height, hash(`${req.seed}-${i}`)));
+    // The keyless tier rate-limits concurrent requests, so warm sequentially
+    // within a time budget; whatever is left renders lazily in the browser.
+    const deadline = Date.now() + 45_000;
+    for (const [i, u] of urls.entries()) {
+      const left = deadline - Date.now();
+      if (left < 3_000) break;
+      await warm(u, Math.min(left, 30_000), i === 0 ? 3 : 1);
+    }
+    return { urls, width, height, simulated: false };
+  }
+
+  // Placeholder photos so the UI has something to lay out.
   await sleep(1500 + Math.random() * 2000);
   const urls = Array.from({ length: req.batch }, (_, i) =>
     `https://picsum.photos/seed/${req.seed}-${i}/${width}/${height}`,
   );
   return { urls, width, height, simulated: true };
+}
+
+function pollinationsUrl(prompt: string, width: number, height: number, seed: number) {
+  // Pollinations caps at ~1MP per side comfortably; keep it snappy.
+  const scale = Math.min(1, 1024 / Math.max(width, height));
+  const w = Math.round((width * scale) / 8) * 8;
+  const h = Math.round((height * scale) / 8) * 8;
+  const q = new URLSearchParams({ width: String(w), height: String(h), seed: String(seed % 1_000_000), model: "flux", nologo: "true", safe: "true", enhance: "false" });
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 600))}?${q.toString()}`;
+}
+
+async function warm(url: string, timeoutMs: number, attempts: number) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
+      if (res.status === 429 || res.status >= 500) {
+        if (attempt === attempts) throw new Error(`Image backend is busy (${res.status}). Try again in a moment.`);
+        await sleep(4_000 * attempt);
+        continue;
+      }
+      if (!res.ok) throw new Error(`Image backend returned ${res.status}`);
+      await res.arrayBuffer();
+      return;
+    } catch (err) {
+      // A timeout just means the browser will wait for the CDN instead.
+      if (err instanceof Error && err.name === "AbortError") return;
+      if (attempt === attempts) throw err;
+      await sleep(4_000 * attempt);
+    } finally {
+      clearTimeout(t);
+    }
+  }
 }
 
 export interface VideoRequest {
