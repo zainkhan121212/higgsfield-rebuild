@@ -66,9 +66,13 @@ Left sidebar: search · All Assets (0) · Favorites (0) · **Tools**: Image (0) 
 - "Find the best plan for you" wizard: 1) What are you here to make (Social media videos, Talking-avatar, UGC & product ads, Marketing product photos, Cinematic, Personal) 2) How many content items per month (≈14 credits per Kling 3.0 8s 720p, ≈2 per Nano Banana Pro) → recommends a plan.
 - Footnotes: unlimited models only on higgsfield.ai, prices exclude VAT.
 
-## Auth
+## Auth, account menu, free tier (verified logged in on Chrome)
 
-Login / Sign up open a modal (Google + email). Free accounts get a small credit balance; the Generate button always shows the cost.
+- Login / Sign up open a modal (Google + email).
+- Avatar → account popover: username (`discoveringbagel1583`) + "Free Plan" · **Credits ⓘ — 10 left ›** with a dotted lime progress bar · "Go Premium" row with lime `Upgrade` pill · View profile · Manage Account · Affiliate program `New` · Join Community · Language (English ▾) · Sign Out.
+- **The free plan cannot generate.** Pressing Generate on Nano Banana opens a full-screen "UNLOCK NANO BANANA — Get access to Nano Banana generations with a Starter or higher-tier plan" modal; on Higgsfield Soul (cost ✦1, with "10 credits left") it opens "UPGRADE PLAN TO BUY CREDITS — Choose a higher plan for increased limits and credits top-up". Both modals: personal promo code banner, 54% OFF + countdown, Monthly/Annual toggle, Basic $9 / Pro ~~$29~~ $20 / Max ~~$79~~ $45 / For Teams from $45 cards.
+- Soul model prompt bar differs from GPT Image: chips `3:4` · `♡ 1.5k` (quality) · `On` (enhance) · `− 4/4 +`, plus a **Character** slot (+) and a **preset card** (GENERAL, ✎ Change) before the Generate button.
+- So the "generating → result" state was still not observable on a free account without paying. The clone will give free accounts real usable credits — that is one of the "better than the original" calls.
 
 ## What I could NOT capture
 
