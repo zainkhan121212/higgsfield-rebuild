@@ -57,3 +57,12 @@ Preset      (static catalog in code: id, modelId, name, thumb, promptSuffix)
 - 14:00–16:00 explore page seeded from real output, pricing
 - 16:00–17:00 deploy, polish, mobile pass
 - then: walkthrough video, submit
+
+## What actually happened (updated 10:30 UTC)
+
+- **Images are real, without fal.** fal billing couldn't be set up, so images run on Pollinations' keyless FLUX endpoint instead. The prompt genuinely drives the picture; every Higgsfield image model maps to it with a per-model style suffix. Rate limits (429 on bursts) are handled with sequential warming + retries, and credits are refunded on failure. `FAL_KEY` still switches to fal if set.
+- **Videos are simulated** (labelled in the picker and on every card): the job pipeline is identical, the output is a CC sample clip. No free text-to-video API exists that fits in a 24h budget.
+- **Free tier is the "better than the original" call.** Higgsfield's free plan shows "10 credits" but every Generate press opens a paywall. Here a guest gets 100 credits and can generate in the first 10 seconds.
+- **Auth is guest-first.** No password/OAuth: cookie → user row. "Sign in" is naming your account. A judge on a fresh browser gets a working account with no setup.
+- **Shipped:** Explore (feature cards, tool tiles, effects gallery, public feed), Image studio, Video studio (presets, references, settings), Assets (filters, favorites, folders), Effects, Pricing (demo checkout that grants credits), share pages, search palette (`/`), keyboard shortcuts (`⌘Enter`, `⌘K`).
+- **Left out:** Audio, Edit/Layers, Motion Control, Canvas, MCP, Marketing Studio, Academy, Community, Contests, Enterprise, Business plans, real payments, uploads as generation inputs.

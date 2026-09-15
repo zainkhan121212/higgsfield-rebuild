@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, FolderOpen, Sparkles, Tag } from "lucide-react";
+import { Bell, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "./session";
 import { Pill } from "@/components/ui/button";
@@ -42,7 +42,7 @@ export function Nav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                "rounded-md px-1.5 py-1.5 text-[13px] font-medium transition-colors sm:px-2.5",
                 item.match(pathname) ? "text-lime" : "text-fg-2 hover:text-fg",
               )}
             >
@@ -68,7 +68,7 @@ export function Nav() {
           <Link
             href="/pricing"
             className={cn(
-              "flex h-8 items-center gap-1.5 rounded-full border border-line-2 px-3 text-[13px] font-medium hover:border-fg-3",
+              "hidden h-8 items-center gap-1.5 rounded-full border border-line-2 px-3 text-[13px] font-medium hover:border-fg-3 sm:flex",
               pathname === "/pricing" && "border-lime text-lime",
             )}
           >
@@ -83,14 +83,11 @@ export function Nav() {
             <>
               <Link
                 href="/pricing"
-                className="hidden h-8 items-center gap-1.5 rounded-full bg-card-2 px-3 text-[13px] font-semibold hover:bg-[#242424] sm:flex"
+                className="flex h-8 items-center gap-1.5 rounded-full bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424] sm:px-3"
                 title="Credits"
               >
                 <Sparkles className="h-3.5 w-3.5 text-lime" />
                 {user.credits}
-              </Link>
-              <Link href="/asset/all" aria-label="Assets" className="flex h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:hidden">
-                <FolderOpen className="h-4 w-4" />
               </Link>
               <button aria-label="Notifications" className="hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex">
                 <Bell className="h-4 w-4" />

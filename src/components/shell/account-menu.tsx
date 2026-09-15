@@ -7,11 +7,18 @@ import { useSession } from "./session";
 import { useRouter } from "next/navigation";
 
 export function AccountMenu() {
-  const { user } = useSession();
+  const { user, refresh } = useSession();
   const router = useRouter();
   if (!user) return null;
   const pct = Math.min(100, Math.round((user.credits / 100) * 100));
   const initial = user.name.slice(0, 1).toUpperCase();
+
+  async function rename() {
+    const name = window.prompt("Display name (shown on your public generations)", user?.name ?? "");
+    if (!name?.trim()) return;
+    const res = await fetch("/api/me", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) });
+    if (res.ok) await refresh();
+  }
 
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
@@ -60,9 +67,12 @@ export function AccountMenu() {
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
-          <Item href="/asset/all" icon={<UserIcon className="h-4 w-4" />}>
-            View profile
-          </Item>
+          <DropdownMenu.Item
+            onSelect={rename}
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-white/6 data-[highlighted]:bg-white/6"
+          >
+            <UserIcon className="h-4 w-4" /> Change display name
+          </DropdownMenu.Item>
           <Item href="/pricing" icon={<Wallet className="h-4 w-4" />}>
             Manage account
           </Item>
