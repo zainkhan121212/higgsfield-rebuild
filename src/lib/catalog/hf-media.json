@@ -1,4 +1,897 @@
 {
-  "enabled": false,
-  "note": "Placeholder. Run the hf-media generator to fill this file with Higgsfield's landing-page media URLs (hotlinked, review-only). When enabled is false the landing page uses generated stills and free-license footage."
+    "enabled": true,
+    "feature": [
+        {
+            "title": "Higgsfield AI Motion Designer",
+            "body": "ChatGPT can now do motion design in After Effects.",
+            "href": "/ai/video",
+            "poster": "https://cdn.higgsfield.ai/card/a8d8030f-9cc9-47ad-a266-e0d3708d2126.webp",
+            "video": "https://cdn.higgsfield.ai/card/8b8270cd-dc63-4a34-88e7-3277536987fb.mp4"
+        },
+        {
+            "title": "Higgsfield Effects",
+            "body": "Viral video presets now in ChatGPT, with free generations",
+            "href": "/effects",
+            "poster": "https://cdn.higgsfield.ai/card/5fba4d2a-1023-4bd1-9d7a-e2faaf8a21d1.webp",
+            "video": "https://cdn.higgsfield.ai/card/31293efb-7438-41c9-84cc-8bc820ce39b6.mp4"
+        },
+        {
+            "title": "Higgsfield Genjutsu",
+            "body": "One upload in. Endless new visions out.",
+            "href": "/ai/video?model=genjutsu",
+            "poster": "https://cdn.higgsfield.ai/card/9c6affe8-03a8-4434-97ef-2fc476f7a71e.webp",
+            "video": "https://cdn.higgsfield.ai/card/16eebc9a-8310-4f68-8a02-1e2e6f109169.mp4"
+        },
+        {
+            "title": "GPT Image 2.5 Sunburst",
+            "body": "Sharper edits with more natural light and texture",
+            "href": "/ai/image?model=gpt_image_2_5_sunburst",
+            "poster": "https://cdn.higgsfield.ai/card/f11a402b-0e0e-43cc-90e5-f6cc39352123.webp",
+            "video": "https://cdn.higgsfield.ai/card/4da5ce4e-8483-4471-9564-0907b394d3e0.mp4"
+        },
+        {
+            "title": "Higgsfield \u00d7 GPT-6 Astra",
+            "body": "Turn a single prompt into a playable 3D game. Story, mechanics, and every asset included",
+            "href": "/ai/video",
+            "poster": "https://cdn.higgsfield.ai/card/25341b90-c34e-4cc3-97d8-fa45c693f5b5.webp",
+            "video": "https://cdn.higgsfield.ai/card/f155252f-83ad-46c3-b484-728f6292e00d.mp4"
+        }
+    ],
+    "promo": {
+        "poster": "https://static.higgsfield.ai/public/promotions/seedance-2-5-sale-hero-poster.jpg",
+        "video": "https://static.higgsfield.ai/promotions/seedance_2_5_explore_image.mp4",
+        "icons": {
+            "seedance": "https://static.higgsfield.ai/explore/image-generate-block/seedance-logo.png",
+            "claude": "https://static.higgsfield.ai/explore/image-generate-block/claude-logo.png",
+            "cinema": "https://static.higgsfield.ai/explore/image-generate-block/cinema-studio.png",
+            "supercomputer": "https://static.higgsfield.ai/explore/image-generate-block/supercomputer-card-icon.svg"
+        }
+    },
+    "effects": [
+        {
+            "id": "cutout",
+            "name": "Cutout",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/b5c90864-c3c5-4b14-87a0-3739250fd00b.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/a64711ac-93b8-46ee-a9ce-37ee5c18e148.mp4"
+        },
+        {
+            "id": "act_natural",
+            "name": "Act Natural",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/17cc1333-9822-442c-adaa-d208c59e3e01.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/7a261cff-8d6c-4bab-84e7-515364061f3e.mp4"
+        },
+        {
+            "id": "burning_man",
+            "name": "Burning Man",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/a1560137-597c-455a-be9e-9622cccf76a3.webp",
+            "video": ""
+        },
+        {
+            "id": "melting",
+            "name": "Melting",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/6ecca888-1780-46ae-a86d-a05b69b2fe34.webp",
+            "video": ""
+        },
+        {
+            "id": "world_morphing",
+            "name": "World Morphing",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/0abb112e-068d-45e4-acea-9c8c44a16781.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/950efc04-6ae6-4b31-bfa5-83c87244014c.mp4"
+        },
+        {
+            "id": "lacewalker",
+            "name": "Lacewalker",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/ef3dfc4c-a4c2-44a0-af27-d005bd1c319d.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/d806368c-0d8a-4a7b-b43a-8ff22fa64563.mp4"
+        },
+        {
+            "id": "selfception",
+            "name": "Selfception",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/495d9e85-0417-47d9-9e0a-722ace805852.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/6ef62a07-2609-4693-8225-e6263b76afab.mp4"
+        },
+        {
+            "id": "smash_and_grab",
+            "name": "Smash and Grab",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/4a2315f6-57e1-4378-82a5-598ddbbfbbcb.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/c32886ee-2d15-4697-a366-041a9deaffe2.mp4"
+        },
+        {
+            "id": "high_flip",
+            "name": "High Flip",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/95cd0d73-4f3c-40d1-ac0b-c8668a99440b.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/001156a7-cfdb-4e16-8f13-68c246ddc06c.mp4"
+        },
+        {
+            "id": "street_colossus",
+            "name": "Street Colossus",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/5e67ff0a-60f7-4c0a-8ace-18c9bf3e5426.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/e0278141-12c9-4139-91eb-b4294d833ed9.mp4"
+        },
+        {
+            "id": "incline",
+            "name": "Incline",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/30142c8a-46ee-4930-aca3-6fa5321dd84a.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/bade6252-7039-42eb-a50c-45c142c7f70f.mp4"
+        },
+        {
+            "id": "floating_fall",
+            "name": "Floating Fall",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/151664fa-7f7f-43d6-80fa-4683104a3c02.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/d877f71c-d2f3-44df-9317-f3ce6889bcb6.mp4"
+        },
+        {
+            "id": "eyes_in",
+            "name": "Eyes In",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/5354ce11-c68c-45a0-8a97-5aab94f52833.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/dba03734-6e8a-4337-acb4-17ce943563d8.mp4"
+        },
+        {
+            "id": "wild_ride",
+            "name": "Wild Ride",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/99aa3365-5ae0-4616-9722-ce0dc087607d.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/8cd9e3fc-8e4f-4071-abff-8934f3381507.mp4"
+        },
+        {
+            "id": "studio_slide",
+            "name": "Studio Slide",
+            "poster": "https://cdn.higgsfield.ai/viral_hub/05201733-c72f-43ed-8393-8b8cea28b8ce.webp",
+            "video": "https://cdn.higgsfield.ai/viral_hub/c129fb83-2014-4a37-a3f8-6c7dfeab0254.mp4"
+        }
+    ],
+    "genjutsu": [
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/54b6f52b-08b2-5acf-9557-2e599560acd8.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/067a9f92-94b2-5e63-accf-2c57fe1a0cdf.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/80918ab3-d0cf-5c86-af99-29d53184edf0.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/c045b52b-ab93-5d96-8e2b-72115697cb50.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/f0ad452c-2254-54cb-932e-d85d0b06dca7.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/24daa737-06d4-530d-b2ff-18f0eeb2c289.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/167113f5-32ca-5c5f-ae3f-7f8e7599e964.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/06aaeffd-33c0-5add-a61c-eacf299154fa.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/56475b81-bfc4-5cf1-ace4-902c5c0797e3.webp",
+        "https://cdn.higgsfield.ai/higgsfield_multiplier_video_explore_variant/9650072f-7ed8-5c91-bc2f-edc3a30ba02e.webp"
+    ],
+    "rows": {
+        "seedance25": {
+            "title": "Seedance 2.5",
+            "blurb": "The most advanced AI video model",
+            "href": "/ai/video?model=seedance_2_5",
+            "ratio": "9/16",
+            "items": [
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3DgH8zZ7H7xieJnKMyo5N4NA9ge/hf_20260828_133607_f265c973-82fe-4f27-83a9-42d913a2289c_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3DgH8zZ7H7xieJnKMyo5N4NA9ge/hf_20260828_133607_f265c973-82fe-4f27-83a9-42d913a2289c.mp4",
+                    "author": "yernaz"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Bu4J9LdRqhDHpwVUmDuiPIuIy0/hf_20260807_115856_816bc5fd-ea64-42ed-9c0c-d70e666a148f_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3FRnqOjr7P4vUmrsWyEzZbKAqVU/77406d67-d5db-4b1d-81e2-9e0139b39249_hs_wm.mp4",
+                    "author": "smartbeetle1651"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_041544_b5f84d9d-a9db-472c-9ece-fed23857b096_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_041544_b5f84d9d-a9db-472c-9ece-fed23857b096_wm3.mp4",
+                    "author": "higgsfield_hall_of_fame"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_034505_9389c8eb-ce22-45df-8755-addfb794552f_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_034505_9389c8eb-ce22-45df-8755-addfb794552f_wm3.mp4",
+                    "author": "zhanay"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Bu4J9LdRqhDHpwVUmDuiPIuIy0/hf_20260807_100920_bc5eed39-89b5-449c-925f-933727ac4c07_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3CN3NlActPxxUfaXfH903u7EnPq/468db48f-512d-4ca0-b475-8011acc1e8eb_hs_wm.mp4",
+                    "author": "folkemerald1346"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_040418_e674bc76-e8c5-4099-bd5c-f871a9345cda_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_040418_e674bc76-e8c5-4099-bd5c-f871a9345cda_wm3.mp4",
+                    "author": "artificial_penguin"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260813_235221_7969f2f0-4868-4639-b8f2-85ca915bdd6e_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260813_235221_7969f2f0-4868-4639-b8f2-85ca915bdd6e_wm3.mp4",
+                    "author": "gaziziz"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3DgH8zZ7H7xieJnKMyo5N4NA9ge/hf_20260828_132351_79618fbd-cc98-4ee0-ae44-cb79da5349f3_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3DgH8zZ7H7xieJnKMyo5N4NA9ge/hf_20260828_132351_79618fbd-cc98-4ee0-ae44-cb79da5349f3.mp4",
+                    "author": "yernaz"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_035550_51b6328c-1648-411a-917a-1d8cecbd166c_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_035550_51b6328c-1648-411a-917a-1d8cecbd166c_wm3.mp4",
+                    "author": "jighit"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260814_013039_5cf05b01-4cea-4c9e-8af5-1b9122611c9b_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260814_013039_5cf05b01-4cea-4c9e-8af5-1b9122611c9b_wm3.mp4",
+                    "author": "radiating_crystal_deep60"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Bu4J9LdRqhDHpwVUmDuiPIuIy0/hf_20260807_101838_4b30080f-2172-46dd-add5-b813276d04f9_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_2urnL94WJ71YKcCUCm8E5tfhGy9/437a80c2-3e11-4650-8777-c06e7ca567c5_hs_wm.mp4",
+                    "author": "arpanetus"
+                },
+                {
+                    "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_2urnL94WJ71YKcCUCm8E5tfhGy9/ad100ab0-a45b-4058-9bbe-ff92eece371f.jpg",
+                    "video": "",
+                    "author": "arpanetus"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_040632_12ff4cdd-bba8-4a6d-bff5-312d4a2cbb23_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_040632_12ff4cdd-bba8-4a6d-bff5-312d4a2cbb23_wm3.mp4",
+                    "author": "jennifer_lopez"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_002238_83054aec-92b9-4efe-b015-6c33e4bd7ba3_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_002238_83054aec-92b9-4efe-b015-6c33e4bd7ba3_wm3.mp4",
+                    "author": "banksy_pancake_gold22"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_041459_e02ab22b-6d8e-46bd-874e-8090a8f00799_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3HrUZEqvogBOowmw1C0BIb3oNDN/hf_20260814_041459_e02ab22b-6d8e-46bd-874e-8090a8f00799_wm3.mp4",
+                    "author": "bourgeois_mean"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260814_024423_23e78b00-c455-420b-b72f-fc8e9b14244c_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Btsg1RieQOoYK6o6x65C3UYqNH/hf_20260814_024423_23e78b00-c455-420b-b72f-fc8e9b14244c_wm3.mp4",
+                    "author": "religious_raccoon_dark36"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3H8EAjd4lvlOfCDCxt4J3ZVPr1c/hf_20260807_105454_a60ef591-46a4-49a2-b01a-607dad928ede_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_2urRVI1bCfxGUsP28tBUphocCbh/507bc86d-a335-48fb-8732-06695a749350_hs_wm.mp4",
+                    "author": "land_art_pencil"
+                }
+            ]
+        },
+        "gptImage2": {
+            "title": "GPT Image 2",
+            "blurb": "4K images with near-perfect text rendering.",
+            "href": "/ai/image?model=gpt_image_2",
+            "ratio": "3/4",
+            "items": [
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_215626_8f188629-c5bb-441a-a0fe-a0be4d976fc6.png",
+                    "video": "",
+                    "author": "cezanne_cupcake_haze12"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_144420_5f74e1a3-ff9e-4f59-b8f8-799982bdd36b.png",
+                    "video": "",
+                    "author": "adapting_potato_keen39"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_201904_0d9cf28b-bbb3-452f-9ef9-6caf994c02f7.png",
+                    "video": "",
+                    "author": "prompt_beetlez"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_134519_6fed7b56-35c6-4f75-a58a-7ba86674d801.png",
+                    "video": "",
+                    "author": "gaziziz"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_212125_23fa9b40-6c58-4bb9-a831-ca4cf02c861c.png",
+                    "video": "",
+                    "author": "impressionist_cookie_haze96"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3Bu5JuVtOLeUf9Tqr2GbRxGUfPp/hf_20260422_211323_4cc2cdec-06a1-4d10-93b9-a63a44ae5d93.png",
+                    "video": "",
+                    "author": "modular_pufferfish_swift82"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_202551_baf580a8-979d-486e-b0a0-b0b09ee83d6d.png",
+                    "video": "",
+                    "author": "piffle_jack"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_215112_09f9313d-4c93-40d5-8d5b-e6a502fa93c1.png",
+                    "video": "",
+                    "author": "surreal_pencil_sage24"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CIjqzTsrKEUr8OzFBaYO4ux3nG/hf_20260421_144013_38e67ed5-cd38-4509-9855-9c4cc9b32fe6.png",
+                    "video": "",
+                    "author": "singing_pencillin"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_213610_8f9804a3-5fce-48c0-94e0-5147ab7cf3fd.png",
+                    "video": "",
+                    "author": "steampunk_donut_jade65"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_200634_8bb59f51-35d3-4639-b5a9-673f64940854.png",
+                    "video": "",
+                    "author": "folk_rainbow_wise28"
+                },
+                {
+                    "poster": "https://dqv0cqkoy5oj7.cloudfront.net/user_3CgVhvaX3mV5mOxcjBTK96F6n03/hf_20260422_212327_3e910da2-86aa-4fac-adbe-4215fe2110a5.png",
+                    "video": "",
+                    "author": "wer"
+                }
+            ]
+        },
+        "marketing": {
+            "title": "Marketing Studio",
+            "blurb": "See what creators and brands are making with Marketing Studio.",
+            "href": "/ai/video?preset=smash_and_grab",
+            "ratio": "16/9",
+            "items": [
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Bu8kApHUBmQcoBNUYoyCcOGJne/hf_20260414_170749_3474b08b-9dc4-49e6-b6e2-4af862eff61d_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Bu8kApHUBmQcoBNUYoyCcOGJne/hf_20260414_170749_3474b08b-9dc4-49e6-b6e2-4af862eff61d.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3CIezRC2bfkh5fn1Cl8MjaHdSlp/hf_20260415_012608_2c21b2ad-368a-4199-bde3-e2c648d78186_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3CIezRC2bfkh5fn1Cl8MjaHdSlp/hf_20260415_012608_2c21b2ad-368a-4199-bde3-e2c648d78186.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_34hPp7fXOu4gkTrKKk2ESqFSfG1/hf_20260413_124545_9ae0acdc-4d0e-4c03-a065-b572bf9c66cf_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_34hPp7fXOu4gkTrKKk2ESqFSfG1/hf_20260413_124545_9ae0acdc-4d0e-4c03-a065-b572bf9c66cf.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3BuPFKmNsBjkEgZ5LeOvNlL8ShO/hf_20260415_014636_4873f538-b114-48c3-b604-05e32945d184_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3BuPFKmNsBjkEgZ5LeOvNlL8ShO/hf_20260415_014636_4873f538-b114-48c3-b604-05e32945d184.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_39acLUpaKDzX3Ox7Ekzzl7vlQ67/hf_20260413_132040_3db6758b-7eef-4046-87e1-ec81097c126e_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_39acLUpaKDzX3Ox7Ekzzl7vlQ67/hf_20260413_132040_3db6758b-7eef-4046-87e1-ec81097c126e.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Bu8kApHUBmQcoBNUYoyCcOGJne/hf_20260414_232148_e856f696-c60e-4c40-921e-3fc3ac60224f_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Bu8kApHUBmQcoBNUYoyCcOGJne/hf_20260414_232148_e856f696-c60e-4c40-921e-3fc3ac60224f.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3CIjqzTsrKEUr8OzFBaYO4ux3nG/hf_20260413_121933_7dfa9582-a536-4a83-9041-ee5aa102ff8c_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3CIjqzTsrKEUr8OzFBaYO4ux3nG/hf_20260413_121933_7dfa9582-a536-4a83-9041-ee5aa102ff8c.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Cfdr00kbZ1hJCLpPQkaicInqxv/hf_20260421_221116_5e4782a0-5148-4832-9362-d17ba238b58b_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Cfdr00kbZ1hJCLpPQkaicInqxv/hf_20260421_221116_5e4782a0-5148-4832-9362-d17ba238b58b.mp4",
+                    "author": "chapman"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_34hPp7fXOu4gkTrKKk2ESqFSfG1/hf_20260410_231619_0c2814a2-9a87-48f8-a18f-811265d90dca_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_34hPp7fXOu4gkTrKKk2ESqFSfG1/hf_20260410_231619_0c2814a2-9a87-48f8-a18f-811265d90dca.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3BtuMjeO56IlCCzTiD419c4NiyM/hf_20260415_011357_9dd4f822-d35c-4a43-9102-61ad0bb14331_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3BtuMjeO56IlCCzTiD419c4NiyM/hf_20260415_011357_9dd4f822-d35c-4a43-9102-61ad0bb14331.mp4",
+                    "author": "byzantinetiger1459"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3Cfdr00kbZ1hJCLpPQkaicInqxv/hf_20260422_011129_528f4835-f2b2-4b35-90a0-e4471af95636_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3Cfdr00kbZ1hJCLpPQkaicInqxv/hf_20260422_011129_528f4835-f2b2-4b35-90a0-e4471af95636.mp4",
+                    "author": "chapman"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3B9ysSkvPFs8NnELOqJwjcodGpA/hf_20260410_200105_6b9142b4-9ac9-4c42-9206-84b70c939e52_thumbnail.webp",
+                    "video": "https://d8j0ntlcm91z4.cloudfront.net/user_3B9ysSkvPFs8NnELOqJwjcodGpA/hf_20260410_200105_6b9142b4-9ac9-4c42-9206-84b70c939e52.mp4",
+                    "author": "byzantinetiger1459"
+                }
+            ]
+        },
+        "seedance2": {
+            "title": "Seedance 2.0",
+            "blurb": "Browse premium AI video generations from the Higgsfield community.",
+            "href": "/ai/video?model=seedance_2",
+            "ratio": "16/9",
+            "items": [
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094513_629920b7-4009-46de-b3b6-b80cc2185275_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094513_629920b7-4009-46de-b3b6-b80cc2185275_min.mp4",
+                    "author": "modular_pufferfish_swift82"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094615_1849e0bf-3c53-4790-80d7-d83d03968910_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094615_1849e0bf-3c53-4790-80d7-d83d03968910_min.mp4",
+                    "author": "romantic_grappe"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094557_c0e3952b-1ecf-4621-9b06-eb86a7fe29e8_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094557_c0e3952b-1ecf-4621-9b06-eb86a7fe29e8_min.mp4",
+                    "author": "steampunk_donut_jade65"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094501_61b9fb78-2e54-44d2-bcea-ed0aae4cc707_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094501_61b9fb78-2e54-44d2-bcea-ed0aae4cc707_min.mp4",
+                    "author": "art_nouveau_apple_bold66"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094417_ba8bf934-a387-4bf5-8a24-f34be2a65d46_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094417_ba8bf934-a387-4bf5-8a24-f34be2a65d46_min.mp4",
+                    "author": "almasyan"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094412_fbc2c33e-b861-4744-8aa3-13047b3b83c3_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094412_fbc2c33e-b861-4744-8aa3-13047b3b83c3_min.mp4",
+                    "author": "parametric_llama_swift35"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094509_a0443ee0-fd26-4f6a-9938-ee153fde5822_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094509_a0443ee0-fd26-4f6a-9938-ee153fde5822_min.mp4",
+                    "author": "quantized_porcupine"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094622_41c4ed95-c7c2-49a8-933e-1cec2ea4e6d9_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094622_41c4ed95-c7c2-49a8-933e-1cec2ea4e6d9_min.mp4",
+                    "author": "zhanay"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094445_b0de712b-ae62-4fb9-9b07-2757b2d0338b_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094445_b0de712b-ae62-4fb9-9b07-2757b2d0338b_min.mp4",
+                    "author": "sketching_manatee_peak94"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094601_f698d8f7-c96a-42c6-ad0c-8e830417201e_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094601_f698d8f7-c96a-42c6-ad0c-8e830417201e_min.mp4",
+                    "author": "rococo_pen"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094505_e898193e-ec14-4ecc-92ed-be976174fc88_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094505_e898193e-ec14-4ecc-92ed-be976174fc88_min.mp4",
+                    "author": "atompunk_cupcake_aero96"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094426_5355bac3-67d4-4c59-812c-6ad6b9ce7956_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094426_5355bac3-67d4-4c59-812c-6ad6b9ce7956_min.mp4",
+                    "author": "prefab_diamond"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094612_2b122af8-b47a-4518-9d91-9675dd8e3f41_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094612_2b122af8-b47a-4518-9d91-9675dd8e3f41_min.mp4",
+                    "author": "crafting_capybara_live88"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094639_253d329f-1093-4efa-aee2-430c9e66de64_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094639_253d329f-1093-4efa-aee2-430c9e66de64_min.mp4",
+                    "author": "steampunk_donut_jade65"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094654_27691a7e-7a4c-4511-95e2-cd3ae1a11273_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094654_27691a7e-7a4c-4511-95e2-cd3ae1a11273_min.mp4",
+                    "author": "institutional_butterflying"
+                },
+                {
+                    "poster": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094618_bd067d15-5a16-4ebe-986a-3c1d1a9d919d_thumbnail_min.webp",
+                    "video": "https://cdn.higgsfield.ai/user_3AvFCf0aoS6DTSHhwoX3QgsDzIR/hf_20260409_094618_bd067d15-5a16-4ebe-986a-3c1d1a9d919d_min.mp4",
+                    "author": "rococo_pen"
+                }
+            ]
+        },
+        "soulCinema": {
+            "title": "Higgsfield Soul Cinema",
+            "blurb": "Explore Higgsfield Community gallery for stunning Higgsfield Soul Cinema creations.",
+            "href": "/ai/image?model=soul_cinema",
+            "ratio": "16/9",
+            "items": [
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260312_154113_5d74b1d6-5c2d-46b2-873a-d595a0188383.png",
+                    "video": "",
+                    "author": "institutional_butterflying"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260311_130530_2a625748-3ec7-411d-98b8-ee4fc1cf4c8c.png",
+                    "video": "",
+                    "author": "aibek_zh"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260314_104627_9b8d5df1-45f2-4f8a-9a00-dd69a60c0a17.png",
+                    "video": "",
+                    "author": "transforming_cupcake_zero12"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260311_132332_4050f80b-d8a7-43ab-87e6-e421ae1cf1fb.png",
+                    "video": "",
+                    "author": "religious_raccoon_dark36"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260314_110254_4adda8fc-103e-4cdc-8e28-4c0dcd9084b6.png",
+                    "video": "",
+                    "author": "crafting_capybara_live88"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260314_105240_3310f979-94bc-4f47-8888-8ccf5a1b3731.png",
+                    "video": "",
+                    "author": "qwerty_322"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260314_185418_423093b6-7eef-4284-af68-e774b4b818f2.png",
+                    "video": "",
+                    "author": "madi_k"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_113643_2b7c8f81-f4d6-4988-86cf-f33d5dfe8200.png",
+                    "video": "",
+                    "author": "dankol"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_150735_0b3401a1-0031-45fa-9402-808bc8315fbf.png",
+                    "video": "",
+                    "author": "piffle_jack"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_171039_1e41c7ae-2fcf-4051-81b8-e955dd615bd2.png",
+                    "video": "",
+                    "author": "daulett"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260314_194923_c279d800-65c9-4711-bc6a-2715bda503e2.png",
+                    "video": "",
+                    "author": "adapting_potato_keen39"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260305_162045_a76abb05-b221-4147-bb8d-2d32ea1da060.png",
+                    "video": "",
+                    "author": "wer"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_151147_f4dd9d81-fe2d-4a5b-9e12-9ff44c1758fb.png",
+                    "video": "",
+                    "author": "cooking_orangutan"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_113622_5c4f39d1-9bf9-4e26-b022-29f644c52b18.png",
+                    "video": "",
+                    "author": "higgsfield_hall_of_fame"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260313_171242_984d7aac-e3da-42de-b8b1-ccd4f0e70979.png",
+                    "video": "",
+                    "author": "laplacetiger_haze75"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260312_171646_b4c262b5-9cb1-46bd-a526-307656fa0866.png",
+                    "video": "",
+                    "author": "quantized_porcupine"
+                }
+            ]
+        },
+        "soul2": {
+            "title": "Higgsfield Soul 2.0",
+            "blurb": "A culture-native photo model built for fashion, aesthetics, and creative expression.",
+            "href": "/ai/image?model=soul_2",
+            "ratio": "3/4",
+            "items": [
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260217_184432_7af6e3df-a5ad-4e8a-a3b4-c6d8637ce85c.png",
+                    "video": "",
+                    "author": "zhanay"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_182218_2cfc8314-b866-479e-a70e-b8f27b950e11.png",
+                    "video": "",
+                    "author": "young_drill"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_124914_3497c398-0398-44f7-a5b7-395d6c832886.png",
+                    "video": "",
+                    "author": "wer"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260213_201650_322c2e1d-2643-4f06-8c06-dfda0246b527.png",
+                    "video": "",
+                    "author": "qwerty_322"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_190742_2ffd28b9-6a71-4772-8eeb-1a63d989f0d9.png",
+                    "video": "",
+                    "author": "zhanay"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260218_141135_4468ae61-47be-4396-834b-8bbc78054909.png",
+                    "video": "",
+                    "author": "gradient_tomatos"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260207_193655_711f3c26-8d2b-4e66-89e4-8357c0100b62.png",
+                    "video": "",
+                    "author": "wer"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260217_175012_2482b23d-7762-4366-b718-3fde133ac10e.png",
+                    "video": "",
+                    "author": "wer"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_35h9Zqn0Bk5qurQOPUM7laOSfXO/hf_20260218_140621_0659e72b-b64a-44f5-ae26-8cc53ebbdb68.png",
+                    "video": "",
+                    "author": "jighit"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_120631_b4bade9f-5e82-4e87-bc66-cea3e15d46de.png",
+                    "video": "",
+                    "author": "young_drill"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_184556_0e4b2d2d-e4b7-4d49-91e8-a67ed83fb932.png",
+                    "video": "",
+                    "author": "young_drill"
+                },
+                {
+                    "poster": "https://d8j0ntlcm91z4.cloudfront.net/user_36Hwty94QweUxs82UEGsxmReIrf/hf_20260218_123341_5eeff76b-7e3b-4826-ae1c-ec7ac8b66643.png",
+                    "video": "",
+                    "author": "jighit"
+                }
+            ]
+        }
+    },
+    "projects": [
+        {
+            "slug": "if-you-stop-loving-me-ill-die",
+            "title": "If you stop loving me, I'll die",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/821f8180-f5de-4a1b-b827-57b34a7cbc4d.jpg",
+            "hls": ""
+        },
+        {
+            "slug": "cully-hill-boys",
+            "title": "Cully Hill Boys",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/75d860f8-6dde-45d6-ae81-756ddbfe563e.jpg",
+            "hls": ""
+        },
+        {
+            "slug": "red-flag",
+            "title": "Red Flag",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/f6bf4ce5-2a41-45cb-a099-12bdc1e117c1.jpg",
+            "hls": ""
+        },
+        {
+            "slug": "kok-boru-film",
+            "title": "Kok Boru",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/f3ca6ccc-a45c-4111-a66e-ecb2e5d38dba.jpg",
+            "hls": "https://cdn.higgsfield.ai/hls/video_input/1c10c2c5-6096-4d75-8c3f-3125763620c4/index.m3u8"
+        },
+        {
+            "slug": "adiliada",
+            "title": "Adiliada",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/07c550cd-d621-46a1-8cb1-420986027ac9.jpg",
+            "hls": "https://cdn.higgsfield.ai/hls/video_input/1e94cae5-2d5c-409e-a504-aef44aae4662/index.m3u8"
+        },
+        {
+            "slug": "oneiric",
+            "title": "ONEIRIC",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/6984c17e-8f23-4a86-896c-ff0d3be920ca.jpg",
+            "hls": "https://cdn.higgsfield.ai/hls/video_input/8e773bcc-7271-41a4-8024-3629f9ea9ca4/index.m3u8"
+        },
+        {
+            "slug": "zephyr-special",
+            "title": "ZEPHYR: Special",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_3GNcyaSCltezE7ot4WtRdn0jfo0/9655238c-398d-4403-bc7d-68e3b43238cf.jpg",
+            "hls": "https://cdn.higgsfield.ai/hls/video_input/56987630-1f4d-4c34-884f-822aaeac9bd5/index.m3u8"
+        },
+        {
+            "slug": "hell-grind",
+            "title": "HELL GRIND",
+            "poster": "https://d2ol7oe51mr4n9.cloudfront.net/user_2v5txepAmNYZwyzml1nIizlWURE/df7107b3-1dd6-438a-a168-ed382e2ad901.png",
+            "hls": "https://cdn.higgsfield.ai/hls/video_input/2157962f-698c-4884-8519-239c8776a2ea/index.m3u8"
+        }
+    ],
+    "banners": {
+        "supercomputer": {
+            "bg": "https://static.higgsfield.ai/spc-banner/bg-spc-banner.png",
+            "creative": "https://static.higgsfield.ai/spc-banner/spc-banner-creative.png",
+            "visualizing": "https://static.higgsfield.ai/spc-banner/spc-banner-visualizing.png",
+            "marketing": "https://static.higgsfield.ai/spc-banner/spc-banner-marketing.png",
+            "production": "https://static.higgsfield.ai/spc-banner/spc-banner-production.png",
+            "logo": "https://static.higgsfield.ai/spc-banner/spc-banner-logo.png"
+        },
+        "canvas": {
+            "desktop": "https://static.higgsfield.ai/canvas-banner-desktop.webp",
+            "mobile": "https://static.higgsfield.ai/canvas-banner-mobile.webp",
+            "bgDesktop": "https://static.higgsfield.ai/canvas-banner-bg-desktop.webp",
+            "bgMobile": "https://static.higgsfield.ai/canvas-banner-bg-mobile.webp"
+        },
+        "photodump": {
+            "desktop": "https://static.higgsfield.ai/public/photodump/cta-desktop.png",
+            "mobile": "https://static.higgsfield.ai/public/photodump/cta-mobile.png"
+        }
+    },
+    "moreFeatures": [
+        {
+            "label": "Cinema Studio",
+            "href": "/ai/video"
+        },
+        {
+            "label": "Visual Effects",
+            "href": "/effects"
+        },
+        {
+            "label": "Higgsfield Soul",
+            "href": "/ai/image?model=soul_2"
+        },
+        {
+            "label": "Kling 2.1 Master",
+            "href": "/ai/video?model=kling_3"
+        },
+        {
+            "label": "Camera Controls",
+            "href": "/effects"
+        },
+        {
+            "label": "Viral",
+            "href": "/effects"
+        },
+        {
+            "label": "Action movements",
+            "href": "/ai/video?preset=high_flip"
+        },
+        {
+            "label": "Commercial",
+            "href": "/ai/video?preset=smash_and_grab"
+        },
+        {
+            "label": "MiniMax Hailuo 02",
+            "href": "/ai/video?model=minimax_h3"
+        },
+        {
+            "label": "Seedance Pro",
+            "href": "/ai/video?model=seedance_2_5"
+        },
+        {
+            "label": "Community",
+            "href": "/"
+        },
+        {
+            "label": "Wan 2.2 Image",
+            "href": "/ai/image"
+        },
+        {
+            "label": "Seedream 4.0",
+            "href": "/ai/image?model=seedream_4"
+        },
+        {
+            "label": "Nano Banana",
+            "href": "/ai/image?model=nano_banana"
+        },
+        {
+            "label": "Flux Kontext",
+            "href": "/ai/image"
+        },
+        {
+            "label": "GPT Image",
+            "href": "/ai/image?model=gpt_image_2"
+        },
+        {
+            "label": "Topaz",
+            "href": "/ai/image"
+        },
+        {
+            "label": "Google Veo3",
+            "href": "/ai/video?model=veo"
+        },
+        {
+            "label": "Kling 2.5 Turbo",
+            "href": "/ai/video?model=kling_3"
+        },
+        {
+            "label": "Kling Avatars 2.0",
+            "href": "/ai/video"
+        },
+        {
+            "label": "Claude MCP",
+            "href": "/"
+        },
+        {
+            "label": "Wan 2.5",
+            "href": "/ai/video?model=wan_3"
+        },
+        {
+            "label": "Sora 2",
+            "href": "/ai/video?model=sora_2"
+        },
+        {
+            "label": "Sora 2 Presets",
+            "href": "/effects"
+        }
+    ],
+    "footer": [
+        {
+            "title": "Create",
+            "links": [
+                "AI Video",
+                "AI Image",
+                "Edit Image",
+                "Inpaint",
+                "Upscale",
+                "Sora 2 Upscale",
+                "Mixed Media",
+                "AI Face Swap",
+                "AI Influencer",
+                "Apps"
+            ]
+        },
+        {
+            "title": "Video Models",
+            "links": [
+                "Seedance 2.5",
+                "Seedance 2.0",
+                "Kling 3.0",
+                "Sora 2 Introduction",
+                "Veo 3.1 Introduction",
+                "WAN 2.6",
+                "Grok Imagine 1.5",
+                "Gemini Omni Flash"
+            ]
+        },
+        {
+            "title": "Image Models",
+            "links": [
+                "Nano Banana",
+                "Flux 2",
+                "Seedream 5",
+                "GPT Image 2"
+            ]
+        },
+        {
+            "title": "Studios",
+            "links": [
+                "Cinema Studio",
+                "Marketing Studio",
+                "Lipsync Studio",
+                "Photodump Studio",
+                "Fashion Factory",
+                "UGC Factory",
+                "Higgsfield Popcorn",
+                "Higgsfield Canvas"
+            ]
+        },
+        {
+            "title": "Soul",
+            "links": [
+                "Soul 2.0",
+                "Soul ID Character",
+                "Soul Cinema"
+            ]
+        },
+        {
+            "title": "Platform",
+            "links": [
+                "Supercomputer",
+                "MCP/CLI",
+                "Collab",
+                "Games",
+                "Reference Extension"
+            ]
+        },
+        {
+            "title": "Resources",
+            "links": [
+                "Blog",
+                "Creator Hub",
+                "Help Center",
+                "Academy",
+                "Prompt Guide"
+            ]
+        },
+        {
+            "title": "Company",
+            "links": [
+                "About",
+                "Trust",
+                "Enterprise",
+                "Team",
+                "Pricing",
+                "Careers",
+                "Contact"
+            ]
+        },
+        {
+            "title": "Community",
+            "links": [
+                "Community",
+                "Contests",
+                "Creator Partners"
+            ]
+        }
+    ]
 }

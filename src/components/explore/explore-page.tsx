@@ -172,7 +172,7 @@ export async function ExplorePage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 {(["creative", "visualizing", "marketing", "production"] as const).map((k) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img key={k} src={L.banners!.supercomputer[k]} alt={k} className="h-9 rounded-md" />
+                  <img key={k} src={L.banners!.supercomputer[k]} alt={k} className="h-16 rounded-lg" />
                 ))}
               </div>
             )}
