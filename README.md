@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Higgsfield — rebuilt in 24 hours
 
-## Getting Started
+A working rebuild of [higgsfield.ai](https://higgsfield.ai): image and video generation studios, a preset library, an asset library, credits, and pricing — with one deliberate improvement: **every account can actually generate** (100 free credits, no paywall on the Generate button).
 
-First, run the development server:
+- Live: see the link in the submission
+- Recon of the original: [`docs/recon/notes.md`](docs/recon/notes.md)
+- What was built first and what was left out: [`docs/PLAN.md`](docs/PLAN.md)
+- Agent capture proof: [`CAPTURE-TEST.md`](CAPTURE-TEST.md), logs in [`.agent-logs/`](.agent-logs/)
+
+## Stack
+
+Next.js 16 (App Router) · TypeScript · Tailwind v4 · Radix · Prisma + Postgres (Supabase) · fal.ai · Vercel
+
+## Run locally
 
 ```bash
+npm install
+cp .env.example .env.local     # then fill DATABASE_URL / DIRECT_URL (or use the embedded DB below)
+npm run db:start               # embedded PostgreSQL 17 on 127.0.0.1:54322, no Docker
+cp .env.local .env             # Prisma CLI reads .env
+npm run db:push
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set `FAL_KEY` to get real image generation (FLUX schnell/dev). Without it, images and videos are **simulated**: the job pipeline, credits, polling and history are all real; the media is a placeholder and is labelled "simulated" in the UI.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How generation works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`POST /api/generate` prices the request from the model catalog, debits credits and creates a `Generation` row inside one transaction, then runs the job after the response is flushed (`after()`). The client polls `GET /api/generations/:id`; if a serverless instance died mid-job the poller picks the job up again. Failures refund credits.
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/catalog/` — models, presets, plans (static; the product's "content")
+- `src/lib/generate/` — pricing, job lifecycle, fal / simulated providers
+- `src/lib/auth.ts` — guest-first sessions (cookie → user row with credits)
+- `src/components/studio/` — image & video studios, model/preset pickers, generation cards
+- `src/app/` — routes: `/` explore · `/ai/image` · `/ai/video` · `/asset/[filter]` · `/effects` · `/pricing` · `/a/[id]` share page
