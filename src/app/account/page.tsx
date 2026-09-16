@@ -7,6 +7,7 @@ import { getPlan } from "@/lib/catalog/plans";
 import { PACKS } from "@/lib/catalog/packs";
 import { timeAgo } from "@/lib/utils";
 import { AccountActions } from "@/components/shell/account-actions";
+import { PasskeyManager } from "@/components/shell/passkeys";
 
 export const metadata: Metadata = { title: "Account" };
 export const dynamic = "force-dynamic";
@@ -22,9 +23,10 @@ export default async function AccountPage() {
       </main>
     );
   }
-  const [ledger, counts] = await Promise.all([
+  const [ledger, counts, events] = await Promise.all([
     db.creditEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 50 }),
     db.generation.groupBy({ by: ["kind"], where: { userId: user.id }, _count: true }),
+    db.securityEvent.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 12 }),
   ]);
   const plan = getPlan(user.plan);
   const images = counts.find((c) => c.kind === "IMAGE")?._count ?? 0;
@@ -83,6 +85,25 @@ export default async function AccountPage() {
         </div>
       </section>
 
+      <PasskeyManager />
+
+      <section className="mt-8">
+        <h2 className="text-[15px] font-semibold">Security activity</h2>
+        <p className="text-[12px] text-fg-3">Sign-ins, passkeys and blocked attempts on this account, newest first.</p>
+        <div className="mt-3 overflow-hidden rounded-xl border border-line">
+          {events.length === 0 ? (
+            <div className="px-4 py-3 text-[13px] text-fg-3">Nothing yet.</div>
+          ) : (
+            events.map((e) => (
+              <div key={e.id} className="flex items-center justify-between border-b border-line px-4 py-2 text-[12px] last:border-b-0">
+                <span className="font-medium">{eventLabel(e.kind)}</span>
+                <span className="text-fg-3">{maskIp(e.ip)} · {timeAgo(e.createdAt)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
       <AccountActions hasEmail={!!user.email} />
     </main>
   );
@@ -95,6 +116,21 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
       <div className="mt-2">{children}</div>
     </div>
   );
+}
+
+function eventLabel(kind: string) {
+  const map: Record<string, string> = {
+    guest_created: "Guest session started", signup: "Account created", login: "Signed in with password", login_passkey: "Signed in with passkey",
+    login_failed: "Failed sign-in attempt", login_locked: "Sign-in locked (too many failures)", logout: "Signed out",
+    passkey_added: "Passkey added", passkey_removed: "Passkey removed", rate_limited: "Request rate-limited", checkout: "Order completed",
+  };
+  return map[kind] ?? kind;
+}
+
+function maskIp(ip: string | null) {
+  if (!ip) return "";
+  const p = ip.split(".");
+  return p.length === 4 ? `${p[0]}.${p[1]}.•.•` : ip.slice(0, 9) + "…";
 }
 
 function describe(reason: string) {

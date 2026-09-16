@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
-import { AuthError, signUp, toSessionUser } from "@/lib/auth";
+import { z } from "zod";
+import { signUp, toSessionUser } from "@/lib/auth";
+import { handle, readJson } from "@/lib/api";
 
-export async function POST(req: Request) {
-  const { email, password, name } = (await req.json()) as { email?: string; password?: string; name?: string };
-  try {
-    const user = await signUp(email ?? "", password ?? "", name);
+const schema = z.object({
+  email: z.string().max(254),
+  password: z.string().max(128),
+  name: z.string().max(40).optional(),
+  // Honeypot: real users never see this field; bots fill everything.
+  website: z.string().max(0).optional(),
+});
+
+export function POST(req: Request) {
+  return handle(async () => {
+    const { email, password, name } = await readJson(req, schema);
+    const user = await signUp(email, password, name);
     return NextResponse.json({ user: toSessionUser(user) });
-  } catch (e) {
-    if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: 400 });
-    throw e;
-  }
+  });
 }

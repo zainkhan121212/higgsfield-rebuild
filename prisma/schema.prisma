@@ -28,18 +28,21 @@ enum GenStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String?  @unique
-  passwordHash String?
-  handle       String   @unique
-  plan         Plan     @default(FREE)
-  credits      Int      @default(100)
-  createdAt    DateTime @default(now())
+  id                  String    @id @default(cuid())
+  name                String
+  email               String?   @unique
+  passwordHash        String?
+  handle              String    @unique
+  plan                Plan      @default(FREE)
+  credits             Int       @default(100)
+  createdAt           DateTime  @default(now())
+  notificationsSeenAt DateTime?
+  signupIp            String?
 
   generations Generation[]
   folders     Folder[]
   ledger      CreditEntry[]
+  passkeys    Passkey[]
 }
 
 model Generation {
@@ -95,4 +98,40 @@ model CreditEntry {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt(sort: Desc)])
+}
+
+model Passkey {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialId String    @unique
+  publicKey    Bytes
+  counter      BigInt    @default(0)
+  transports   String[]  @default([])
+  deviceType   String?
+  backedUp     Boolean   @default(false)
+  label        String?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([userId])
+}
+
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  kind      String
+  ip        String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([kind, createdAt(sort: Desc)])
+}
+
+model RateBucket {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
 }

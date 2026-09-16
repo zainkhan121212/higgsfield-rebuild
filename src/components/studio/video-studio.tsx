@@ -12,6 +12,7 @@ import { GenerationCard } from "./generation-card";
 import { Paywall } from "./paywall";
 import { PresetPicker } from "./preset-picker";
 import { PresetThumb } from "./preset-thumb";
+import { PreviewFrames } from "./preview-frames";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { GenerationDTO } from "@/lib/serialize";
@@ -206,6 +207,17 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
             </div>
 
             <ModelPicker models={VIDEO_MODELS} value={model} onChange={(m) => pickModel(m as VideoModel)} variant="row" />
+
+            <PreviewFrames
+              modelId={model.id}
+              presetId={preset.id}
+              prompt={prompt}
+              ratio={ratio}
+              videoCost={cost}
+              chosen={reference && reference.startsWith("http") ? reference : null}
+              onChoose={(url) => setReference(url)}
+              onPaywall={(needed, have) => setPaywall({ needed, have })}
+            />
 
             <div className="grid grid-cols-3 gap-2">
               <SettingChip icon={<Clock className="h-3.5 w-3.5" />} label="Duration" value={duration} options={model.durations} onChange={setDuration} format={(v) => `${v}s`} className="w-full justify-center" />

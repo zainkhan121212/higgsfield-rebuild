@@ -15,7 +15,11 @@ export const imageInput = z.object({
   batch: z.number().int().min(1).max(4).default(1),
   quality: z.string().optional(),
   style: z.string().optional(),
+  /** set when this batch is a "preview before you pay" for a video job */
+  preview: z.object({ for: z.string(), presetId: z.string() }).optional(),
 });
+
+export const PREVIEW_COST = 1;
 
 export const videoInput = z.object({
   kind: z.literal("video"),
@@ -41,6 +45,7 @@ export class InsufficientCredits extends Error {
 /** Price a request without running it. */
 export function priceFor(input: GenerateInput): number {
   if (input.kind === "image") {
+    if (input.preview) return PREVIEW_COST;
     return imageCost(getImageModel(input.modelId), input.resolution, input.batch);
   }
   return videoCost(getVideoModel(input.modelId), input.durationSec, input.resolution);
@@ -60,10 +65,11 @@ export async function submit(user: User, input: GenerateInput): Promise<Generati
         userId: user.id,
         kind: input.kind === "image" ? "IMAGE" : "VIDEO",
         modelId: input.modelId,
-        presetId: input.kind === "video" ? input.presetId ?? "general" : null,
+        presetId: input.kind === "video" ? input.presetId ?? "general" : input.preview ? `preview:${input.preview.for}:${input.preview.presetId}` : null,
         prompt,
         params: input as object,
         cost,
+        isPublic: !(input.kind === "image" && input.preview),
         durationSec: input.kind === "video" ? input.durationSec : null,
       },
     });
@@ -88,7 +94,7 @@ export async function run(id: string): Promise<Generation> {
     if (params.kind === "image") {
       const model = getImageModel(params.modelId);
       const res = await generateImage({
-        model, prompt: gen.prompt, ratio: params.ratio, resolution: params.resolution, batch: params.batch, seed: gen.id,
+        model, prompt: gen.prompt, ratio: params.ratio, resolution: params.resolution, batch: params.batch, seed: gen.id, small: !!params.preview,
       });
       return await db.generation.update({
         where: { id },
@@ -104,11 +110,12 @@ export async function run(id: string): Promise<Generation> {
     const fullPrompt = [gen.prompt, preset.promptSuffix].filter(Boolean).join(", ");
     const res = await generateVideo({
       model, presetId: params.presetId, prompt: fullPrompt, ratio: params.ratio, resolution: params.resolution, durationSec: params.durationSec, seed: gen.id,
+      imageUrl: params.referenceUrl,
     });
     return await db.generation.update({
       where: { id },
       data: {
-        status: "DONE", outputs: [res.url], thumbnailUrl: res.thumbnailUrl ?? null, width: res.width, height: res.height,
+        status: "DONE", outputs: [res.url], thumbnailUrl: res.thumbnailUrl ?? params.referenceUrl ?? null, width: res.width, height: res.height,
         simulated: res.simulated, finishedAt: new Date(),
       },
     });

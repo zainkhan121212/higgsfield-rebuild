@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export function LazyImg({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const failed = attempt >= 4;
+  const failed = attempt >= 6;
   const imgRef = useRef<HTMLImageElement>(null);
   // Cached images can finish before hydration attaches onLoad.
   useEffect(() => {
@@ -25,7 +25,7 @@ export function LazyImg({ src, alt, className }: { src: string; alt: string; cla
         alt={alt}
         loading="lazy"
         onLoad={() => setReady(true)}
-        onError={() => setTimeout(() => setAttempt((n) => n + 1), 3000 * (attempt + 1))}
+        onError={() => setTimeout(() => setAttempt((n) => n + 1), 4000 * (attempt + 1))}
         className={cn("h-full w-full object-cover transition-opacity duration-500", ready ? "opacity-100" : "opacity-0", className)}
       />
       {!ready && !failed && <span className="absolute inset-0 flex items-center justify-center text-[11px] text-fg-3">Loading…</span>}

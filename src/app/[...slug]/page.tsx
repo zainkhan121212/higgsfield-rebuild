@@ -6,7 +6,7 @@ import { ProductPage } from "@/components/pages/product-page";
 // Product pages behind the nav (/mcp, /gpt-astra, /generate, /academy, …).
 // Static routes elsewhere in app/ take precedence over this catch-all.
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic"; // per-request CSP nonce needs dynamic rendering
 
 export function generateStaticParams() {
   return PAGES.map((p) => ({ slug: [p.slug] }));

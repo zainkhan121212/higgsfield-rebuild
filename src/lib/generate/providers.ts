@@ -23,6 +23,8 @@ export interface ImageRequest {
   resolution: string;
   batch: number;
   seed: string;
+  /** small, fast renders (preview frames) */
+  small?: boolean;
 }
 
 export interface ImageResult {
@@ -38,7 +40,7 @@ function baseFor(resolution: string) {
 }
 
 export async function generateImage(req: ImageRequest): Promise<ImageResult> {
-  const { width, height } = dimsFor(req.ratio, baseFor(req.resolution));
+  const { width, height } = dimsFor(req.ratio, req.small ? 640 : baseFor(req.resolution));
   const backend = req.model.backend;
 
   if (backend.type === "fal" && hasFal()) {
@@ -69,13 +71,14 @@ export async function generateImage(req: ImageRequest): Promise<ImageResult> {
   if (process.env.IMAGE_MODE !== "placeholder") {
     const styled = backend.type === "fal" && backend.styleSuffix ? `${req.prompt}, ${backend.styleSuffix}` : req.prompt;
     const urls = Array.from({ length: req.batch }, (_, i) => pollinationsUrl(styled, width, height, hash(`${req.seed}-${i}`)));
-    // The keyless tier rate-limits concurrent requests, so warm sequentially
-    // within a time budget; whatever is left renders lazily in the browser.
-    const deadline = Date.now() + 45_000;
+    // The keyless tier rate-limits bursts, so warm sequentially within a time
+    // budget. Warming is best-effort: the URLs are deterministic, so anything
+    // that isn't cached yet simply renders lazily in the browser (with retry).
+    const deadline = Date.now() + 40_000;
     for (const [i, u] of urls.entries()) {
       const left = deadline - Date.now();
       if (left < 3_000) break;
-      await warm(u, Math.min(left, 30_000), i === 0 ? 3 : 1);
+      await warm(u, Math.min(left, 25_000), i === 0 ? 3 : 1);
     }
     return { urls, width, height, simulated: false };
   }
@@ -104,7 +107,8 @@ async function warm(url: string, timeoutMs: number, attempts: number) {
     try {
       const res = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
       if (res.status === 429 || res.status >= 500) {
-        if (attempt === attempts) throw new Error(`Image backend is busy (${res.status}). Try again in a moment.`);
+        // Transient: back off, then give up quietly — the browser will retry.
+        if (attempt === attempts) return;
         await sleep(4_000 * attempt);
         continue;
       }
@@ -125,6 +129,8 @@ async function warm(url: string, timeoutMs: number, attempts: number) {
 export interface VideoRequest {
   model: VideoModel;
   presetId?: string | null;
+  /** chosen preview frame → image-to-video */
+  imageUrl?: string;
   prompt: string;
   ratio: string;
   resolution: string;
@@ -148,14 +154,16 @@ export async function generateVideo(req: VideoRequest): Promise<VideoResult> {
   const backend = req.model.backend;
 
   if (backend.type === "fal" && realVideo()) {
+    // With a chosen first frame, use the image-to-video variant of the model.
+    const endpoint = req.imageUrl ? backend.endpoint.replace("text-to-video", "image-to-video").replace("video-01", "video-01/image-to-video") : backend.endpoint;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await client().subscribe(backend.endpoint as any, {
+    const result = await client().subscribe(endpoint as any, {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      input: { prompt: req.prompt, aspect_ratio: req.ratio, duration: String(req.durationSec) } as any,
+      input: { prompt: req.prompt, aspect_ratio: req.ratio, duration: String(req.durationSec), ...(req.imageUrl ? { image_url: req.imageUrl } : {}) } as any,
       logs: false,
     });
     const data = result.data as { video: { url: string } };
-    return { url: data.video.url, width, height, simulated: false };
+    return { url: data.video.url, thumbnailUrl: req.imageUrl, width, height, simulated: false };
   }
 
   // Simulated: a believable wait, then the stock clip that matches the

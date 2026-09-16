@@ -5,17 +5,26 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
+import { audit, checkLoginAllowed, clearLoginFailures, clientIp, passwordProblem, rateLimit, recordLoginFailure } from "./security";
 import type { User } from "@prisma/client";
 
 // Guest-first auth: the first visit creates a user with real credits and pins
-// it to a signed httpOnly cookie. Signing up attaches an email + password to
-// that same row, so credits and generations carry over. Logging in swaps the
-// cookie to the matching account.
+// it to a signed httpOnly cookie. Signing up attaches an email + password (or
+// a passkey) to that same row, so credits and generations carry over.
+//
+// Session token = `${userId}.${issuedAt}.${hmac}`. The HMAC covers both
+// fields; tokens expire after 30 days; SESSION_VERSION in the secret lets us
+// invalidate every session at once.
 
-export const SESSION_COOKIE = "hf_session";
+const PROD = process.env.NODE_ENV === "production";
+// `__Host-` cookies can only be set by this exact origin, over HTTPS, with
+// Path=/ and no Domain — a subdomain or an attacker's page can't plant one.
+export const SESSION_COOKIE = PROD ? "__Host-hf_session" : "hf_session";
 export const FREE_CREDITS = 100;
+const SESSION_TTL_SEC = 60 * 60 * 24 * 30;
+const SESSION_VERSION = "v2";
 
-const SECRET = process.env.AUTH_SECRET || "dev-only-secret-change-me";
+const SECRET = (process.env.AUTH_SECRET || "dev-only-secret-change-me") + ":" + SESSION_VERSION;
 const handleId = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
 
 const ADJ = ["quiet", "bright", "wandering", "electric", "velvet", "lucid", "neon", "amber", "cosmic", "paper"];
@@ -27,27 +36,29 @@ function randomName() {
   return `${a}_${n}${Math.floor(Math.random() * 900 + 100)}`;
 }
 
-function sign(id: string) {
-  return createHmac("sha256", SECRET).update(id).digest("base64url");
+function sign(payload: string) {
+  return createHmac("sha256", SECRET).update(payload).digest("base64url");
 }
 
 function verify(value: string | undefined): string | null {
   if (!value) return null;
-  const [id, sig] = value.split(".");
-  if (!id || !sig) return null;
-  const expected = sign(id);
-  if (expected.length !== sig.length) return null;
-  return timingSafeEqual(Buffer.from(expected), Buffer.from(sig)) ? id : null;
+  const [id, iat, sig] = value.split(".");
+  if (!id || !iat || !sig) return null;
+  const expected = sign(`${id}.${iat}`);
+  if (expected.length !== sig.length || !timingSafeEqual(Buffer.from(expected), Buffer.from(sig))) return null;
+  if (Date.now() / 1000 - Number(iat) > SESSION_TTL_SEC) return null;
+  return id;
 }
 
 async function setSession(id: string) {
+  const iat = Math.floor(Date.now() / 1000);
   const jar = await cookies();
-  jar.set(SESSION_COOKIE, `${id}.${sign(id)}`, {
+  jar.set(SESSION_COOKIE, `${id}.${iat}.${sign(`${id}.${iat}`)}`, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: PROD,
     path: "/",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: SESSION_TTL_SEC,
   });
 }
 
@@ -63,30 +74,41 @@ export const getSessionUser = cache(async (): Promise<User | null> => {
 export async function getOrCreateUser(): Promise<User> {
   const existing = await getSessionUser();
   if (existing) return existing;
+  // Free-credit abuse control: a single IP gets at most 5 fresh guest
+  // accounts an hour. Real visitors never notice; a credit-farming script does.
+  const ip = await clientIp();
+  await rateLimit("guest-create", ip, 5, 3600);
   const name = randomName();
   const user = await db.user.create({
     data: {
       name,
       handle: `${name}_${handleId()}`,
       credits: FREE_CREDITS,
+      signupIp: ip,
       ledger: { create: { delta: FREE_CREDITS, reason: "welcome" } },
     },
   });
   await setSession(user.id);
+  await audit("guest_created", { userId: user.id });
   return user;
 }
 
 export class AuthError extends Error {}
 
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
 export async function signUp(email: string, password: string, name?: string): Promise<User> {
   email = email.trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new AuthError("Enter a valid email address.");
-  if (password.length < 8) throw new AuthError("Password needs at least 8 characters.");
+  const ip = await clientIp();
+  await rateLimit("signup", ip, 10, 3600);
+  if (!EMAIL_RE.test(email) || email.length > 254) throw new AuthError("Enter a valid email address.");
+  const problem = passwordProblem(password);
+  if (problem) throw new AuthError(problem);
   if (await db.user.findUnique({ where: { email } })) throw new AuthError("That email already has an account. Log in instead.");
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 12);
   const current = await getSessionUser();
-  const displayName = name?.trim() || email.split("@")[0];
+  const displayName = (name?.trim() || email.split("@")[0]).slice(0, 40);
 
   // Upgrade the guest in place so nothing is lost; otherwise create fresh.
   const user =
@@ -99,26 +121,47 @@ export async function signUp(email: string, password: string, name?: string): Pr
             name: displayName,
             handle: `${displayName.replace(/[^a-z0-9]+/gi, "_").toLowerCase().slice(0, 20)}_${handleId()}`,
             credits: FREE_CREDITS,
+            signupIp: ip,
             ledger: { create: { delta: FREE_CREDITS, reason: "welcome" } },
           },
         });
   await setSession(user.id);
+  await audit("signup", { userId: user.id });
   return user;
 }
 
 export async function logIn(email: string, password: string): Promise<User> {
   email = email.trim().toLowerCase();
+  const ip = await clientIp();
+  await rateLimit("login", ip, 30, 900);
+  await checkLoginAllowed(email, ip);
   const user = await db.user.findUnique({ where: { email } });
-  if (!user || !user.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
+  // Constant-ish time: always run a compare so unknown emails cost the same.
+  const ok = user?.passwordHash ? await bcrypt.compare(password, user.passwordHash) : await bcrypt.compare(password, DUMMY_HASH).then(() => false);
+  if (!user || !ok) {
+    await recordLoginFailure(email, ip);
+    await audit("login_failed", { userId: user?.id, meta: { email } });
     throw new AuthError("Wrong email or password.");
   }
-  await setSession(user.id);
+  await clearLoginFailures(email);
+  await setSession(user.id); // fresh token on every login (rotation)
+  await audit("login", { userId: user.id });
   return user;
 }
 
+const DUMMY_HASH = "$2a$12$CwTycUXWue0Thq9StjUM0uJ8b4fZ7QzWkQ1B0nT2f5r0M2u0mE7Jm";
+
+/** Passkey login: called after the WebAuthn assertion verified. */
+export async function logInWithUserId(userId: string) {
+  await setSession(userId);
+  await audit("login_passkey", { userId });
+}
+
 export async function signOut() {
+  const user = await getSessionUser();
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
+  if (user) await audit("logout", { userId: user.id });
 }
 
 export function toSessionUser(u: User) {

@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 import { db } from "@/lib/db";
 import { getOrCreateUser, toSessionUser } from "@/lib/auth";
+import { handle, readJson } from "@/lib/api";
+import { audit, rateLimit } from "@/lib/security";
+import { z } from "zod";
 import { getPlan } from "@/lib/catalog/plans";
 import { getPack } from "@/lib/catalog/packs";
 
@@ -10,9 +13,18 @@ import { getPack } from "@/lib/catalog/packs";
 // writes a ledger entry with the order number.
 const orderNo = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 8);
 
-export async function POST(req: Request) {
+const schema = z.object({
+  kind: z.enum(["plan", "pack"]),
+  id: z.string().max(20),
+  credits: z.number().int().min(0).max(100000).optional(),
+  interval: z.enum(["monthly", "annual"]).optional(),
+});
+
+export function POST(req: Request) {
+  return handle(async () => {
   const user = await getOrCreateUser();
-  const body = (await req.json()) as { kind: "plan" | "pack"; id: string; credits?: number; interval?: "monthly" | "annual" };
+  await rateLimit("checkout", user.id, 20, 3600);
+  const body = await readJson(req, schema);
 
   let grant = 0;
   let amount = 0;
@@ -46,5 +58,7 @@ export async function POST(req: Request) {
     return u;
   });
 
+  await audit("checkout", { userId: user.id, meta: { order, amount, grant } });
   return NextResponse.json({ order, amount, grant, label, user: toSessionUser(updated) });
+  });
 }

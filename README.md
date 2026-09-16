@@ -6,6 +6,7 @@ A working rebuild of [higgsfield.ai](https://higgsfield.ai): image and video gen
 - Recon of the original: [`docs/recon/notes.md`](docs/recon/notes.md)
 - What was built first and what was left out: [`docs/PLAN.md`](docs/PLAN.md)
 - Agent capture proof: [`CAPTURE-TEST.md`](CAPTURE-TEST.md), logs in [`.agent-logs/`](.agent-logs/)
+- Security measures and how to talk about them: [`docs/SECURITY.md`](docs/SECURITY.md)
 
 ## Stack
 

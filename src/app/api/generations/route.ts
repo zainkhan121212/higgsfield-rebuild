@@ -10,7 +10,10 @@ export async function GET(req: Request) {
   const kind = url.searchParams.get("kind");
   const take = Math.min(Number(url.searchParams.get("take") ?? 40), 100);
   const gens = await db.generation.findMany({
-    where: { userId: user.id, ...(kind === "image" ? { kind: "IMAGE" } : kind === "video" ? { kind: "VIDEO" } : {}) },
+    where: {
+      userId: user.id,
+      ...(kind === "image" ? { kind: "IMAGE", presetId: null } : kind === "video" ? { kind: "VIDEO" } : { OR: [{ presetId: null }, { NOT: { presetId: { startsWith: "preview:" } } }] }),
+    },
     orderBy: { createdAt: "desc" },
     take,
   });

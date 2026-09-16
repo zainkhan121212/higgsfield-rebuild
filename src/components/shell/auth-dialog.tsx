@@ -8,6 +8,7 @@ import { useSession, type SessionUser } from "./session";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
+import { PasskeyLoginButton } from "./passkeys";
 
 export type AuthMode = "login" | "signup";
 
@@ -16,6 +17,7 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [honey, setHoney] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setUser } = useSession();
@@ -28,10 +30,11 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
     const res = await fetch(`/api/auth/${mode}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, website: honey }),
     });
     const data = await res.json();
     setBusy(false);
+    if (res.status === 429) return setError("Too many attempts. Wait a few minutes and try again.");
     if (!res.ok) return setError(data.error ?? "Something went wrong");
     setUser(data.user);
     toast(mode === "signup" ? "Welcome to Higgsfield" : "Welcome back", { body: `Signed in as ${data.user.email}`, tone: "success" });
@@ -50,6 +53,7 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
       </div>
 
       <div className="grid gap-2">
+        <PasskeyLoginButton onDone={onDone} />
         <button type="button" disabled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-line bg-card text-[13px] font-medium text-fg-3" title="OAuth isn't wired in this build">
           <GoogleG /> Continue with Google <span className="ml-1 rounded bg-white/6 px-1 text-[9px] uppercase">soon</span>
         </button>
@@ -60,6 +64,8 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
       </div>
 
       <form onSubmit={submit} className="grid gap-2.5">
+        {/* Honeypot: hidden from people, irresistible to bots. */}
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] h-0 w-0 opacity-0" value={honey} onChange={(e) => setHoney(e.target.value)} />
         {mode === "signup" && (
           <Field label="Name">
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="How should we call you?" className={input} autoComplete="name" />

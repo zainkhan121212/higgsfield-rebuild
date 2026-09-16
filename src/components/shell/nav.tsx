@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Building2, Sparkles, Tag } from "lucide-react";
+import { Building2, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "./session";
 import { Pill } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Logo } from "./logo";
 import { SearchButton } from "./search";
 import { AuthDialog } from "./auth-dialog";
 import { NAV_PAGES } from "@/lib/catalog/pages";
+import { NotificationsButton } from "./notifications";
 
 const PRIMARY = [
   { href: "/", label: "Explore", match: (p: string) => p === "/" },
@@ -101,9 +102,7 @@ export function Nav() {
               </Link>
               {user.email ? (
                 <>
-                  <button aria-label="Notifications" className="hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex">
-                    <Bell className="h-4 w-4" />
-                  </button>
+                  <NotificationsButton />
                   <AccountMenu />
                 </>
               ) : (
