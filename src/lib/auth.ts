@@ -160,7 +160,9 @@ export async function logInWithUserId(userId: string) {
 export async function signOut() {
   const user = await getSessionUser();
   const jar = await cookies();
-  jar.delete(SESSION_COOKIE);
+  // A __Host- cookie can only be cleared by a Set-Cookie that repeats its
+  // Secure + Path=/ attributes; a bare delete() is ignored by the browser.
+  jar.set(SESSION_COOKIE, "", { httpOnly: true, sameSite: "lax", secure: PROD, path: "/", maxAge: 0, expires: new Date(0) });
   if (user) await audit("logout", { userId: user.id });
 }
 
