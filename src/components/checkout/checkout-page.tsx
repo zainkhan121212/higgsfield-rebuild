@@ -80,7 +80,7 @@ export function CheckoutPage() {
 
           {step === "review" && (
             <div className="mt-6">
-              <h1 className="text-xl font-semibold">Review your order</h1>
+              <h1 className="display text-[24px]">Review your order</h1>
               <p className="mt-1 text-[13px] text-fg-2">Credits are added to your account the moment payment completes.</p>
               {needsAccount ? (
                 <div className="mt-5 rounded-xl border border-lime/30 bg-lime/5 p-4">
@@ -108,7 +108,7 @@ export function CheckoutPage() {
 
           {(step === "pay" || step === "processing") && (
             <form onSubmit={pay} className="mt-6">
-              <h1 className="text-xl font-semibold">Payment</h1>
+              <h1 className="display text-[24px]">Payment</h1>
               <div className="mt-1 flex items-center gap-1.5 text-[12px] text-fg-3">
                 <Lock className="h-3.5 w-3.5" /> Demo checkout — nothing is charged and card details never leave this page. Use <code className="rounded bg-fg/8 px-1">4242 4242 4242 4242</code>, any future date, any CVC.
               </div>
@@ -163,7 +163,7 @@ export function CheckoutPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-lime text-paper">
                 <Check className="h-6 w-6" />
               </div>
-              <h1 className="mt-4 text-xl font-semibold">Payment complete</h1>
+              <h1 className="display mt-4 text-[24px]">Payment complete</h1>
               <p className="mt-1 text-[13px] text-fg-2">Order <span className="font-mono text-fg">{result.order}</span> · {order.grant.toLocaleString()} credits added.</p>
               <dl className="mt-5 grid grid-cols-2 gap-y-2 rounded-xl border border-line bg-bg-elev p-4 text-[13px]">
                 <dt className="text-fg-3">Item</dt><dd className="text-right font-medium">{order.label}</dd>

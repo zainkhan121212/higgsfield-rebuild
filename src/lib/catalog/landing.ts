@@ -103,7 +103,14 @@ function generated(): Landing {
       soulCinema: generatedRow("soulCinema", "Frameline Cinema", "Explore the community gallery for stunning Frameline Cinema creations.", "/ai/image?model=soul_cinema"),
       soul2: generatedRow("soul2", "Frameline Portrait 2.0", "A culture-native photo model built for fashion, aesthetics, and creative expression.", "/ai/image?model=soul_2"),
     },
-    projects: PROJECT_CLIPS.map((p) => ({ slug: p.title.toLowerCase().replace(/\s+/g, "-"), title: p.title, poster: "", video: clipUrl(p.clip.id) })),
+    // Give each project a still of our own so the block is never empty while
+    // its clip loads.
+    projects: PROJECT_CLIPS.map((p, i) => ({
+      slug: p.title.toLowerCase().replace(/\s+/g, "-"),
+      title: p.title,
+      poster: (MEDIA as Record<string, string>)[`row-seedance2-${i % 6}`] ?? "",
+      video: clipUrl(p.clip.id),
+    })),
     moreFeatures: MORE_FEATURES,
     footer: FOOTER,
   };

@@ -17,7 +17,7 @@ export default async function AccountPage() {
   if (!user) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold">No account yet</h1>
+        <h1 className="display text-[24px]">No account yet</h1>
         <p className="mt-2 text-[13px] text-fg-2">Generate something first, or create an account.</p>
         <Link href="/signup" className="mt-4 inline-block rounded-full bg-lime px-5 py-2 text-[13px] font-semibold text-paper">Sign up</Link>
       </main>
@@ -34,7 +34,7 @@ export default async function AccountPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-semibold">Account</h1>
+      <h1 className="display text-[30px]">Account</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Card title="Profile">
           <div className="text-[15px] font-semibold">{user.name}</div>

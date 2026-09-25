@@ -41,28 +41,33 @@ export function ProductPage({ page }: { page: PageDef }) {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-3 pb-20 pt-4 sm:px-5">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-fg/8 bg-card">
-        {heroStrip ? (
-          <div className="grid grid-cols-3 gap-1 sm:grid-cols-6">
-            {heroStrip.map((t, i) => (
-              <MediaTile key={i} poster={t.poster} video={t.video} play="auto" className="aspect-[3/4]" />
-            ))}
+      {/* Picture first, then the words underneath it, the way a plate and its
+          caption sit on a page. No scrim, so the media is never muddied. */}
+      <section>
+        <div className="overflow-hidden border border-fg/12">
+          {heroStrip ? (
+            <div className="grid grid-cols-3 gap-px bg-fg/10 sm:grid-cols-6">
+              {heroStrip.map((t, i) => (
+                <MediaTile key={i} poster={t.poster} video={t.video} play="auto" className="aspect-[3/4]" />
+              ))}
+            </div>
+          ) : (
+            <MediaTile poster={heroTile?.poster} video={heroTile?.video} play="auto" className="aspect-[16/7] min-h-[280px]" />
+          )}
+        </div>
+        <div className="mt-6 grid gap-6 border-t border-fg/20 pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end">
+          <div>
+            {page.badge && <Pill tone="lime">{page.badge}</Pill>}
+            <h1 className="display mt-3 max-w-3xl text-[clamp(2.1rem,4.6vw,3.4rem)]">{page.title}</h1>
+            <p className="mt-4 max-w-[56ch] text-[15px] leading-[1.6] text-fg-2">{page.tagline}</p>
           </div>
-        ) : (
-          <MediaTile poster={heroTile?.poster} video={heroTile?.video} play="auto" className="aspect-[16/7] min-h-[320px]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
-          {page.badge && <Pill tone="lime">{page.badge}</Pill>}
-          <h1 className="display mt-2 max-w-3xl text-3xl sm:text-5xl">{page.title}</h1>
-          <p className="mt-3 max-w-xl text-[14px] text-fg-2 sm:text-[15px]">{page.tagline}</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link href={page.cta.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-lime px-5 text-[14px] font-semibold text-paper hover:bg-lime-2">
-              <Sparkles className="h-4 w-4" /> {page.cta.label}
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <Link href={page.cta.href} className="inline-flex h-11 items-center gap-2 bg-fg px-5 font-mono text-[11px] uppercase tracking-[0.14em] text-paper hover:bg-lime">
+              <Sparkles className="h-3.5 w-3.5" /> {page.cta.label}
             </Link>
             {page.secondary && (
-              <Link href={page.secondary.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-fg/10 px-5 text-[14px] font-semibold hover:bg-fg/15">
-                {page.secondary.label} <ArrowRight className="h-4 w-4" />
+              <Link href={page.secondary.href} className="inline-flex h-11 items-center gap-2 border border-fg/30 px-5 font-mono text-[11px] uppercase tracking-[0.14em] hover:border-fg">
+                {page.secondary.label} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             )}
           </div>
@@ -232,7 +237,7 @@ function Courses({ L }: { L: Landing }) {
         {courses.map(([t, b, d], i) => {
           const p = L.projects[i] ?? L.projects[0];
           return (
-            <Link key={t} href="/ai/video" className="group overflow-hidden rounded-2xl border border-line bg-card transition hover:border-fg-3">
+            <Link key={t} href="/ai/video" className="group overflow-hidden border border-line bg-card transition hover:border-fg">
               <MediaTile poster={p?.poster} video={p?.video} hls={p?.hls} play="auto" className="aspect-[16/9]" />
               <div className="p-4">
                 <div className="flex items-center gap-2 text-[11px] text-fg-3"><Play className="h-3 w-3" /> {d}</div>
@@ -309,7 +314,7 @@ function Canvases({ L }: { L: Landing }) {
       </div>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {L.effects.slice(0, 8).map((e, i) => (
-          <Link key={e.id} href="/ai/image" className="group overflow-hidden rounded-2xl border border-line bg-card transition hover:border-fg-3">
+          <Link key={e.id} href="/ai/image" className="group overflow-hidden border border-line bg-card transition hover:border-fg">
             <MediaTile poster={e.poster} className="aspect-[4/3]" />
             <div className="p-3">
               <div className="text-[13px] font-semibold">{["Moodboard", "Product launch", "Character sheet", "Storyboard", "Ad variations", "Lookbook", "Thumbnail set", "Pitch deck"][i]}</div>

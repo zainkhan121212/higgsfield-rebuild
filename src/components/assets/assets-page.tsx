@@ -113,7 +113,7 @@ export function AssetsPage({ initialFilter }: { initialFilter: string }) {
 
       <section className="thin-scroll flex min-w-0 flex-1 flex-col overflow-y-auto p-4 lg:h-[var(--studio-h)] sm:p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold">{title}</h1>
+          <h1 className="display text-[21px]">{title}</h1>
           <label className="flex items-center gap-2 text-[11px] text-fg-3">
             <LayoutGrid className="h-3.5 w-3.5" />
             <input type="range" min={1} max={5} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-24 accent-lime" />
