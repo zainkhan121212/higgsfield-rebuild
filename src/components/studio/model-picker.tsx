@@ -57,13 +57,13 @@ export function ModelPicker({
     <Popover.Root open={open} onOpenChange={setOpenAndReset}>
       <Popover.Trigger asChild>
         {variant === "chip" ? (
-          <button className={cn("flex h-9 items-center gap-2 rounded-lg bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424]", className)}>
+          <button className={cn("flex h-9 items-center gap-2 rounded-lg bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-line", className)}>
             <VendorIcon vendor={value.vendor} className="h-4 w-4" />
             <span className="max-w-[160px] truncate">{value.name}</span>
             <ChevronRight className="h-3.5 w-3.5 text-fg-3" />
           </button>
         ) : (
-          <button className={cn("flex w-full items-center justify-between rounded-xl bg-card-2 px-3 py-2.5 text-left hover:bg-[#242424]", className)}>
+          <button className={cn("flex w-full items-center justify-between rounded-xl bg-card-2 px-3 py-2.5 text-left hover:bg-line", className)}>
             <div>
               <div className="text-[11px] text-fg-3">Model</div>
               <div className="flex items-center gap-1.5 text-[13px] font-semibold">
@@ -134,7 +134,7 @@ function Row({ m, selected, onSelect }: { m: Model; selected: boolean; onSelect:
   return (
     <button
       onClick={onSelect}
-      className={cn("flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left hover:bg-white/6", selected && "bg-white/6")}
+      className={cn("flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left hover:bg-fg/6", selected && "bg-fg/6")}
     >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-elev">
         <VendorIcon vendor={m.vendor} className="h-4 w-4" />
@@ -144,7 +144,7 @@ function Row({ m, selected, onSelect }: { m: Model; selected: boolean; onSelect:
           <span className="truncate text-[13px] font-semibold">{m.name}</span>
           {m.badge && <Pill tone={m.badge === "TOP" ? "blue" : m.badge === "NEW" ? "lime" : "gray"}>{m.badge}</Pill>}
           {sim && (
-            <span title="Runs on a simulated backend in this build" className="rounded-[4px] bg-white/8 px-1 text-[9px] font-semibold uppercase text-fg-3">
+            <span title="Runs on a simulated backend in this build" className="rounded-[4px] bg-fg/8 px-1 text-[9px] font-semibold uppercase text-fg-3">
               sim
             </span>
           )}
@@ -152,7 +152,7 @@ function Row({ m, selected, onSelect }: { m: Model; selected: boolean; onSelect:
         <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-fg-3">
           {m.kind === "video" ? (
             caps.map((c) => (
-              <span key={c} className="rounded-[4px] bg-white/6 px-1 py-[1px]">
+              <span key={c} className="rounded-[4px] bg-fg/6 px-1 py-[1px]">
                 {c}
               </span>
             ))

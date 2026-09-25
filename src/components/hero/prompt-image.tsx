@@ -103,12 +103,16 @@ export function PromptImage({
           let key: number;
           let color: string;
           if (palette === "ink") {
-            // Darkness becomes ink. Light areas are left as paper.
+            // Darkness becomes ink; light areas are left as paper. The gamma
+            // is deliberate: a letter at half-depth still has to read as
+            // writing, so the ramp is pushed towards opaque and only the
+            // faintest cells stay grey.
             const depth = 1 - lum;
-            if (depth < 0.3) continue;
+            if (depth < 0.22) continue;
             const level = Math.min(9, Math.max(1, Math.round(depth * 9)));
             key = 1000 + level;
-            color = `rgba(${ink},${(level / 9).toFixed(2)})`;
+            const alpha = 0.32 + 0.68 * Math.pow(level / 9, 0.75);
+            color = `rgba(${ink},${alpha.toFixed(2)})`;
           } else {
             if (lum < 0.1) continue; // darkest areas stay as negative space
             // Lift a little so the picture still reads as type.

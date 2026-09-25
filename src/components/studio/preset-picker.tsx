@@ -61,7 +61,7 @@ export function PresetPicker({
               <Search className="h-3.5 w-3.5 text-fg-3" />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="w-28 bg-transparent text-[13px] outline-none placeholder:text-fg-3 sm:w-40" />
             </div>
-            <Dialog.Close className="rounded-full p-2 text-fg-2 hover:bg-white/8" aria-label="Close">
+            <Dialog.Close className="rounded-full p-2 text-fg-2 hover:bg-fg/8" aria-label="Close">
               <X className="h-4 w-4" />
             </Dialog.Close>
           </div>

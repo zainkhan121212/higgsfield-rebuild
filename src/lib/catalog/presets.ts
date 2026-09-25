@@ -1,3 +1,4 @@
+import MEDIA from "./media-manifest.json";
 // Video presets ("Effects"). Each one is a camera/VFX recipe appended to the
 // user's prompt. Thumbnails are gradient tiles until a generation replaces
 // them (see /api/presets/thumb).
@@ -44,6 +45,11 @@ export const PRESETS: Preset[] = [
 
 /** Deterministic sample-frame URL for a preset (keyless FLUX endpoint; cached on their CDN after first hit). */
 export function presetThumbUrl(p: Preset, size: "card" | "wide" = "card"): string {
+  // Prefer the still we generated ourselves and ship from our own origin; the
+  // keyless endpoint below is only the fallback for a key that has not been
+  // generated yet (see scripts/generate-media.mjs).
+  const local = (MEDIA as Record<string, string>)[`preset-${p.id}-${size}`];
+  if (local) return local;
   const subject = PRESET_SUBJECTS[hashStr(p.id) % PRESET_SUBJECTS.length];
   const prompt = p.id === "general"
     ? `${subject}, cinematic film still, natural light, 35mm, shallow depth of field`

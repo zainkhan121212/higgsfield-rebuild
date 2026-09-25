@@ -28,7 +28,7 @@ export function SettingChip<T extends string | number>({
       <Popover.Trigger asChild>
         <button
           title={label}
-          className={cn("flex h-9 items-center gap-1.5 rounded-lg bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424]", className)}
+          className={cn("flex h-9 items-center gap-1.5 rounded-lg bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-line", className)}
         >
           {icon && <span className="text-fg-2">{icon}</span>}
           {format(value)}
@@ -44,7 +44,7 @@ export function SettingChip<T extends string | number>({
                 onChange(o);
                 setOpen(false);
               }}
-              className={cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[13px] hover:bg-white/6", o === value && "text-lime")}
+              className={cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[13px] hover:bg-fg/6", o === value && "text-lime")}
             >
               {format(o)}
               {o === value && <Check className="h-3.5 w-3.5" />}

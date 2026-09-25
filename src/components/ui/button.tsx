@@ -4,20 +4,22 @@ import { cn } from "@/lib/utils";
 type Variant = "lime" | "white" | "ghost" | "dark" | "outline" | "pink";
 type Size = "sm" | "md" | "lg" | "icon";
 
+// Buttons are set like letterpress: square corners, ink or accent, never a
+// gradient. `white` is the primary (solid ink on paper).
 const variants: Record<Variant, string> = {
-  lime: "bg-lime text-black hover:bg-lime-2 shadow-[0_0_0_1px_rgba(211,255,61,0.2)]",
-  white: "bg-white text-black hover:bg-neutral-200",
-  ghost: "bg-transparent text-fg hover:bg-white/8",
-  dark: "bg-card-2 text-fg hover:bg-[#242424] border border-line",
-  outline: "bg-transparent text-fg border border-line-2 hover:border-fg-3",
+  lime: "bg-lime text-paper hover:bg-lime-2",
+  white: "bg-fg text-paper hover:bg-fg-2",
+  ghost: "bg-transparent text-fg hover:bg-fg/[0.06]",
+  dark: "bg-card-2 text-fg hover:bg-line border border-line",
+  outline: "bg-transparent text-fg border border-fg/30 hover:border-fg",
   pink: "bg-pink text-white hover:brightness-110",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-[13px] rounded-full",
-  md: "h-10 px-4 text-sm rounded-full",
-  lg: "h-12 px-6 text-[15px] rounded-xl",
-  icon: "h-9 w-9 rounded-full",
+  sm: "h-8 px-3.5 text-[13px] rounded-[2px]",
+  md: "h-10 px-5 text-sm rounded-[2px]",
+  lg: "h-12 px-7 text-[15px] rounded-[2px]",
+  icon: "h-9 w-9 rounded-[2px]",
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -46,13 +48,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
 export function Pill({ children, tone = "lime", className }: { children: React.ReactNode; tone?: "lime" | "pink" | "blue" | "gray"; className?: string }) {
   const tones = {
-    lime: "bg-lime text-black",
+    lime: "bg-lime text-paper",
     pink: "bg-pink text-white",
-    blue: "bg-[#3b82f6] text-white",
-    gray: "bg-white/10 text-fg-2",
+    blue: "bg-[#1d4f7c] text-white",
+    gray: "bg-fg/8 text-fg-2",
   };
   return (
-    <span className={cn("inline-flex items-center rounded-[4px] px-1.5 py-[1px] text-[10px] font-bold uppercase tracking-wide leading-4", tones[tone], className)}>
+    <span className={cn("inline-flex items-center rounded-[2px] px-1.5 py-[1px] font-mono text-[9px] font-semibold uppercase tracking-[0.12em] leading-4", tones[tone], className)}>
       {children}
     </span>
   );

@@ -118,7 +118,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
             <Film className="mx-auto mb-2 h-6 w-6 text-fg-3" />
             {tab === "edit" ? "Upload a clip and describe the change — Seedance 2.5 Edit." : "Drive a character with a reference video — Kling 3.0 Motion Control."}
             <div className="mt-2 text-[11px] text-fg-3">Not in this build. Create Video is fully working.</div>
-            <button onClick={() => setTab("create")} className="mt-3 rounded-full bg-white/8 px-3 py-1.5 text-[12px] font-medium hover:bg-white/12">
+            <button onClick={() => setTab("create")} className="mt-3 rounded-full bg-fg/8 px-3 py-1.5 text-[12px] font-medium hover:bg-fg/12">
               Back to Create
             </button>
           </div>
@@ -132,7 +132,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
                 <div className="display text-lg text-lime">{preset.name}</div>
                 <div className="text-[11px] text-fg-2">{model.name}</div>
               </div>
-              <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[11px] font-medium backdrop-blur group-hover:bg-lime group-hover:text-black">
+              <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[11px] font-medium backdrop-blur group-hover:bg-lime group-hover:text-paper">
                 <Pencil className="h-3 w-3" /> Change
               </span>
             </button>
@@ -140,7 +140,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
             {/* Mode */}
             <div className="grid grid-cols-2 rounded-lg bg-card p-1 text-[12px] font-semibold">
               {(["references", "extend"] as const).map((m) => (
-                <button key={m} onClick={() => setMode(m)} className={cn("rounded-md py-1.5", mode === m ? "bg-[#2a2a2a] text-fg" : "text-fg-3 hover:text-fg-2")}>
+                <button key={m} onClick={() => setMode(m)} className={cn("rounded-md py-1.5", mode === m ? "bg-line-2 text-fg" : "text-fg-3 hover:text-fg-2")}>
                   {m === "references" ? "References" : "Extend Video"}
                 </button>
               ))}
@@ -165,7 +165,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
                 </div>
               ) : (
                 <>
-                  <div className="mx-auto mb-2 flex w-fit items-center gap-1 rounded-full bg-white/6 p-1">
+                  <div className="mx-auto mb-2 flex w-fit items-center gap-1 rounded-full bg-fg/6 p-1">
                     {[ImageIcon, Film, Music].map((I, i) => (
                       <button key={i} onClick={() => fileInput.current?.click()} className="flex h-7 w-7 items-center justify-center rounded-full bg-card-2 text-fg-2 hover:text-fg">
                         <I className="h-3.5 w-3.5" />
@@ -197,10 +197,10 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
                 className="thin-scroll w-full resize-none bg-transparent text-[13px] leading-relaxed outline-none placeholder:text-fg-3"
               />
               <div className="mt-2 flex items-center gap-1.5">
-                <button className="flex h-7 items-center gap-1 rounded-full bg-white/6 px-2 text-[11px] font-medium text-fg-2 hover:text-fg">
+                <button className="flex h-7 items-center gap-1 rounded-full bg-fg/6 px-2 text-[11px] font-medium text-fg-2 hover:text-fg">
                   <AtSign className="h-3 w-3" /> Elements
                 </button>
-                <button onClick={() => setAudio((a) => !a)} className="flex h-7 items-center gap-1 rounded-full bg-white/6 px-2 text-[11px] font-medium text-fg-2 hover:text-fg">
+                <button onClick={() => setAudio((a) => !a)} className="flex h-7 items-center gap-1 rounded-full bg-fg/6 px-2 text-[11px] font-medium text-fg-2 hover:text-fg">
                   {audio ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />} {audio ? "On" : "Off"}
                 </button>
               </div>
@@ -226,12 +226,12 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
             </div>
             <SettingChip icon={<SlidersHorizontal className="h-3.5 w-3.5" />} label="Bitrate" value={bitrate} options={["Standard", "High"] as const} onChange={setBitrate} className="w-full justify-between" format={(v) => `Bitrate · ${v}`} />
 
-            <button onClick={generate} disabled={busy} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-lime text-[15px] font-semibold text-black hover:bg-lime-2 disabled:opacity-60">
+            <button onClick={generate} disabled={busy} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-lime text-[15px] font-semibold text-paper hover:bg-lime-2 disabled:opacity-60">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Generate
               <span className="flex items-center gap-1 text-[13px] font-medium">
                 <Sparkles className="h-3.5 w-3.5" />
-                <s className="text-black/50">{listCost}</s>
+                <s className="text-fg-3">{listCost}</s>
                 <b>{cost}</b>
               </span>
             </button>
@@ -246,7 +246,7 @@ export function VideoStudio({ initialModelId, initialPresetId }: { initialModelI
       <section className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-1 border-b border-line px-4 py-2 text-[12px] font-medium">
           {(["history", "how"] as const).map((t) => (
-            <button key={t} onClick={() => setRightTab(t)} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", rightTab === t ? "bg-white/10 text-fg" : "text-fg-3 hover:text-fg-2")}>
+            <button key={t} onClick={() => setRightTab(t)} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", rightTab === t ? "bg-fg/10 text-fg" : "text-fg-3 hover:text-fg-2")}>
               {t === "history" ? <Film className="h-3.5 w-3.5" /> : <Upload className="h-3.5 w-3.5" />}
               {t === "history" ? "History" : "How it works"}
             </button>
@@ -294,7 +294,7 @@ function HowItWorks({ onStart, onPreset }: { onStart: () => void; onPreset: () =
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {steps.map((s, i) => (
           <button key={s.title} onClick={i === 1 ? onPreset : onStart} className="group text-left">
-            <PresetThumb preset={getPreset(s.preset)} size="wide" className="aspect-[4/3] w-full rounded-xl border border-white/8 transition group-hover:border-lime/50" />
+            <PresetThumb preset={getPreset(s.preset)} size="wide" className="aspect-[4/3] w-full rounded-xl border border-fg/8 transition group-hover:border-lime/50" />
             <div className="display mt-3 text-lg">{s.title}</div>
             <div className="text-[13px] text-fg-2">{s.body}</div>
           </button>
@@ -305,7 +305,7 @@ function HowItWorks({ onStart, onPreset }: { onStart: () => void; onPreset: () =
           <div className="text-[14px] font-semibold">Don&apos;t know where to start?</div>
           <div className="text-[12px] text-fg-3">Pick a preset — it writes the motion prompt for you.</div>
         </div>
-        <button onClick={onPreset} className="rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black hover:bg-neutral-200">
+        <button onClick={onPreset} className="rounded-full bg-fg px-4 py-2 text-[13px] font-semibold text-paper hover:bg-lime">
           Browse presets
         </button>
       </div>

@@ -1,10 +1,10 @@
-// Static model catalog. Names mirror what Higgsfield exposes; `backend` is
+// Static model catalog: house models plus the real third-party ones; `backend` is
 // what this app actually runs. Anything without a real backend is simulated
 // and says so in the UI.
 
 export type Kind = "image" | "video";
 export type Badge = "TOP" | "NEW" | "PREMIUM" | "FREE";
-export type Vendor = "higgsfield" | "openai" | "google" | "bytedance" | "minimax" | "kling" | "flux" | "xai" | "wan" | "recraft";
+export type Vendor = "frameline" | "openai" | "google" | "bytedance" | "minimax" | "kling" | "flux" | "xai" | "wan" | "recraft";
 
 export type ImageBackend =
   | { type: "fal"; endpoint: "fal-ai/flux/schnell" | "fal-ai/flux/dev" | "fal-ai/fast-sdxl"; styleSuffix?: string }
@@ -51,8 +51,8 @@ const schnell = (styleSuffix?: string): ImageBackend => ({ type: "fal", endpoint
 const dev = (styleSuffix?: string): ImageBackend => ({ type: "fal", endpoint: "fal-ai/flux/dev", styleSuffix });
 
 export const IMAGE_MODELS: ImageModel[] = [
-  { kind: "image", id: "soul_2", name: "Higgsfield Soul 2.0", vendor: "higgsfield", featured: true, description: "Next generation ultra-realistic fashion visuals", cost: 2, ratios: ["1:1", "3:4", "4:3", "9:16", "16:9"], resolutions: ["1K", "1.5K"], maxBatch: 4, backend: dev("editorial fashion photograph, natural skin texture, 35mm film grain, soft daylight") },
-  { kind: "image", id: "soul_cinema", name: "Higgsfield Soul Cinema", vendor: "higgsfield", featured: true, description: "Cinema-grade visual creation", cost: 2, ratios: ["16:9", "21:9", "3:4", "1:1"], resolutions: ["1K", "2K"], maxBatch: 4, backend: dev("cinematic still, anamorphic lens, shallow depth of field, moody color grade") },
+  { kind: "image", id: "soul_2", name: "Frameline Portrait 2.0", vendor: "frameline", featured: true, description: "Next generation ultra-realistic fashion visuals", cost: 2, ratios: ["1:1", "3:4", "4:3", "9:16", "16:9"], resolutions: ["1K", "1.5K"], maxBatch: 4, backend: dev("editorial fashion photograph, natural skin texture, 35mm film grain, soft daylight") },
+  { kind: "image", id: "soul_cinema", name: "Frameline Cinema", vendor: "frameline", featured: true, description: "Cinema-grade visual creation", cost: 2, ratios: ["16:9", "21:9", "3:4", "1:1"], resolutions: ["1K", "2K"], maxBatch: 4, backend: dev("cinematic still, anamorphic lens, shallow depth of field, moody color grade") },
   { kind: "image", id: "gpt_image_2_5_sunburst", name: "GPT Image 2.5 Sunburst", vendor: "openai", badge: "NEW", featured: true, description: "Exceptional quality, precise edits", cost: 8, ratios: ["Auto", "1:1", "3:2", "2:3"], resolutions: ["1K", "2K", "4K"], maxBatch: 4, backend: dev("bright natural light, crisp detail, high dynamic range") },
   { kind: "image", id: "gpt_image_2_5_flare", name: "GPT Image 2.5 Flare", vendor: "openai", badge: "NEW", featured: true, description: "Stunning everyday images, fast", cost: 4, ratios: ["Auto", "1:1", "3:2", "2:3"], resolutions: ["1K", "2K"], maxBatch: 4, backend: schnell() },
   { kind: "image", id: "gpt_image_2", name: "GPT Image 2", vendor: "openai", badge: "PREMIUM", featured: true, description: "4K images with near-perfect text rendering", cost: 8, ratios: ["Auto", "1:1", "3:2", "2:3"], resolutions: ["2K", "4K"], maxBatch: 4, backend: dev("clean product-render quality, legible typography") },
@@ -64,7 +64,7 @@ export const IMAGE_MODELS: ImageModel[] = [
   { kind: "image", id: "nano_banana_2_lite", name: "Nano Banana 2 Lite", vendor: "google", featured: true, description: "Fast everyday generations", cost: 1, ratios: ["1:1", "3:4", "4:3", "9:16", "16:9"], resolutions: ["1K"], maxBatch: 4, backend: schnell() },
   { kind: "image", id: "recraft_v4_1", name: "Recraft V4.1", vendor: "recraft", featured: true, description: "Vector-clean illustration and design", cost: 3, ratios: ["1:1", "4:3", "3:4", "16:9"], resolutions: ["1K", "2K"], maxBatch: 4, backend: schnell("flat vector illustration, clean shapes, bold palette") },
   { kind: "image", id: "nano_banana", name: "Nano Banana", vendor: "google", featured: false, description: "Fast, playful, good enough", cost: 1, ratios: ["1:1", "3:4", "4:3", "9:16", "16:9"], resolutions: ["1K"], maxBatch: 4, backend: schnell() },
-  { kind: "image", id: "soul", name: "Higgsfield Soul", vendor: "higgsfield", featured: false, description: "Ultra-realistic fashion visuals", cost: 1, ratios: ["3:4", "1:1", "9:16"], resolutions: ["1K", "1.5K"], maxBatch: 4, backend: schnell("editorial fashion photograph, film grain") },
+  { kind: "image", id: "soul", name: "Frameline Portrait", vendor: "frameline", featured: false, description: "Ultra-realistic fashion visuals", cost: 1, ratios: ["3:4", "1:1", "9:16"], resolutions: ["1K", "1.5K"], maxBatch: 4, backend: schnell("editorial fashion photograph, film grain") },
   { kind: "image", id: "seedream_4", name: "Seedream 4.0", vendor: "bytedance", featured: false, description: "Previous-generation Seedream", cost: 2, ratios: ["1:1", "4:3", "3:4", "16:9", "9:16"], resolutions: ["1K", "2K"], maxBatch: 4, backend: schnell() },
   { kind: "image", id: "gpt_image_1_5", name: "GPT Image 1.5", vendor: "openai", featured: false, description: "Reliable all-rounder", cost: 4, ratios: ["Auto", "1:1", "3:2", "2:3"], resolutions: ["1K", "2K"], maxBatch: 4, backend: schnell() },
   { kind: "image", id: "grok_imagine_2", name: "Grok Imagine 2.0", vendor: "xai", featured: false, description: "Bold, stylised output", cost: 3, ratios: ["1:1", "16:9", "9:16"], resolutions: ["1K", "2K"], maxBatch: 4, backend: schnell("bold graphic style, dramatic lighting") },
@@ -72,7 +72,7 @@ export const IMAGE_MODELS: ImageModel[] = [
 
 export const VIDEO_MODELS: VideoModel[] = [
   { kind: "video", id: "seedance_2_5", name: "Seedance 2.5", vendor: "bytedance", badge: "TOP", featured: true, description: "The most advanced video model", caps: ["1080p", "4s–30s"], durations: [4, 5, 8, 10, 15, 30], ratios: ["16:9", "9:16", "1:1"], resolutions: ["720p", "1080p"], costPerSecond: 9, backend: { type: "simulated" } },
-  { kind: "video", id: "genjutsu", name: "Higgsfield Genjutsu", vendor: "higgsfield", badge: "NEW", featured: true, description: "Reality manipulation — transfer motion into new scenes", caps: ["1080p", "4s–30s"], durations: [4, 5, 8, 10], ratios: ["16:9", "9:16"], resolutions: ["720p", "1080p"], costPerSecond: 9, backend: { type: "simulated" } },
+  { kind: "video", id: "genjutsu", name: "Frameline Restage", vendor: "frameline", badge: "NEW", featured: true, description: "Reality manipulation — transfer motion into new scenes", caps: ["1080p", "4s–30s"], durations: [4, 5, 8, 10], ratios: ["16:9", "9:16"], resolutions: ["720p", "1080p"], costPerSecond: 9, backend: { type: "simulated" } },
   { kind: "video", id: "seedance_2_5_edit", name: "Seedance 2.5 Edit", vendor: "bytedance", badge: "TOP", featured: true, description: "Edit existing footage with a prompt", caps: ["480p–720p", "Edit Video", "Audio"], durations: [4, 5, 8], ratios: ["16:9", "9:16"], resolutions: ["480p", "720p"], costPerSecond: 6, backend: { type: "simulated" } },
   { kind: "video", id: "seedance_2", name: "Seedance 2.0", vendor: "bytedance", featured: true, description: "4K cinematic motion", caps: ["4K", "4s–15s"], durations: [4, 5, 8, 10, 15], ratios: ["16:9", "9:16", "1:1"], resolutions: ["1080p", "4K"], costPerSecond: 7, backend: { type: "simulated" } },
   { kind: "video", id: "seedance_2_fast", name: "Seedance 2.0 Fast", vendor: "bytedance", featured: true, description: "Quick drafts", caps: ["720p", "4s–15s"], durations: [4, 5, 8, 10], ratios: ["16:9", "9:16", "1:1"], resolutions: ["720p"], costPerSecond: 3, backend: { type: "simulated" } },
@@ -112,11 +112,11 @@ export function imageCost(model: ImageModel, resolution: string, batch: number):
   return Math.max(1, Math.round(model.cost * resMul * batch));
 }
 
-// Higgsfield shows a struck-through "list" price next to the discounted one.
+// A struck-through "list" price next to the discounted one.
 export const LIST_PRICE_MULTIPLIER = 1.6;
 
 export const VENDOR_LABEL: Record<Vendor, string> = {
-  higgsfield: "Higgsfield",
+  frameline: "Frameline",
   openai: "OpenAI",
   google: "Google",
   bytedance: "ByteDance",

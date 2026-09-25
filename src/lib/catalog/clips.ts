@@ -1,7 +1,7 @@
 // Motion for the marketing surfaces and for simulated video results.
 // Every clip is a Mixkit free-license stock video (free for commercial use,
 // no attribution required) served from their public CDN. None of this is
-// Higgsfield's media.
+// Higgsfield's media — deliberately not used; these are Mixkit free-license clips.
 
 export interface Clip {
   id: number;
@@ -61,7 +61,7 @@ export const PROJECT_CLIPS: { clip: Clip; title: string; blurb: string }[] = [
   { clip: { id: 4426, title: "" }, title: "Ember", blurb: "Lava particles, macro" },
 ];
 
-/** Genjutsu section grid */
+/** Restage section grid */
 export const GENJUTSU_CLIPS: Clip[] = [
   { id: 33898, title: "Dancer in smoke" },
   { id: 42207, title: "Neon mask" },

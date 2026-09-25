@@ -37,7 +37,7 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
     if (res.status === 429) return setError("Too many attempts. Wait a few minutes and try again.");
     if (!res.ok) return setError(data.error ?? "Something went wrong");
     setUser(data.user);
-    toast(mode === "signup" ? "Welcome to Higgsfield" : "Welcome back", { body: `Signed in as ${data.user.email}`, tone: "success" });
+    toast(mode === "signup" ? "Welcome to Frameline" : "Welcome back", { body: `Signed in as ${data.user.email}`, tone: "success" });
     router.refresh();
     onDone?.(data.user);
   }
@@ -55,7 +55,7 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
       <div className="grid gap-2">
         <PasskeyLoginButton onDone={onDone} />
         <button type="button" disabled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-line bg-card text-[13px] font-medium text-fg-3" title="OAuth isn't wired in this build">
-          <GoogleG /> Continue with Google <span className="ml-1 rounded bg-white/6 px-1 text-[9px] uppercase">soon</span>
+          <GoogleG /> Continue with Google <span className="ml-1 rounded bg-fg/6 px-1 text-[9px] uppercase">soon</span>
         </button>
       </div>
 
@@ -78,7 +78,7 @@ export function AuthForm({ mode: initial, onDone, compact }: { mode: AuthMode; o
           <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"} className={input} autoComplete={mode === "signup" ? "new-password" : "current-password"} />
         </Field>
         {error && <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12px] text-fg">{error}</div>}
-        <button type="submit" disabled={busy} className="mt-1 flex h-11 items-center justify-center gap-2 rounded-lg bg-lime text-[14px] font-semibold text-black hover:bg-lime-2 disabled:opacity-60">
+        <button type="submit" disabled={busy} className="mt-1 flex h-11 items-center justify-center gap-2 rounded-lg bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2 disabled:opacity-60">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           {mode === "signup" ? "Sign up" : "Log in"}
         </button>
@@ -131,7 +131,7 @@ export function AuthDialog({ mode, trigger }: { mode: AuthMode; trigger: React.R
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[81] w-[min(420px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-card p-6 shadow-2xl outline-none">
           <Dialog.Title className="sr-only">{mode === "signup" ? "Sign up" : "Log in"}</Dialog.Title>
           <AuthForm mode={mode} onDone={() => setOpen(false)} />
-          <Dialog.Close className="absolute right-3 top-3 rounded-full p-2 text-fg-3 hover:bg-white/8 hover:text-fg" aria-label="Close">
+          <Dialog.Close className="absolute right-3 top-3 rounded-full p-2 text-fg-3 hover:bg-fg/8 hover:text-fg" aria-label="Close">
             <X className="h-4 w-4" />
           </Dialog.Close>
         </Dialog.Content>

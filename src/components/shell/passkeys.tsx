@@ -101,7 +101,7 @@ export function PasskeyManager() {
           <p className="text-[12px] text-fg-3">Phishing-resistant sign-in with Face ID, Touch ID, Windows Hello or a security key. No password to steal.</p>
         </div>
         {supported && (
-          <button onClick={add} disabled={busy} className="flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-black hover:bg-neutral-200 disabled:opacity-60">
+          <button onClick={add} disabled={busy} className="flex h-9 items-center gap-2 rounded-full bg-fg px-4 text-[13px] font-semibold text-paper hover:bg-lime disabled:opacity-60">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />} Add a passkey
           </button>
         )}
@@ -119,7 +119,7 @@ export function PasskeyManager() {
                 <span className="font-medium">{p.label ?? "Passkey"}</span>
                 <span className="text-[11px] text-fg-3">{p.deviceType === "multiDevice" ? "synced" : "device-bound"}{p.backedUp ? " · backed up" : ""}</span>
               </div>
-              <button onClick={() => remove(p.id)} className="rounded-md p-1.5 text-fg-3 hover:bg-white/8 hover:text-fg" title="Remove">
+              <button onClick={() => remove(p.id)} className="rounded-md p-1.5 text-fg-3 hover:bg-fg/8 hover:text-fg" title="Remove">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>

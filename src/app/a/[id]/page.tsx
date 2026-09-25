@@ -53,7 +53,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
             <Row k="By" v={g.user.name} />
             {g.simulated && <Row k="Backend" v="Simulated" />}
           </dl>
-          <Link href={rerunHref} className="flex h-11 items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-black hover:bg-lime-2">
+          <Link href={rerunHref} className="flex h-11 items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2">
             <Sparkles className="h-4 w-4" /> Make your own <ArrowRight className="h-4 w-4" />
           </Link>
           <p className="text-[11px] text-fg-3">Every account gets 100 free credits. No card required.</p>

@@ -18,7 +18,7 @@ import { AuthError } from "./auth";
 // this origin, so a look-alike domain gets nothing. Challenges ride in a
 // short-lived signed cookie rather than the database.
 
-const RP_NAME = "Higgsfield";
+const RP_NAME = "Frameline";
 const CHALLENGE_COOKIE = "hf_webauthn";
 const CHALLENGE_TTL = 300; // seconds
 const SECRET = (process.env.AUTH_SECRET || "dev-only-secret-change-me") + ":webauthn";

@@ -75,7 +75,7 @@ export function PreviewFrames({
         <button
           onClick={render}
           disabled={busy || !!pending}
-          className="flex h-8 w-fit items-center gap-1.5 rounded-full bg-white px-3 text-[12px] font-semibold text-black hover:bg-neutral-200 disabled:opacity-60"
+          className="flex h-8 w-fit items-center gap-1.5 rounded-full bg-fg px-3 text-[12px] font-semibold text-paper hover:bg-lime disabled:opacity-60"
         >
           {busy || pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : gen ? <RefreshCw className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
           {gen ? "Re-roll" : "Preview frames"} <span className="text-[11px] font-medium">✦1</span>
@@ -97,7 +97,7 @@ export function PreviewFrames({
               >
                 {url && <LazyImg src={url} alt={`Frame ${i + 1}`} />}
                 {selected && (
-                  <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-lime text-black">
+                  <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-lime text-paper">
                     <Check className="h-3 w-3" />
                   </span>
                 )}

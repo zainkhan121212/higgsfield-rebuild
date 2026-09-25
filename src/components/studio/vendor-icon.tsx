@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 // Simple monogram marks per vendor. Deliberately not the vendors' logos.
 const GLYPH: Record<Vendor, { text: string; color: string }> = {
-  higgsfield: { text: "H", color: "#d3ff3d" },
+  frameline: { text: "F", color: "#bc3318" },
   openai: { text: "◎", color: "#ffffff" },
   google: { text: "G", color: "#8ab4f8" },
   bytedance: { text: "▌▌", color: "#ffffff" },

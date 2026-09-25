@@ -12,7 +12,7 @@ const ICON = {
   failed: <AlertTriangle className="h-4 w-4 text-danger" />,
   order: <Wallet className="h-4 w-4 text-lime" />,
   welcome: <Sparkles className="h-4 w-4 text-lime" />,
-  security: <ShieldCheck className="h-4 w-4 text-[#7dd3fc]" />,
+  security: <ShieldCheck className="h-4 w-4 text-pink" />,
 };
 
 export function NotificationsButton() {
@@ -59,11 +59,11 @@ export function NotificationsButton() {
       <Popover.Trigger asChild>
         <button
           aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
-          className="relative hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg sm:flex"
+          className="relative hidden h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-fg/8 hover:text-fg sm:flex"
         >
           <Bell className="h-4 w-4" />
           {unread > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[9px] font-bold text-black">
+            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[9px] font-bold text-paper">
               {unread > 9 ? "9+" : unread}
             </span>
           )}
@@ -82,7 +82,7 @@ export function NotificationsButton() {
               <div className="px-4 py-10 text-center text-[13px] text-fg-3">Nothing yet. Generate something.</div>
             ) : (
               items.map((n) => (
-                <Link key={n.id} href={n.href} onClick={() => setOpen(false)} className="flex items-start gap-3 rounded-lg px-2.5 py-2 hover:bg-white/6">
+                <Link key={n.id} href={n.href} onClick={() => setOpen(false)} className="flex items-start gap-3 rounded-lg px-2.5 py-2 hover:bg-fg/6">
                   {n.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={n.thumb} alt="" className="h-9 w-9 shrink-0 rounded-md object-cover" />

@@ -2,102 +2,76 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "./session";
-import { Pill } from "@/components/ui/button";
 import { AccountMenu } from "./account-menu";
 import { Logo } from "./logo";
 import { SearchButton } from "./search";
 import { AuthDialog } from "./auth-dialog";
-import { NAV_PAGES } from "@/lib/catalog/pages";
+import { IndexMenu } from "./index-menu";
 import { NotificationsButton } from "./notifications";
 
+// A masthead, not a toolbar: wordmark, three verbs, and everything else in the
+// index. Current section is marked with a rule under it, the way a running
+// head marks a chapter.
 const PRIMARY = [
-  { href: "/", label: "Explore", match: (p: string) => p === "/" },
   { href: "/ai/image", label: "Image", match: (p: string) => p.startsWith("/ai/image") },
   { href: "/ai/video", label: "Video", match: (p: string) => p.startsWith("/ai/video") },
-  { href: "/asset/all", label: "Assets", match: (p: string) => p.startsWith("/asset") },
+  { href: "/asset/all", label: "Library", match: (p: string) => p.startsWith("/asset") },
 ];
-
-const SECONDARY: { href: string; label: string; badge?: "New" | "Free" }[] = NAV_PAGES.map((p) => ({
-  href: `/${p.slug}`,
-  label: p.nav,
-  badge: p.slug === "effects" ? "Free" : p.badge,
-}));
-// Effects lives at its own route between Genjutsu and Cinema Studio, like the original.
-SECONDARY.splice(3, 0, { href: "/effects", label: "Effects", badge: "New" });
 
 export function Nav() {
   const pathname = usePathname();
   const { user } = useSession();
 
   return (
-    <header className="sticky top-0 z-40 h-14 border-b border-line/80 bg-bg/85 backdrop-blur-md">
-      <div className="flex h-full items-center gap-1 px-3 sm:px-4">
-        <Link href="/" className="mr-2 flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/8" aria-label="Higgsfield home">
-          <Logo className="h-5 w-5" />
+    <header className="sticky top-0 z-40 h-14 border-b border-fg/15 bg-bg/90 backdrop-blur-md">
+      <div className="flex h-full items-center gap-2 px-4 sm:px-6">
+        <Link href="/" className="group mr-1 flex items-center gap-2" aria-label="Frameline home">
+          <Logo className="h-[18px] w-[18px]" />
+          <span className="display text-[21px] tracking-[-0.02em] group-hover:text-lime">Frameline</span>
         </Link>
 
-        <nav className="flex items-center gap-0.5">
+        <span className="mx-2 hidden h-4 w-px bg-line-2 sm:block" />
+
+        <nav className="flex items-center gap-1">
           {PRIMARY.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-md px-1.5 py-1.5 text-[13px] font-medium transition-colors sm:px-2.5",
-                item.match(pathname) ? "text-lime" : "text-fg-2 hover:text-fg",
+                "relative px-2 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+                item.match(pathname) ? "text-fg" : "text-fg-3 hover:text-fg",
               )}
             >
               {item.label}
+              {item.match(pathname) && <span className="absolute inset-x-2 -bottom-[7px] h-px bg-lime" />}
             </Link>
           ))}
         </nav>
 
-        <div className="mx-2 hidden h-4 w-px bg-line-2 lg:block" />
-
-        <nav className="scrollbar-none hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex">
-          {SECONDARY.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn("flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium hover:text-fg", pathname === item.href ? "text-lime" : "text-fg-2")}
-            >
-              {item.label}
-              {item.badge && <Pill tone={item.badge === "Free" ? "lime" : "gray"}>{item.badge}</Pill>}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1">
           <SearchButton className="hidden sm:flex" />
+          <IndexMenu />
 
           <Link
             href="/pricing"
             className={cn(
-              "hidden h-8 items-center gap-1.5 rounded-full border border-line-2 px-3 text-[13px] font-medium hover:border-fg-3 sm:flex",
-              pathname === "/pricing" && "border-lime text-lime",
+              "hidden px-2 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-fg-3 hover:text-fg sm:block",
+              pathname === "/pricing" && "text-fg",
             )}
           >
-            <Tag className="h-3.5 w-3.5" />
-            Pricing
-            <Pill tone="pink" className="ml-0.5">
-              -30%
-            </Pill>
-          </Link>
-
-          <Link href="/enterprise" className={cn("hidden h-8 items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-fg-2 hover:text-fg xl:flex", pathname === "/enterprise" && "text-lime")}>
-            <Building2 className="h-3.5 w-3.5" /> Enterprise
+            Plans
           </Link>
 
           {user ? (
             <>
               <Link
                 href="/account"
-                className="flex h-8 items-center gap-1.5 rounded-full bg-card-2 px-2.5 text-[13px] font-semibold hover:bg-[#242424] sm:px-3"
-                title="Credits"
+                className="ml-1 flex h-8 items-center gap-1.5 border border-line bg-card px-2.5 font-mono text-[11px] tabular-nums hover:border-fg-3"
+                title="Credit balance"
               >
-                <Sparkles className="h-3.5 w-3.5 text-lime" />
+                <span className="text-fg-3">CR</span>
                 {user.credits}
               </Link>
               {user.email ? (
@@ -107,15 +81,25 @@ export function Nav() {
                 </>
               ) : (
                 <>
-                  <AuthDialog mode="login" trigger={<button className="h-8 rounded-full bg-black px-3 text-[13px] font-semibold text-fg ring-1 ring-line-2 hover:ring-fg-3">Login</button>} />
-                  <AuthDialog mode="signup" trigger={<button className="h-8 rounded-full bg-lime px-3 text-[13px] font-semibold text-black hover:bg-lime-2">Sign up</button>} />
+                  <AuthDialog
+                    mode="login"
+                    trigger={
+                      <button className="h-8 px-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-fg-3 hover:text-fg">Sign in</button>
+                    }
+                  />
+                  <AuthDialog
+                    mode="signup"
+                    trigger={
+                      <button className="h-8 bg-fg px-3 font-mono text-[11px] uppercase tracking-[0.14em] text-paper hover:bg-lime">Start</button>
+                    }
+                  />
                 </>
               )}
             </>
           ) : (
             <>
-              <div className="h-8 w-16 rounded-full shimmer" />
-              <div className="h-8 w-8 rounded-full shimmer" />
+              <div className="h-8 w-16 shimmer" />
+              <div className="h-8 w-8 shimmer" />
             </>
           )}
         </div>

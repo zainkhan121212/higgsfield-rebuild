@@ -30,7 +30,7 @@ export function PresetThumb({
     if (el && el.complete && el.naturalWidth > 0) setReady(true);
   }, [attempt]);
   return (
-    <div className={cn("relative overflow-hidden", className)} style={{ background: `radial-gradient(120% 80% at 30% 20%, ${a} 0%, ${b} 70%)` }}>
+    <div className={cn("relative overflow-hidden", className)} style={{ background: ready ? undefined : `radial-gradient(120% 80% at 30% 20%, ${a}22 0%, ${b}22 70%)`, backgroundColor: ready ? undefined : "var(--color-card-2)" }}>
       {attempt < 4 && (
         // eslint-disable-next-line @next/next/no-img-element
         <img

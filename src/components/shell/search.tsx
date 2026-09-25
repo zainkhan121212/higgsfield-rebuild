@@ -77,14 +77,14 @@ export function SearchButton({ className }: { className?: string }) {
       }}
     >
       <Dialog.Trigger asChild>
-        <button aria-label="Search" className={cn("flex h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-white/8 hover:text-fg", className)}>
+        <button aria-label="Search" className={cn("flex h-9 w-9 items-center justify-center rounded-full text-fg-2 hover:bg-fg/8 hover:text-fg", className)}>
           <Search className="h-4 w-4" />
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-[12vh] z-[81] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-2xl border border-line bg-card shadow-2xl outline-none">
-          <Dialog.Title className="sr-only">Search Higgsfield</Dialog.Title>
+          <Dialog.Title className="sr-only">Search Frameline</Dialog.Title>
           <div className="flex items-center gap-2 border-b border-line px-4 py-3">
             <Search className="h-4 w-4 text-fg-3" />
             <input
@@ -110,7 +110,7 @@ export function SearchButton({ className }: { className?: string }) {
                 key={h.id}
                 onMouseEnter={() => setCursor(i)}
                 onClick={() => go(h)}
-                className={cn("flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left", i === cursor ? "bg-white/8" : "hover:bg-white/5")}
+                className={cn("flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left", i === cursor ? "bg-fg/8" : "hover:bg-fg/5")}
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-elev text-fg-2">{h.icon}</span>
                 <span className="min-w-0 flex-1">

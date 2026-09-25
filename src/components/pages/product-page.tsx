@@ -19,7 +19,7 @@ function resolve(L: Landing, ref: MediaRef): Tile[] {
     case "row":
       return L.rows[ref.row].items.slice(0, ref.count ?? 8).map((it) => ({ poster: it.poster, video: it.video, sub: `@${it.author}`, href: L.rows[ref.row].href }));
     case "projects":
-      return L.projects.map((p) => ({ poster: p.poster, video: p.video, hls: p.hls, label: p.title, sub: "by Higgsfield Studio", href: "/ai/video" }));
+      return L.projects.map((p) => ({ poster: p.poster, video: p.video, hls: p.hls, label: p.title, sub: "by Frameline Studio", href: "/ai/video" }));
     case "genjutsu":
       return L.genjutsu.map((m) => (m.endsWith(".mp4") ? { video: m } : { poster: m }));
     case "banner": {
@@ -41,7 +41,7 @@ export function ProductPage({ page }: { page: PageDef }) {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-3 pb-20 pt-4 sm:px-5">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/8 bg-card">
+      <section className="relative overflow-hidden rounded-2xl border border-fg/8 bg-card">
         {heroStrip ? (
           <div className="grid grid-cols-3 gap-1 sm:grid-cols-6">
             {heroStrip.map((t, i) => (
@@ -57,11 +57,11 @@ export function ProductPage({ page }: { page: PageDef }) {
           <h1 className="display mt-2 max-w-3xl text-3xl sm:text-5xl">{page.title}</h1>
           <p className="mt-3 max-w-xl text-[14px] text-fg-2 sm:text-[15px]">{page.tagline}</p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href={page.cta.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-lime px-5 text-[14px] font-semibold text-black hover:bg-lime-2">
+            <Link href={page.cta.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-lime px-5 text-[14px] font-semibold text-paper hover:bg-lime-2">
               <Sparkles className="h-4 w-4" /> {page.cta.label}
             </Link>
             {page.secondary && (
-              <Link href={page.secondary.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-white/10 px-5 text-[14px] font-semibold hover:bg-white/15">
+              <Link href={page.secondary.href} className="inline-flex h-11 items-center gap-2 rounded-full bg-fg/10 px-5 text-[14px] font-semibold hover:bg-fg/15">
                 {page.secondary.label} <ArrowRight className="h-4 w-4" />
               </Link>
             )}
@@ -74,7 +74,7 @@ export function ProductPage({ page }: { page: PageDef }) {
         <section className="mt-10 grid gap-3 sm:grid-cols-3">
           {page.steps.map((s, i) => (
             <div key={s.title} className="rounded-2xl border border-line bg-card p-5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-lime text-[12px] font-bold text-black">{i + 1}</div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-lime text-[12px] font-bold text-paper">{i + 1}</div>
               <div className="display mt-4 text-xl">{s.title}</div>
               <p className="mt-1 text-[13px] text-fg-2">{s.body}</p>
             </div>
@@ -99,7 +99,7 @@ export function ProductPage({ page }: { page: PageDef }) {
               <h2 className="display text-3xl">{page.gallery.title}</h2>
               {page.gallery.blurb && <p className="mt-1 text-[13px] text-fg-2">{page.gallery.blurb}</p>}
             </div>
-            <Link href={page.cta.href} className="hidden shrink-0 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black hover:bg-neutral-200 sm:block">
+            <Link href={page.cta.href} className="hidden shrink-0 rounded-full bg-fg px-4 py-2 text-[13px] font-semibold text-paper hover:bg-lime sm:block">
               Try it
             </Link>
           </div>
@@ -131,8 +131,8 @@ export function ProductPage({ page }: { page: PageDef }) {
           <div className="text-[13px] text-fg-2">No card, no waitlist. The studios are one click away.</div>
         </div>
         <div className="flex gap-2">
-          <Link href="/ai/image" className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-black hover:bg-neutral-200"><ImageIcon className="h-4 w-4" /> Image</Link>
-          <Link href="/ai/video" className="inline-flex h-10 items-center gap-2 rounded-full bg-lime px-4 text-[13px] font-semibold text-black hover:bg-lime-2"><Film className="h-4 w-4" /> Video</Link>
+          <Link href="/ai/image" className="inline-flex h-10 items-center gap-2 rounded-full bg-fg px-4 text-[13px] font-semibold text-paper hover:bg-lime"><ImageIcon className="h-4 w-4" /> Image</Link>
+          <Link href="/ai/video" className="inline-flex h-10 items-center gap-2 rounded-full bg-lime px-4 text-[13px] font-semibold text-paper hover:bg-lime-2"><Film className="h-4 w-4" /> Video</Link>
         </div>
       </section>
     </main>
@@ -189,7 +189,7 @@ function Chats() {
         <div className="display text-2xl">What are we creating today?</div>
         <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-bg-elev px-4 py-3 text-[14px] text-fg-3">
           Describe the video, ad, or brand kit you want…
-          <Link href="/ai/video" className="ml-auto rounded-full bg-lime px-3 py-1.5 text-[12px] font-semibold text-black">Start</Link>
+          <Link href="/ai/video" className="ml-auto rounded-full bg-lime px-3 py-1.5 text-[12px] font-semibold text-paper">Start</Link>
         </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           {prompts.map((p) => (
@@ -283,7 +283,7 @@ function Festival({ L }: { L: Landing }) {
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         <div className="rounded-2xl border border-line bg-card p-6">
           <h2 className="display text-2xl">Create in public</h2>
-          <p className="mt-2 text-[13px] text-fg-2">Build your film in public — up to 50 most community-supported films go straight to the jury&apos;s shortlist. Standout projects also get credit grants from the Higgsfield team to finish stronger.</p>
+          <p className="mt-2 text-[13px] text-fg-2">Build your film in public — up to 50 most community-supported films go straight to the jury&apos;s shortlist. Standout projects also get credit grants from the Frameline team to finish stronger.</p>
           <ul className="mt-4 space-y-2 text-[13px]">
             {entries.map((e) => (
               <li key={e} className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-lime" /> {e}</li>
@@ -304,7 +304,7 @@ function Canvases({ L }: { L: Landing }) {
   return (
     <section className="mt-10">
       <div className="flex items-center gap-3 text-[13px] font-medium">
-        <span className="rounded-full bg-white/10 px-3 py-1.5">All canvases</span>
+        <span className="rounded-full bg-fg/10 px-3 py-1.5">All canvases</span>
         <span className="rounded-full px-3 py-1.5 text-fg-3">Templates · Quick start</span>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -324,9 +324,9 @@ function Canvases({ L }: { L: Landing }) {
 
 function Enterprise() {
   const quotes = [
-    ["Studio creating the most widely reached mixed reality campaigns", "Higgsfield didn't just speed up production, but it accelerated the synchronization itself."],
+    ["Studio creating the most widely reached mixed reality campaigns", "Frameline didn't just speed up production, but it accelerated the synchronization itself."],
     ["Creative director behind Madonna and Dolce & Gabbana", "The best response is that nobody stops to ask how it was made."],
-    ["Creative production studio behind Netflix and Hulu", "Higgsfield's policies go above and beyond to protect client intellectual property."],
+    ["Creative production studio behind Netflix and Hulu", "Frameline's policies go above and beyond to protect client intellectual property."],
     ["Istanbul production studio behind Lacoste and SuperStep", "Most clients no longer ask whether it was made with AI. They ask whether we can deliver by Thursday."],
   ];
   return (
@@ -356,7 +356,7 @@ function Enterprise() {
               <input className="h-10 rounded-lg border border-line bg-bg-elev px-3 text-[14px] outline-none placeholder:text-fg-3 focus:border-lime/60" placeholder={l} />
             </label>
           ))}
-          <button type="submit" className="mt-1 h-11 rounded-lg bg-lime text-[14px] font-semibold text-black hover:bg-lime-2">Request a demo</button>
+          <button type="submit" className="mt-1 h-11 rounded-lg bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2">Request a demo</button>
         </form>
       </div>
     </section>

@@ -30,7 +30,7 @@ export function Paywall({ open, onOpenChange, needed, have }: { open: boolean; o
                   href={`/checkout?plan=${p.id.toLowerCase()}`}
                   className={cn(
                     "mt-3 flex h-10 w-full items-center justify-center rounded-full text-sm font-semibold",
-                    p.id === "PRO" ? "bg-lime text-black hover:bg-lime-2" : p.id === "MAX" ? "bg-pink text-white hover:brightness-110" : "bg-white text-black hover:bg-neutral-200",
+                    p.id === "PRO" ? "bg-lime text-paper hover:bg-lime-2" : p.id === "MAX" ? "bg-pink text-white hover:brightness-110" : "bg-fg text-paper hover:bg-lime",
                   )}
                 >
                   Get {p.name}
@@ -38,7 +38,7 @@ export function Paywall({ open, onOpenChange, needed, have }: { open: boolean; o
               </div>
             ))}
           </div>
-          <Dialog.Close className="absolute right-3 top-3 rounded-full p-2 text-fg-2 hover:bg-white/8" aria-label="Close">
+          <Dialog.Close className="absolute right-3 top-3 rounded-full p-2 text-fg-2 hover:bg-fg/8" aria-label="Close">
             <X className="h-4 w-4" />
           </Dialog.Close>
         </Dialog.Content>

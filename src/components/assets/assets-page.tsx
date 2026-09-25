@@ -93,10 +93,10 @@ export function AssetsPage({ initialFilter }: { initialFilter: string }) {
         <div className="mt-4 flex items-center justify-between px-2">
           <div className="flex items-center gap-1.5 text-[12px] font-medium">
             <ChevronDown className="h-3.5 w-3.5 text-fg-3" />
-            <span className="flex h-4 w-4 items-center justify-center rounded bg-gradient-to-br from-lime to-[#6bd400] text-[9px] font-bold text-black">{user?.name.slice(0, 1).toUpperCase()}</span>
+            <span className="flex h-4 w-4 items-center justify-center rounded bg-fg text-[9px] font-bold text-paper">{user?.name.slice(0, 1).toUpperCase()}</span>
             <span className="max-w-[120px] truncate">{user?.name ?? "You"}</span>
           </div>
-          <button onClick={createFolder} title="New folder" className="rounded-md p-1 text-fg-3 hover:bg-white/8 hover:text-fg">
+          <button onClick={createFolder} title="New folder" className="rounded-md p-1 text-fg-3 hover:bg-fg/8 hover:text-fg">
             <FolderPlus className="h-4 w-4" />
           </button>
         </div>
@@ -162,10 +162,10 @@ function parseFilter(s: string): Filter {
 
 function SideItem({ icon, label, count, active, onClick }: { icon: React.ReactNode; label: string; count: number; active: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} className={cn("flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium", active ? "bg-white/8 text-fg" : "text-fg-2 hover:bg-white/5 hover:text-fg")}>
+    <button onClick={onClick} className={cn("flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium", active ? "bg-fg/8 text-fg" : "text-fg-2 hover:bg-fg/5 hover:text-fg")}>
       <span className={cn(active ? "text-lime" : "text-fg-3")}>{icon}</span>
       <span className="flex-1 truncate text-left">{label}</span>
-      <span className="rounded-full bg-white/6 px-1.5 text-[10px] text-fg-3">{count}</span>
+      <span className="rounded-full bg-fg/6 px-1.5 text-[10px] text-fg-3">{count}</span>
     </button>
   );
 }
@@ -175,12 +175,12 @@ function Empty({ filter }: { filter: Filter }) {
     <div className="mx-auto mt-16 max-w-sm text-center">
       <div className="relative mx-auto mb-6 h-24 w-40">
         {[-14, -4, 6, 16].map((r, i) => (
-          <div key={i} className="absolute left-1/2 top-2 h-20 w-16 -translate-x-1/2 rounded-lg border border-white/10" style={{ transform: `translateX(-50%) translateX(${(i - 1.5) * 26}px) rotate(${r}deg)`, background: ["#2a2115", "#15202a", "#2a1520", "#152a1d"][i] }} />
+          <div key={i} className="absolute left-1/2 top-2 h-20 w-16 -translate-x-1/2 rounded-lg border border-fg/10" style={{ transform: `translateX(-50%) translateX(${(i - 1.5) * 26}px) rotate(${r}deg)`, background: ["#2a2115", "#15202a", "#2a1520", "#152a1d"][i] }} />
         ))}
       </div>
       <div className="text-[15px] font-semibold">{filter.kind === "favorites" ? "No favorites yet" : filter.kind === "audio" ? "Audio isn't in this build" : "Your generations will appear here"}</div>
       <div className="mt-1 text-[13px] text-fg-3">{filter.kind === "favorites" ? "Tap the heart on any generation." : "Use folders to keep your work organized."}</div>
-      <Link href="/ai/image" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-black hover:bg-neutral-200">
+      <Link href="/ai/image" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-fg px-4 py-2 text-[13px] font-semibold text-paper hover:bg-lime">
         <Sparkles className="h-3.5 w-3.5" /> Generate
       </Link>
       <div className="mt-8 flex items-center justify-center gap-1 text-[11px] text-fg-3">

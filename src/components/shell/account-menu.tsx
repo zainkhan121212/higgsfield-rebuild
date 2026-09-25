@@ -32,7 +32,7 @@ export function AccountMenu() {
       <DropdownMenu.Trigger asChild>
         <button
           aria-label="Account menu"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-lime to-[#6bd400] text-[13px] font-bold text-black ring-2 ring-transparent hover:ring-lime/40"
+          className="flex h-8 w-8 items-center justify-center rounded-[2px] bg-fg text-[13px] font-bold text-paper ring-1 ring-transparent transition hover:bg-lime"
         >
           {initial}
         </button>
@@ -40,7 +40,7 @@ export function AccountMenu() {
       <DropdownMenu.Portal>
         <DropdownMenu.Content align="end" sideOffset={8} className="z-50 w-[280px] rounded-xl border border-line bg-card p-1.5 shadow-2xl">
           <div className="flex items-center gap-3 px-2.5 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-lime to-[#6bd400] text-sm font-bold text-black">{initial}</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-fg text-sm font-bold text-paper">{initial}</div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{user.name}</div>
               <div className="truncate text-xs text-fg-2">{user.email ?? planLabel(user.plan)}</div>
@@ -55,22 +55,22 @@ export function AccountMenu() {
                 {user.credits} left ›
               </Link>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/8">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-fg/8">
               <div className="h-full rounded-full bg-lime" style={{ width: `${pct}%` }} />
             </div>
           </div>
           <DropdownMenu.Item asChild>
-            <Link href="/pricing" className="flex items-center justify-between rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-white/6 data-[highlighted]:bg-white/6">
+            <Link href="/pricing" className="flex items-center justify-between rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-fg/6 data-[highlighted]:bg-fg/6">
               <span className="flex items-center gap-2">
                 <Crown className="h-4 w-4 text-lime" /> Go Premium
               </span>
-              <span className="rounded-full bg-lime px-2 py-0.5 text-[11px] font-bold text-black">Upgrade</span>
+              <span className="rounded-full bg-lime px-2 py-0.5 text-[11px] font-bold text-paper">Upgrade</span>
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
           <DropdownMenu.Item
             onSelect={rename}
-            className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-white/6 data-[highlighted]:bg-white/6"
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-fg/6 data-[highlighted]:bg-fg/6"
           >
             <UserIcon className="h-4 w-4" /> Change display name
           </DropdownMenu.Item>
@@ -80,7 +80,7 @@ export function AccountMenu() {
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
           <DropdownMenu.Item
             onSelect={signOut}
-            className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-fg-2 outline-none hover:bg-white/6 data-[highlighted]:bg-white/6"
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-fg-2 outline-none hover:bg-fg/6 data-[highlighted]:bg-fg/6"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </DropdownMenu.Item>
@@ -93,7 +93,7 @@ export function AccountMenu() {
 function Item({ href, icon, children }: { href: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <DropdownMenu.Item asChild>
-      <Link href={href} className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-white/6 data-[highlighted]:bg-white/6">
+      <Link href={href} className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none hover:bg-fg/6 data-[highlighted]:bg-fg/6">
         {icon}
         {children}
       </Link>

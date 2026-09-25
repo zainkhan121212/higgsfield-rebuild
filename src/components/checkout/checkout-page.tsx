@@ -99,7 +99,7 @@ export function CheckoutPage() {
               <button
                 onClick={() => setStep("pay")}
                 disabled={needsAccount}
-                className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-black hover:bg-lime-2 disabled:opacity-50"
+                className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2 disabled:opacity-50"
               >
                 Continue to payment
               </button>
@@ -110,7 +110,7 @@ export function CheckoutPage() {
             <form onSubmit={pay} className="mt-6">
               <h1 className="text-xl font-semibold">Payment</h1>
               <div className="mt-1 flex items-center gap-1.5 text-[12px] text-fg-3">
-                <Lock className="h-3.5 w-3.5" /> Demo checkout — nothing is charged and card details never leave this page. Use <code className="rounded bg-white/8 px-1">4242 4242 4242 4242</code>, any future date, any CVC.
+                <Lock className="h-3.5 w-3.5" /> Demo checkout — nothing is charged and card details never leave this page. Use <code className="rounded bg-fg/8 px-1">4242 4242 4242 4242</code>, any future date, any CVC.
               </div>
               <div className="mt-5 grid gap-3">
                 <Field label="Name on card">
@@ -139,7 +139,7 @@ export function CheckoutPage() {
                 </div>
               </div>
               {err && <div className="mt-3 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12px]">{err}</div>}
-              <button type="submit" disabled={step === "processing"} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-black hover:bg-lime-2 disabled:opacity-70">
+              <button type="submit" disabled={step === "processing"} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2 disabled:opacity-70">
                 {step === "processing" ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" /> Processing payment…
@@ -160,7 +160,7 @@ export function CheckoutPage() {
 
           {step === "done" && result && (
             <div className="mt-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-lime text-black">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-lime text-paper">
                 <Check className="h-6 w-6" />
               </div>
               <h1 className="mt-4 text-xl font-semibold">Payment complete</h1>
@@ -172,7 +172,7 @@ export function CheckoutPage() {
                 <dt className="text-fg-3">Balance</dt><dd className="text-right font-medium">{user?.credits.toLocaleString()} ✦</dd>
               </dl>
               <div className="mt-5 flex gap-2">
-                <Link href="/ai/video" className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-black hover:bg-lime-2">
+                <Link href="/ai/video" className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-lime text-[14px] font-semibold text-paper hover:bg-lime-2">
                   <Sparkles className="h-4 w-4" /> Start generating
                 </Link>
                 <Link href="/account" className="flex h-11 items-center justify-center rounded-xl border border-line px-4 text-[14px] font-medium hover:border-fg-3">
@@ -225,7 +225,7 @@ function Steps({ step }: { step: Step }) {
     <ol className="flex items-center gap-2 text-[12px]">
       {["Review", "Payment", "Done"].map((s, i) => (
         <li key={s} className="flex items-center gap-2">
-          <span className={cn("flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold", i < idx ? "bg-lime text-black" : i === idx ? "bg-white text-black" : "bg-white/10 text-fg-3")}>
+          <span className={cn("flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold", i < idx ? "bg-lime text-paper" : i === idx ? "bg-fg text-paper" : "bg-fg/10 text-fg-3")}>
             {i < idx ? <Check className="h-3 w-3" /> : i + 1}
           </span>
           <span className={cn(i === idx ? "font-medium text-fg" : "text-fg-3")}>{s}</span>

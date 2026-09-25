@@ -16,7 +16,7 @@ export function AccountActions({ hasEmail }: { hasEmail: boolean }) {
   return (
     <div className="mt-10 flex flex-wrap gap-2 border-t border-line pt-6">
       {!hasEmail && (
-        <Link href="/signup" className="rounded-full bg-lime px-4 py-2 text-[13px] font-semibold text-black hover:bg-lime-2">
+        <Link href="/signup" className="rounded-full bg-lime px-4 py-2 text-[13px] font-semibold text-paper hover:bg-lime-2">
           Create account to keep this
         </Link>
       )}

@@ -30,25 +30,25 @@ export interface ProductPage {
 export const PAGES: ProductPage[] = [
   {
     slug: "mcp", nav: "MCP",
-    title: "Higgsfield MCP & plugin", tagline: "Create images and videos directly from your prompts in any AI tool.",
-    hero: { kind: "feature", index: 4 }, cta: { label: "Add Higgsfield plugin to ChatGPT", href: "/gpt-astra" }, secondary: { label: "Connect and start creating", href: "/ai/video" },
+    title: "Frameline MCP & plugin", tagline: "Create images and videos directly from your prompts in any AI tool.",
+    hero: { kind: "feature", index: 4 }, cta: { label: "Add Frameline plugin to ChatGPT", href: "/gpt-astra" }, secondary: { label: "Connect and start creating", href: "/ai/video" },
     steps: [
       { title: "Describe the video", body: "“Create a short video explaining how warmer light bulbs can make a room look more expensive.”" },
       { title: "The agent plans it", body: "It keeps the tip concise, emphasises the warmer colour temperature, and picks energetic graphics to hold attention." },
       { title: "You get the cut", body: "A concise design tip with bold captions, energetic motion, and a polished vertical edit." },
     ],
-    gallery: { title: "Create with Higgsfield skills in ChatGPT", blurb: "Give your ChatGPT access to the most powerful image and video models.", media: { kind: "row", row: "marketing", count: 8 }, ratio: "16/9", cols: 4 },
+    gallery: { title: "Create with Frameline skills in ChatGPT", blurb: "Give your ChatGPT access to the most powerful image and video models.", media: { kind: "row", row: "marketing", count: 8 }, ratio: "16/9", cols: 4 },
   },
   {
     slug: "gpt-astra", nav: "ChatGPT Plugin", badge: "New",
-    title: "Discover what you can create with Higgsfield and ChatGPT Astra", tagline: "Motion design bundle — bring your ideas to life with editable animation workflows.",
+    title: "Discover what you can create with Frameline and ChatGPT Astra", tagline: "Motion design bundle — bring your ideas to life with editable animation workflows.",
     hero: { kind: "feature", index: 0 }, cta: { label: "Install the plugin", href: "/mcp" }, secondary: { label: "See Effects in ChatGPT", href: "/effects" },
     extras: ["bundle"],
     gallery: { title: "Skills & presets", media: { kind: "effects", count: 10 }, ratio: "3/4", cols: 5 },
   },
   {
-    slug: "genjutsu", nav: "Genjutsu", badge: "New",
-    title: "Higgsfield Genjutsu", tagline: "Reality manipulation — transfer motion into new scenes, or swap details while everything else stays as filmed.",
+    slug: "genjutsu", nav: "Restage", badge: "New",
+    title: "Frameline Restage", tagline: "Reality manipulation — transfer motion into new scenes, or swap details while everything else stays as filmed.",
     hero: { kind: "feature", index: 2 }, cta: { label: "Start generating", href: "/ai/video?model=genjutsu" }, secondary: { label: "Browse presets", href: "/effects" },
     steps: [
       { title: "Upload one video", body: "Any clip: phone footage, a product shot, a dance." },
@@ -111,7 +111,7 @@ export const PAGES: ProductPage[] = [
   },
   {
     slug: "community", nav: "Community",
-    title: "Global film festival", tagline: "Any story. Any genre. Make your film in Higgsfield. Fourteen winners, a million dollars.",
+    title: "Global film festival", tagline: "Any story. Any genre. Make your film in Frameline. Fourteen winners, a million dollars.",
     hero: { kind: "projects" }, cta: { label: "Join the festival", href: "/contests" }, secondary: { label: "Share a generation", href: "/ai/image" },
     gallery: { title: "Projects by community", media: { kind: "row", row: "seedance25", count: 15 }, ratio: "9/16", cols: 5 },
   },
@@ -123,10 +123,10 @@ export const PAGES: ProductPage[] = [
   },
   {
     slug: "plugins", nav: "Plugins",
-    title: "Higgsfield is now inside After Effects", tagline: "Higgsfield MCP: your agent, our models.",
+    title: "Frameline is now inside After Effects", tagline: "Frameline MCP: your agent, our models.",
     hero: { kind: "feature", index: 0 }, cta: { label: "Start creating with the plugin", href: "/mcp" },
     steps: [
-      { title: "Copy the bridge prompt", body: "Settings → Connectors → add a custom connector, name it Higgsfield Bridge, paste the URL." },
+      { title: "Copy the bridge prompt", body: "Settings → Connectors → add a custom connector, name it Frameline Bridge, paste the URL." },
       { title: "Describe what you want", body: "“Build a logo reveal with a bounce ease and a light streak in After Effects.”" },
       { title: "It lands as editable layers", body: "Colour grade footage, match a cinematic look, turn a 3D fight scene into an anime short." },
     ],
@@ -140,9 +140,9 @@ export const PAGES: ProductPage[] = [
   },
   {
     slug: "original-series", nav: "Originals",
-    title: "Originals by Higgsfield", tagline: "The first AI-native streaming platform. Higgsfield Choice, First Look, On Our Radar.",
+    title: "Originals by Frameline", tagline: "The first AI-native streaming platform. Frameline Choice, First Look, On Our Radar.",
     hero: { kind: "projects" }, cta: { label: "Start creating with Seedance 2.5", href: "/ai/video?model=seedance_2_5" },
-    gallery: { title: "Higgsfield Choice", media: { kind: "projects" }, ratio: "16/9", cols: 4 },
+    gallery: { title: "Frameline Choice", media: { kind: "projects" }, ratio: "16/9", cols: 4 },
   },
   {
     slug: "enterprise", nav: "Enterprise",

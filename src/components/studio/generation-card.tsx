@@ -44,7 +44,7 @@ export function GenerationCard({
             <span>· {timeAgo(g.createdAt)}</span>
             <span>· {g.cost}✦</span>
             {g.simulated && g.status === "done" && (
-              <span className="rounded-[4px] bg-white/8 px-1 py-[1px] font-semibold uppercase text-fg-3" title="This model runs on a simulated backend in this build">
+              <span className="rounded-[4px] bg-fg/8 px-1 py-[1px] font-semibold uppercase text-fg-3" title="This model runs on a simulated backend in this build">
                 simulated
               </span>
             )}
@@ -138,7 +138,7 @@ function Icon({ children, title, onClick, active }: { children: React.ReactNode;
     <button
       title={title}
       onClick={onClick}
-      className={cn("flex h-7 w-7 items-center justify-center rounded-md text-fg-3 hover:bg-white/8 hover:text-fg", active && "text-pink hover:text-pink")}
+      className={cn("flex h-7 w-7 items-center justify-center rounded-md text-fg-3 hover:bg-fg/8 hover:text-fg", active && "text-pink hover:text-pink")}
     >
       {children}
     </button>

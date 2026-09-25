@@ -22,7 +22,7 @@ export const PLANS: PlanDef[] = [
     ],
   },
   {
-    id: "BASIC", name: "Basic", tagline: "For first-time AI creators", price: 9, credits: 120, bg: "linear-gradient(160deg,#171717,#0e0e0e)",
+    id: "BASIC", name: "Basic", tagline: "For first-time AI creators", price: 9, credits: 120, bg: "#fffffd",
     perks: [
       { text: "120 credits / month", on: true },
       { text: "≈ 60 Nano Banana 2 images", on: true },
@@ -34,7 +34,7 @@ export const PLANS: PlanDef[] = [
     ],
   },
   {
-    id: "PRO", name: "Pro", tagline: "For everyday AI creation", price: 23, listPrice: 29, credits: 600, badge: "21% OFF", bg: "linear-gradient(160deg,#1f2410,#0e0f08)",
+    id: "PRO", name: "Pro", tagline: "For everyday AI creation", price: 23, listPrice: 29, credits: 600, badge: "21% OFF", bg: "#fbf6ef",
     perks: [
       { text: "600 credits / month", on: true },
       { text: "≈ 300 Nano Banana 2 images", on: true },
@@ -47,7 +47,7 @@ export const PLANS: PlanDef[] = [
     ],
   },
   {
-    id: "MAX", name: "Max", tagline: "For ambitious AI projects", price: 59, listPrice: 79, credits: 1800, badge: "25% OFF", bg: "linear-gradient(160deg,#2a0f1e,#120710)",
+    id: "MAX", name: "Max", tagline: "For ambitious AI projects", price: 59, listPrice: 79, credits: 1800, badge: "25% OFF", bg: "#f7f4ff",
     perks: [
       { text: "1,800 credits / month", on: true },
       { text: "≈ 900 Nano Banana 2 images", on: true },

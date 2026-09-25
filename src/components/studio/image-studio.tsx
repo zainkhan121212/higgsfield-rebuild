@@ -116,9 +116,9 @@ export function ImageStudio({ initialModelId }: { initialModelId?: string }) {
 
       {/* Prompt bar */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-4 sm:px-6">
-        <div className="pointer-events-auto w-full max-w-[980px] rounded-2xl border border-line bg-[#131313]/95 p-3 shadow-[0_-8px_40px_rgba(0,0,0,0.5)] backdrop-blur-md">
+        <div className="pointer-events-auto w-full max-w-[980px] rounded-2xl border border-line bg-bg-elev/97 p-3 shadow-[0_-10px_34px_rgba(20,18,14,0.10)] backdrop-blur-md">
           <div className="flex items-start gap-2">
-            <button title="Attach a reference (coming soon)" className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card-2 text-fg-2 hover:bg-[#242424]">
+            <button title="Attach a reference (coming soon)" className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card-2 text-fg-2 hover:bg-line">
               <Plus className="h-4 w-4" />
             </button>
             <textarea
@@ -158,14 +158,14 @@ export function ImageStudio({ initialModelId }: { initialModelId?: string }) {
               onClick={generate}
               disabled={busy}
               className={cn(
-                "ml-auto flex h-11 items-center gap-2 rounded-xl bg-lime px-5 text-[15px] font-semibold text-black transition hover:bg-lime-2 disabled:opacity-60",
+                "ml-auto flex h-11 items-center gap-2 rounded-xl bg-lime px-5 text-[15px] font-semibold text-paper transition hover:bg-lime-2 disabled:opacity-60",
               )}
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Generate
               <span className="flex items-center gap-1 text-[13px] font-medium">
                 <Sparkles className="h-3.5 w-3.5" />
-                <s className="text-black/50">{listCost}</s>
+                <s className="text-fg-3">{listCost}</s>
                 <b>{cost}</b>
               </span>
             </button>
@@ -192,22 +192,24 @@ const STYLE_SUFFIX: Record<string, string> = {
 function Hero({ onPick }: { onPick: (s: string) => void }) {
   return (
     <div className="mx-auto mt-10 max-w-3xl text-center sm:mt-16">
-      <div className="relative mx-auto mb-6 h-40 w-[360px] max-w-full">
-        {["-rotate-12 left-0 top-6", "-rotate-3 left-20 top-2", "rotate-3 left-44 top-0 rounded-full", "rotate-12 left-64 top-6"].map((cls, i) => (
+      {/* Four blank plates, waiting to be printed. */}
+      <div className="relative mx-auto mb-7 h-40 w-[360px] max-w-full">
+        {["-rotate-12 left-0 top-6", "-rotate-3 left-20 top-2", "rotate-3 left-44 top-0", "rotate-12 left-64 top-6"].map((cls, i) => (
           <div
             key={i}
-            className={cn("absolute h-28 w-24 rounded-xl border border-white/10 shadow-xl", cls)}
-            style={{ background: ["linear-gradient(160deg,#3b2a1a,#120c07)", "linear-gradient(160deg,#1f2a3f,#0a0e18)", "linear-gradient(160deg,#3a1f2d,#140810)", "linear-gradient(160deg,#1d3a2b,#07130d)"][i] }}
-          />
+            className={cn("absolute h-28 w-24 border border-fg/20 bg-card shadow-[0_10px_24px_-16px_rgba(20,18,14,0.6)]", cls)}
+          >
+            <span className="fig absolute left-2 top-2">{String(i + 1).padStart(2, "0")}</span>
+          </div>
         ))}
       </div>
-      <h1 className="display text-4xl sm:text-5xl">
-        Start creating with <span className="text-lime">Higgsfield Soul Cinema</span>
+      <h1 className="display text-4xl sm:text-[52px]">
+        A blank plate, then a <span className="text-lime">picture</span>.
       </h1>
-      <p className="mt-3 text-[15px] text-fg-2">Describe a scene, character, mood, or style — and watch it come to life.</p>
+      <p className="mt-4 text-[15px] leading-relaxed text-fg-2">One sentence below. The cost is on the button before you press it.</p>
       <div className="mt-8 grid gap-2 text-left sm:grid-cols-2">
         {SUGGESTIONS.map((s) => (
-          <button key={s} onClick={() => onPick(s)} className="rounded-xl border border-line bg-card px-4 py-3 text-[13px] text-fg-2 transition hover:border-fg-3 hover:text-fg">
+          <button key={s} onClick={() => onPick(s)} className="border border-line bg-card px-4 py-3 text-left text-[13px] leading-snug text-fg-2 transition hover:border-fg hover:text-fg">
             {s}
           </button>
         ))}

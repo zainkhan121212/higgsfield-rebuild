@@ -36,22 +36,27 @@ export function PricingPage() {
   return (
     <main className="mx-auto w-full max-w-[1200px] px-4 pb-24 pt-8 sm:px-6">
       {/* Promo hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-pink/30 p-6 sm:p-8" style={{ background: "linear-gradient(120deg,#2a0a1a 0%,#120612 60%,#0a0a0a 100%)" }}>
-        <Pill tone="pink">Extra discount</Pill>
-        <h1 className="display mt-3 text-3xl text-pink sm:text-4xl">Nano Banana 2 &amp; Kling 3.0 unlimited</h1>
-        <div className="display text-3xl sm:text-4xl">Every plan is 30% off this week</div>
-        <p className="mt-2 max-w-xl text-[13px] text-fg-2">Checkout runs end to end — order review, card form, receipt — with a test card. Nothing is charged; credits land when the order completes.</p>
+      <div className="relative overflow-hidden bg-fg p-7 text-paper sm:p-10">
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">§ Plans &amp; credits</span>
+        <h1 className="display mt-4 text-[clamp(2rem,4.4vw,3.2rem)]">
+          You already have a hundred.
+        </h1>
+        <p className="mt-5 max-w-[52ch] text-[14px] leading-[1.65] text-paper/70">
+          Credits buy generations, nothing else — one image is one or two, a video is forty-five. Checkout below
+          runs end to end with a test card: order review, card form, receipt. Nothing is charged, and the credits
+          land the moment the order completes.
+        </p>
       </div>
 
       <div className="mt-12">
-        <h2 className="text-3xl font-bold tracking-tight">Upgrade your plan</h2>
-        <p className="mt-1 text-[13px] text-fg-2">Lock better prices with upgrade or scale your creativity maximizing your current plan</p>
+        <h2 className="display text-[30px]">Upgrade your plan</h2>
+        <p className="mt-1 text-[13px] text-fg-2">Pick a size, or move the slider until the monthly credit count matches how much you actually make.</p>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex rounded-full bg-card p-1 text-[13px] font-medium">
           {(["individual", "business"] as const).map((a) => (
-            <button key={a} onClick={() => setAudience(a)} className={cn("rounded-full px-4 py-1.5", audience === a ? "bg-white/10 text-fg" : "text-fg-3 hover:text-fg-2")}>
+            <button key={a} onClick={() => setAudience(a)} className={cn("rounded-full px-4 py-1.5", audience === a ? "bg-fg/10 text-fg" : "text-fg-3 hover:text-fg-2")}>
               {a === "individual" ? "Individual plans" : "Business plans"}
             </button>
           ))}
@@ -62,7 +67,7 @@ export function PricingPage() {
           </a>
           <label className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-[12px] font-medium">
             <span className={cn(!annual && "text-fg", annual && "text-fg-3")}>Monthly</span>
-            <button role="switch" aria-checked={annual} onClick={() => setAnnual((a) => !a)} className={cn("relative h-5 w-9 rounded-full transition", annual ? "bg-lime" : "bg-white/20")}>
+            <button role="switch" aria-checked={annual} onClick={() => setAnnual((a) => !a)} className={cn("relative h-5 w-9 rounded-full transition", annual ? "bg-lime" : "bg-fg/20")}>
               <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-black transition", annual ? "left-[18px]" : "left-0.5")} />
             </button>
             <span className={cn(annual && "text-fg", !annual && "text-fg-3")}>Annual</span>
@@ -85,7 +90,7 @@ export function PricingPage() {
               <div
                 id={`plan-${p.id}`}
                 key={p.id}
-                className={cn("flex flex-col rounded-2xl border p-5", highlight === p.id ? "border-lime" : "border-line")}
+                className={cn("flex flex-col border p-5", highlight === p.id ? "border-lime ring-1 ring-lime" : "border-line")}
                 style={{ background: p.bg }}
               >
                 <div className="flex items-center gap-2">
@@ -95,7 +100,7 @@ export function PricingPage() {
                 </div>
                 <div className="text-[12px] text-fg-2">{p.tagline}</div>
 
-                <div className="mt-4 rounded-xl bg-black/30 p-3">
+                <div className="mt-4 border border-line bg-bg p-3">
                   <div className="flex items-center gap-1.5 text-[13px] font-semibold">
                     <Sparkles className="h-3.5 w-3.5 text-lime" /> {credits.toLocaleString()} credits/mo.
                   </div>
@@ -104,7 +109,7 @@ export function PricingPage() {
                     <br />≈ {Math.round(credits / 22)} Seedance 2.0 videos
                   </div>
                   {p.id === "BASIC" ? (
-                    <div className="mt-2 flex items-center gap-1 rounded-md bg-white/6 px-2 py-1 text-[11px] text-fg-2">
+                    <div className="mt-2 flex items-center gap-1 rounded-md bg-fg/6 px-2 py-1 text-[11px] text-fg-2">
                       <Check className="h-3 w-3" /> Fixed amount of 120 credits/mo
                     </div>
                   ) : (
@@ -138,7 +143,7 @@ export function PricingPage() {
                   disabled={busy !== null}
                   className={cn(
                     "mt-3 flex h-11 items-center justify-center gap-2 rounded-xl text-[14px] font-semibold disabled:opacity-60",
-                    p.id === "PRO" ? "bg-lime text-black hover:bg-lime-2" : p.id === "MAX" ? "bg-pink text-white hover:brightness-110" : "bg-white text-black hover:bg-neutral-200",
+                    p.id === "PRO" ? "bg-lime text-paper hover:bg-lime-2" : p.id === "MAX" ? "bg-pink text-white hover:brightness-110" : "bg-fg text-paper hover:bg-lime",
                   )}
                 >
                   {busy === p.id && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -161,7 +166,7 @@ export function PricingPage() {
       )}
 
       <section className="mt-12">
-        <h2 className="text-2xl font-bold tracking-tight">Or just buy credits</h2>
+        <h2 className="display text-[26px]">Or just buy credits</h2>
         <p className="mt-1 text-[13px] text-fg-2">One-off packs, no subscription. Same credits, same models.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {PACKS.map((p) => (
@@ -172,7 +177,7 @@ export function PricingPage() {
               </div>
               <div className="mt-1 text-[12px] text-fg-3">{p.credits.toLocaleString()} credits</div>
               <div className="mt-4 flex items-baseline gap-1"><span className="text-3xl font-bold">${p.price}</span><span className="text-[11px] text-fg-3">one-off</span></div>
-              <div className="mt-3 flex h-10 items-center justify-center rounded-full bg-white text-[13px] font-semibold text-black">Buy {p.credits} credits</div>
+              <div className="mt-3 flex h-10 items-center justify-center rounded-full bg-fg text-[13px] font-semibold text-paper">Buy {p.credits} credits</div>
             </Link>
           ))}
         </div>
@@ -184,7 +189,7 @@ export function PricingPage() {
 
       {/* Wizard */}
       <section id="wizard" className="mt-16">
-        <h2 className="text-3xl font-bold tracking-tight">Find the best plan for you</h2>
+        <h2 className="display text-[30px]">Find the best plan for you</h2>
         <p className="mt-1 text-[13px] text-fg-2">Choose what you want to create and get what you need</p>
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
           <div className="rounded-2xl border border-line bg-card p-5">
@@ -194,7 +199,7 @@ export function PricingPage() {
             <div className="text-[12px] text-fg-3">We recommend</div>
             <div className="display mt-1 text-4xl text-lime">{wizardPlan === "MAX" ? "Max" : "Pro"} plan</div>
             <div className="mt-2 text-[12px] text-fg-2">{proCredits.toLocaleString()} credits/mo covers your monthly output with room to iterate.</div>
-            <a href={`#plan-${wizardPlan}`} className="mt-5 rounded-full bg-lime px-5 py-2 text-[13px] font-semibold text-black hover:bg-lime-2">
+            <a href={`#plan-${wizardPlan}`} className="mt-5 rounded-full bg-lime px-5 py-2 text-[13px] font-semibold text-paper hover:bg-lime-2">
               See why
             </a>
           </div>
@@ -218,7 +223,7 @@ function Wizard({ onCredits }: { onCredits: (n: number) => void }) {
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[12px] font-bold">1</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-fg/10 text-[12px] font-bold">1</span>
         <div>
           <div className="text-[14px] font-semibold">What are you here to make?</div>
           <div className="text-[11px] text-fg-3">Multiple options can be selected</div>
@@ -230,13 +235,13 @@ function Wizard({ onCredits }: { onCredits: (n: number) => void }) {
           return (
             <button key={m} onClick={() => setPicked((xs) => (on ? xs.filter((x) => x !== m) : [...xs, m]))} className={cn("flex items-center justify-between rounded-lg border px-3 py-2 text-[13px]", on ? "border-lime/40 bg-lime/5 text-lime" : "border-line text-fg-2 hover:border-line-2")}>
               {m}
-              <span className={cn("flex h-4 w-4 items-center justify-center rounded border", on ? "border-lime bg-lime text-black" : "border-line-2")}>{on && <Check className="h-3 w-3" />}</span>
+              <span className={cn("flex h-4 w-4 items-center justify-center rounded border", on ? "border-lime bg-lime text-paper" : "border-line-2")}>{on && <Check className="h-3 w-3" />}</span>
             </button>
           );
         })}
       </div>
       <div className="mt-6 flex items-center gap-3">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[12px] font-bold">2</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-fg/10 text-[12px] font-bold">2</span>
         <div>
           <div className="text-[14px] font-semibold">How many content items per month?</div>
           <div className="text-[11px] text-fg-3">≈ 14 credits each · per Kling 3.0 generation, 8s, 720p · ≈ 2 credits each · per Nano Banana 2 image</div>

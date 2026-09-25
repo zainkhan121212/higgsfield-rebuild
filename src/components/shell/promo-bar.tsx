@@ -4,31 +4,34 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-const KEY = "hf_promo_dismissed";
+const KEY = "fl_masthead_dismissed";
 
-export function PromoBar() {
+// The original site stacks two rows of promo. This is one 28px rule of ink
+// with the only fact a first-time visitor actually needs.
+export function Masthead() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     let dismissed = false;
     try {
       dismissed = localStorage.getItem(KEY) === "1";
     } catch {}
-    // Deferred so the first paint matches the server (no promo), then it slides in.
+    // Deferred so the first paint matches the server, then it appears.
     const t = setTimeout(() => setOpen(!dismissed), 0);
     return () => clearTimeout(t);
   }, []);
   useEffect(() => {
-    document.documentElement.style.setProperty("--promo-h", open ? "36px" : "0px");
+    document.documentElement.style.setProperty("--promo-h", open ? "28px" : "0px");
   }, [open]);
   if (!open) return null;
   return (
-    <div className="relative z-40 flex h-9 items-center justify-center gap-3 bg-lime px-4 text-[13px] font-medium text-black">
-      <span className="rounded-[4px] bg-black px-1.5 py-[1px] text-[10px] font-bold uppercase tracking-wide text-lime">New</span>
+    <div className="relative z-40 flex h-7 items-center justify-center gap-2 bg-fg px-4 font-mono text-[10px] uppercase tracking-[0.16em] text-paper">
+      <span className="hidden sm:inline text-paper/55">No.01</span>
+      <span className="hidden sm:inline text-paper/30">/</span>
       <span className="truncate">
-        <b>100 free credits</b> for every account — no card, no waitlist. Try Seedance 2.5 and Nano Banana 2 today.
+        100 credits on arrival — no card, no waitlist
       </span>
-      <Link href="/pricing" className="hidden sm:inline-flex h-6 items-center rounded-full bg-black px-3 text-[12px] font-semibold text-white hover:bg-neutral-800">
-        See plans
+      <Link href="/pricing" className="hidden text-paper/55 underline decoration-paper/30 underline-offset-2 hover:text-paper sm:inline">
+        Plans
       </Link>
       <button
         aria-label="Dismiss"
@@ -38,9 +41,9 @@ export function PromoBar() {
           } catch {}
           setOpen(false);
         }}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 hover:bg-black/10"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-paper/50 hover:text-paper"
       >
-        <X className="h-4 w-4" />
+        <X className="h-3 w-3" />
       </button>
     </div>
   );
