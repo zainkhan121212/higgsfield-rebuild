@@ -26,6 +26,8 @@ export function PromptImage({
   cell = 10,
   radius = 120,
   force = 2.6,
+  palette = "image",
+  ink = "17,17,17",
 }: {
   src: string;
   prompt: string;
@@ -35,6 +37,11 @@ export function PromptImage({
   /** pointer influence radius in CSS px */
   radius?: number;
   force?: number;
+  /** "image" keeps each pixel's colour; "ink" prints the picture in one
+   *  colour on a light ground, the way type on paper reads. */
+  palette?: "image" | "ink";
+  /** rgb triple used by the "ink" palette */
+  ink?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -93,11 +100,25 @@ export function PromptImage({
           const i = (ry * cols + rx) * 4;
           let r = data[i], g = data[i + 1], b = data[i + 2];
           const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-          if (lum < 0.1) continue; // let the darkest areas stay as negative space
-          // Lift and saturate a little so the picture still reads as type.
-          r = Math.min(255, r * 1.25 + 26);
-          g = Math.min(255, g * 1.25 + 26);
-          b = Math.min(255, b * 1.25 + 26);
+          let key: number;
+          let color: string;
+          if (palette === "ink") {
+            // Darkness becomes ink. Light areas are left as paper.
+            const depth = 1 - lum;
+            if (depth < 0.3) continue;
+            const level = Math.min(9, Math.max(1, Math.round(depth * 9)));
+            key = 1000 + level;
+            color = `rgba(${ink},${(level / 9).toFixed(2)})`;
+          } else {
+            if (lum < 0.1) continue; // darkest areas stay as negative space
+            // Lift a little so the picture still reads as type.
+            r = Math.min(255, r * 1.25 + 26);
+            g = Math.min(255, g * 1.25 + 26);
+            b = Math.min(255, b * 1.25 + 26);
+            // 5 bits per channel keeps the palette small enough to batch.
+            key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+            color = `rgb(${r & 0xf8},${g & 0xf8},${b & 0xf8})`;
+          }
           let ch = letters[li % letters.length];
           li++;
           if (ch === " ") ch = "·";
@@ -111,11 +132,9 @@ export function PromptImage({
             ch,
           };
           flat.push(p);
-          // 5 bits per channel keeps the palette small enough to batch.
-          const key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
           let bucket = map.get(key);
           if (!bucket) {
-            bucket = { color: `rgb(${r & 0xf8},${g & 0xf8},${b & 0xf8})`, items: [] };
+            bucket = { color, items: [] };
             map.set(key, bucket);
           }
           bucket.items.push(p);
@@ -228,7 +247,7 @@ export function PromptImage({
       wrap.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("resize", onResize);
     };
-  }, [src, prompt, cell, radius, force]);
+  }, [src, prompt, cell, radius, force, palette, ink]);
 
   return (
     <div ref={wrapRef} className={cn("relative touch-none select-none", className)}>
