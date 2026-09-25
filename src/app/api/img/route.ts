@@ -6,7 +6,12 @@ import { NextResponse } from "next/server";
 //
 // Security: strictly allowlisted hosts and https only — an open proxy would
 // be an SSRF hole and a bandwidth donation.
-const ALLOWED = new Set(["image.pollinations.ai", "cdn.higgsfield.ai", "static.higgsfield.ai", "assets.mixkit.co", "fal.media", "v3.fal.media"]);
+const ALLOWED = new Set(["image.pollinations.ai", "cdn.higgsfield.ai", "static.higgsfield.ai", "assets.mixkit.co"]);
+// fal serves results from rotating subdomains (v3.fal.media, v3b.fal.media …),
+// so match the registrable domain rather than listing each one. The leading
+// dot matters: it stops "evil-fal.media" from passing.
+const ALLOWED_SUFFIX = [".fal.media"];
+const hostAllowed = (host: string) => ALLOWED.has(host) || ALLOWED_SUFFIX.some((s) => host.endsWith(s));
 const MAX_BYTES = 12 * 1024 * 1024;
 
 export async function GET(req: Request) {
@@ -18,7 +23,7 @@ export async function GET(req: Request) {
   } catch {
     return NextResponse.json({ error: "bad src" }, { status: 400 });
   }
-  if (target.protocol !== "https:" || !ALLOWED.has(target.hostname)) {
+  if (target.protocol !== "https:" || !hostAllowed(target.hostname)) {
     return NextResponse.json({ error: "host not allowed" }, { status: 403 });
   }
 
