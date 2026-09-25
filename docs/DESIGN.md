@@ -38,6 +38,53 @@ Performance, because a marketing page has no excuse:
   animates
 - the source is read through a same-origin proxy so the canvas stays untainted
 
+## The overture
+
+Four seconds of dark room before the page, on a first visit.
+
+1. **Ignition** — a slit of amber light opens on black, the way a projector
+   strikes up.
+2. **Welcome** — one word, set enormous in the serif with a chromatic fringe,
+   over a line of mono: *take your time · it is only a page*. Casual on purpose.
+   Nothing is being sold yet.
+3. **The plate** — the futurist half arrives: a night-blue ground, an amber
+   technical grid, scanlines, crop marks at the corners, and a spec block of the
+   kind stencilled on a film can — ORIGIN TEXT / FORMAT 35 MM / GRAIN ON /
+   CREDITS 100. The headline, *the words come first*, is the thesis again.
+4. **Dissolve** — the whole panel lifts and the paper page is already underneath.
+
+The two halves are the point: **vintage** is the serif, the reel number, the
+crop marks, 35 mm, the warmth of a bulb; **futurist** is the grid, the
+scanlines, the telemetry, the cold blue. Neither alone would be interesting.
+
+An entrance that traps someone is a bad entrance, so:
+
+- once per tab (`sessionStorage`) — a reload never replays it
+- any click, key, scroll or touch skips straight to the dissolve
+- `prefers-reduced-motion` never sees it at all
+- the page beneath is fully server-rendered the whole time, so a crawler, a
+  reader mode, or a failed JS bundle loses nothing
+- `/?intro=1` replays it deliberately; the colophon links to that, which is also
+  how it gets demoed in the walkthrough video
+
+## Paper and dark room
+
+The home page alternates: you read on paper, you watch in the dark. Odd
+sections are printed, even sections are projected.
+
+- **§ 02 — Lately, in the dark room.** A contact strip of the newest real
+  generations running past on night ground, edged with sprocket holes, each
+  frame numbered and captioned with its model. Two copies of the list slide at a
+  constant rate so the loop has no seam; hover stops it, reduced motion parks it.
+- **§ 04 — The difference.** The credits argument, on night ground with an amber
+  lamp glow from the upper left and the headline in chromatic fringe.
+- **§ 06 — Two rooms.** The two studios shown in the dark, where moving images
+  belong.
+
+That rhythm is what makes the paper read as a deliberate choice rather than an
+absence of design — and it is where the colour lives, because the generated work
+is colourful and a dark ground is what lets it glow.
+
 ## The system
 
 | | |

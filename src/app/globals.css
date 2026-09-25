@@ -32,6 +32,16 @@
   --color-pink: #1d4f7c;
   --color-danger: #a8231a;
 
+  /* The dark half of the identity: a night-blue archive room the paper is
+     lit against. Amber is the lamp, vermilion is the pen. */
+  --color-night: #0a0d14;
+  --color-night-2: #121826;
+  --color-night-3: #1c2436;
+  --color-amber: #e8a33d;
+  --color-amber-2: #f5c877;
+  --color-teal: #2f6f6b;
+  --color-violet: #6b5ca8;
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-serif-display), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-mono-ui), ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -143,4 +153,118 @@ body::before {
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
+}
+
+
+/* ── The dark room ────────────────────────────────────────────────────────
+   Texture used on night surfaces: a fine technical grid, scanlines, grain and
+   a vignette. Each is a background layer, so any element can opt in without
+   an extra DOM node. */
+
+.grid-field {
+  background-image:
+    repeating-linear-gradient(to right, rgba(232, 163, 61, 0.07) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(to bottom, rgba(232, 163, 61, 0.07) 0 1px, transparent 1px 72px);
+}
+
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+}
+
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
+}
+
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 45%, transparent 48%, rgba(4, 6, 10, 0.6) 100%);
+}
+
+/* Registration marks, the way a printer's plate is cornered. */
+.crop-marks::before,
+.crop-marks::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: currentColor;
+  opacity: 0.45;
+}
+.crop-marks::before {
+  top: 14px;
+  left: 14px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+.crop-marks::after {
+  bottom: 14px;
+  right: 14px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+/* A cheap chromatic fringe — one text-shadow, no filters, no extra layers. */
+.fringe {
+  text-shadow:
+    -0.02em 0 rgba(232, 74, 40, 0.5),
+    0.02em 0 rgba(58, 176, 214, 0.45);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); filter: blur(7px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.rise { animation: rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes slit {
+  0% { transform: scaleX(0); opacity: 0; }
+  35% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.25; }
+}
+.slit { animation: slit 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  48% { opacity: 1; }
+  50% { opacity: 0.55; }
+  52% { opacity: 1; }
+  78% { opacity: 0.82; }
+  80% { opacity: 1; }
+}
+.flicker { animation: flicker 4.5s ease-in-out infinite; }
+
+/* Scroll reveal: set by IntersectionObserver so nothing is hidden without JS. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .slit, .flicker { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* The contact strip on the home page runs half its own width, then repeats. */
+@keyframes strip {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
