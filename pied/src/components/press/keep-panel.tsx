@@ -11,6 +11,9 @@ type StillSize = "plate" | "desktop" | "phone";
 export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData | null>; settings: Settings; name: string }) {
   const [title, setTitle] = useState(name);
   const [drift, setDrift] = useState(false);
+  // Whole picture by default: a screen shorter than the plate would otherwise
+  // crop rows off the top and bottom.
+  const [fit, setFit] = useState<"contain" | "cover">("contain");
   const [still, setStill] = useState<StillSize>(settings.format === "phone" ? "phone" : settings.format === "desktop" ? "desktop" : "plate");
   const [progress, setProgress] = useState<number | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -19,7 +22,7 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
 
   const phys = useMemo(() => physics(settings), [settings]);
   const closePreview = useCallback(() => setPreviewing(null), []);
-  const wp = () => ({ title: title.trim() || "Untitled", ...phys, drift });
+  const wp = () => ({ title: title.trim() || "Untitled", ...phys, drift, fit });
   const file = slug(title);
 
   const need = () => {
@@ -55,9 +58,9 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
     if (!d) return;
     const W = d.cols * d.cell;
     const H = d.rows * d.cell;
-    const [w, h, fit] =
-      still === "desktop" ? [3840, 2160, "auto" as const] : still === "phone" ? [1290, 2796, "auto" as const] : [Math.round(W * 4), Math.round(H * 4), "contain" as const];
-    save(() => canvasBlob(renderStill(d, w, h, fit)), `${file}-${still}.png`);
+    const [w, h, how] =
+      still === "desktop" ? [3840, 2160, fit] : still === "phone" ? [1290, 2796, fit] : [Math.round(W * 4), Math.round(H * 4), "contain" as const];
+    save(() => canvasBlob(renderStill(d, w, h, how)), `${file}-${still}.png`);
   };
   const saveClip = async () => {
     const d = need();
@@ -98,6 +101,21 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
 
       <Card n="A" title="Live wallpaper" meta=".html · works offline">
         <p className="font-serif text-ink-2">One small file with the picture and the press inside it. The letters keep scattering under your cursor.</p>
+        <div className="mt-4">
+          <p className="mb-2 font-serif text-[15px]">On the screen</p>
+          <Segmented
+            label="On the screen"
+            value={fit}
+            onChange={setFit}
+            options={[
+              { value: "contain", label: "Whole picture" },
+              { value: "cover", label: "Fill, crop edges" },
+            ]}
+          />
+          <p className="mt-2 font-serif text-sm text-ink-3">
+            {fit === "contain" ? "Every row stays visible on any screen; the paper fills the rest." : "Fills the screen edge to edge; rows that don't fit are cut off."}
+          </p>
+        </div>
         <div className="mt-4">
           <Toggle label="Idle drift" note="an invisible hand stirs the type when you're away" checked={drift} onChange={setDrift} />
         </div>
@@ -153,7 +171,7 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
           {msg}
         </p>
       ) : null}
-      {previewing ? <Preview data={previewing} physics={phys} drift={drift} onClose={closePreview} /> : null}
+      {previewing ? <Preview data={previewing} physics={phys} drift={drift} fit={fit} onClose={closePreview} /> : null}
 
       <Group title="Setting it as your wallpaper" className="mt-6">
         <Guide os="Windows · Lively Wallpaper (free)" steps={["Install Lively from the Microsoft Store.", "Drag the kit (.zip) onto Lively's window.", "Settings → Wallpaper → Wallpaper input: Mouse."]} />
@@ -173,14 +191,26 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
  * fit. Drawn in the page rather than a new window, so it also works where
  * pop-ups are blocked.
  */
-function Preview({ data, physics: p, drift, onClose }: { data: FieldData; physics: { radius: number; force: number; spring: number }; drift: boolean; onClose: () => void }) {
+function Preview({
+  data,
+  physics: p,
+  drift,
+  fit,
+  onClose,
+}: {
+  data: FieldData;
+  physics: { radius: number; force: number; spring: number };
+  drift: boolean;
+  fit: "contain" | "cover";
+  onClose: () => void;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = canvas.current;
     const w = wrap.current;
     if (!c || !w) return;
-    const field = createField(c, data, { fit: "auto", listen: "window", assemble: true, drift, ...p });
+    const field = createField(c, data, { fit, listen: "window", assemble: true, drift, ...p });
     w.requestFullscreen?.().catch(() => {});
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     const onFs = () => !document.fullscreenElement && onClose();
@@ -192,7 +222,7 @@ function Preview({ data, physics: p, drift, onClose }: { data: FieldData; physic
       document.removeEventListener("fullscreenchange", onFs);
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     };
-  }, [data, p, drift, onClose]);
+  }, [data, p, drift, fit, onClose]);
   return (
     <div ref={wrap} className="fixed inset-0 z-[80]" style={{ background: data.paper }} data-cursor="none">
       <canvas ref={canvas} className="block h-full w-full touch-none" aria-label="Wallpaper preview" />

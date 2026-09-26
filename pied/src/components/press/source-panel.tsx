@@ -16,13 +16,21 @@ const SAMPLES: (Source & { thumb: string })[] = [
   { url: "/samples/wave.jpg", thumb: "/samples/wave.jpg", name: "Wave", trim: 0.07 },
 ];
 
+// The look is chosen here; the words that describe each look to the model
+// live on the server (lib/server/prompt.ts), so the browser can't rewrite
+// the brief.
 const STYLES = [
-  { id: "photo", label: "Photograph", suffix: "black and white photograph, dramatic high-contrast light, subject isolated on a plain pale background" },
-  { id: "silhouette", label: "Silhouette", suffix: "stark solid black silhouette on a pure white background, crisp edges" },
-  { id: "ink", label: "Ink", suffix: "bold black ink illustration on white paper, strong contrast, no shading noise" },
-  { id: "engraving", label: "Engraving", suffix: "vintage copperplate engraving, fine black linework on white paper" },
-  { id: "colour", label: "Colour", suffix: "vivid colour photograph, high contrast, subject on a plain background" },
+  { id: "photo", label: "Photograph" },
+  { id: "silhouette", label: "Silhouette" },
+  { id: "ink", label: "Ink" },
+  { id: "engraving", label: "Engraving" },
+  { id: "colour", label: "Colour" },
 ] as const;
+
+// Uploads: raster formats a browser can decode, up to 25 MB. The picture is
+// read locally and never sent anywhere.
+const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif", "image/bmp"];
+const UPLOAD_MAX = 25 * 1024 * 1024;
 
 const IDEAS = ["a lighthouse on a cliff under a full moon", "a ballerina mid-leap", "an astronaut's helmet reflecting the earth", "a tiger's face in the dark", "a hand releasing a paper bird"];
 
@@ -42,7 +50,7 @@ export function SourcePanel({
 }: {
   format: Settings["format"];
   busy: string | null;
-  setBusy: (s: string | null) => void;
+  setBusy: (s: string | null, cancel?: () => void) => void;
   onSource: (s: Source, prompt?: string) => void;
   current: Source;
   onNext: () => void;
@@ -62,8 +70,12 @@ export function SourcePanel({
 
   const takeFile = (f: File | undefined | null) => {
     if (!f) return;
-    if (!f.type.startsWith("image/")) {
-      setErr("That file isn't an image.");
+    if (!UPLOAD_TYPES.includes(f.type)) {
+      setErr("Use a JPEG, PNG, WebP, GIF or AVIF picture.");
+      return;
+    }
+    if (f.size > UPLOAD_MAX) {
+      setErr("That picture is over 25 MB. Try a smaller copy.");
       return;
     }
     setErr(null);
@@ -89,18 +101,23 @@ export function SourcePanel({
       return;
     }
     setErr(null);
-    setBusy(STATIC ? "Claude is drawing it" : "Composing your picture");
+    const ctl = new AbortController();
+    setBusy(STATIC ? "Claude is drawing it" : "Composing your picture", () => ctl.abort());
     try {
       const { w, h } = dims(format);
       if (STATIC) {
         const url = URL.createObjectURL(await drawWithClaude(p, style, w, h));
+        if (ctl.signal.aborted) return;
         objectUrls.current.push(url);
         onSource({ url, name: p.slice(0, 40) }, p);
         return;
       }
-      const suffix = STYLES.find((s) => s.id === style)!.suffix;
-      const q = new URLSearchParams({ prompt: `${p}, ${suffix}`, w: String(w), h: String(h), seed: String(Math.floor(Math.random() * 1e9)) });
-      const res = await fetch(`/api/imagine?${q}`);
+      const res = await fetch("/api/imagine", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt: p, look: style, format }),
+        signal: ctl.signal,
+      });
       if (!res.ok) {
         const j = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(j?.error ?? "Could not make that picture.");
@@ -110,6 +127,7 @@ export function SourcePanel({
       objectUrls.current.push(url);
       onSource({ url, name: p.slice(0, 40), trim }, p);
     } catch (e) {
+      if (ctl.signal.aborted) return;
       setErr(e instanceof Error ? e.message : "Could not make that picture.");
     } finally {
       setBusy(null);
@@ -133,6 +151,7 @@ export function SourcePanel({
         <div className="mt-5">
           <Group title="Describe it" hint={`${prompt.length}/300`}>
             <textarea
+              id="prompt"
               value={prompt}
               maxLength={300}
               onChange={(e) => setPrompt(e.target.value)}
@@ -199,7 +218,7 @@ export function SourcePanel({
             <span className="font-display text-5xl">↓</span>
             <span className="font-serif text-lg">Drop a picture here</span>
             <span className="label text-ink-3">or click to choose · or paste</span>
-            <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={(e) => takeFile(e.target.files?.[0])} />
+            <input id="upload" ref={fileRef} type="file" accept={UPLOAD_TYPES.join(",")} className="sr-only" onChange={(e) => takeFile(e.target.files?.[0])} />
           </label>
           <p className="mt-4 font-serif text-sm text-ink-3">Your picture is read in this browser and never uploaded anywhere.</p>
         </div>

@@ -73,14 +73,14 @@ export function PlateCanvas({
           });
           readyRef.current?.(field);
         };
-        // Don't spend a frame on plates nobody has scrolled to yet; the
-        // assembly animation should happen where someone can see it.
+        // Don't spend a frame on plates nobody has scrolled to yet (the
+        // assembly should happen where someone can see it), and stop the idle
+        // drift of any plate that has scrolled away.
         io = new IntersectionObserver(
           (entries) => {
-            if (entries.some((e) => e.isIntersecting)) {
-              start();
-              io?.disconnect();
-            }
+            const visible = entries.some((e) => e.isIntersecting);
+            if (visible) start();
+            if (field && drift && !still) field.setDrift(visible);
           },
           { rootMargin: "200px" },
         );

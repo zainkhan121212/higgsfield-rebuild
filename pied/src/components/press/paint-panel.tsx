@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { Finish } from "@/lib/plate";
 import { cn } from "@/lib/utils";
-import { Button, Group, Slider } from "./controls";
+import { Button, Group, Segmented, Slider, Toggle } from "./controls";
 
 export type Tool = "brush" | "spray" | "eraser" | "restore";
 
@@ -54,17 +55,53 @@ const TOOLS: { id: Tool; label: string; key: string; note: string; icon: ReactNo
   },
 ];
 
-const SWATCHES = [
-  { hex: "#111110", name: "Ink" },
-  { hex: "#f4f3ee", name: "Paper" },
-  { hex: "#77756d", name: "Graphite" },
-  { hex: "#c8341e", name: "Vermilion" },
-  { hex: "#d19a2a", name: "Ochre" },
-  { hex: "#243e96", name: "Prussian" },
-  { hex: "#4f5a2c", name: "Olive" },
-  { hex: "#e39aac", name: "Rose" },
-  { hex: "#3aa39a", name: "Verdigris" },
+// Three trays, the way a print shop keeps them: printing inks, neon tubes
+// for the glow finish, and metal leaf for foil.
+const TRAYS: { name: string; for: Finish; swatches: { hex: string; name: string }[] }[] = [
+  {
+    name: "Inks",
+    for: "flat",
+    swatches: [
+      { hex: "#111110", name: "Ink" },
+      { hex: "#f4f3ee", name: "Paper" },
+      { hex: "#77756d", name: "Graphite" },
+      { hex: "#c8341e", name: "Vermilion" },
+      { hex: "#d19a2a", name: "Ochre" },
+      { hex: "#243e96", name: "Prussian" },
+      { hex: "#4f5a2c", name: "Olive" },
+      { hex: "#e39aac", name: "Rose" },
+      { hex: "#3aa39a", name: "Verdigris" },
+    ],
+  },
+  {
+    name: "Neon",
+    for: "neon",
+    swatches: [
+      { hex: "#ff2d95", name: "Hot pink" },
+      { hex: "#27e1ff", name: "Electric blue" },
+      { hex: "#b8ff2c", name: "Acid" },
+      { hex: "#ff7a1a", name: "Sodium" },
+      { hex: "#a855ff", name: "Ultraviolet" },
+    ],
+  },
+  {
+    name: "Leaf",
+    for: "foil",
+    swatches: [
+      { hex: "#c9a13b", name: "Gold leaf" },
+      { hex: "#b9bdc4", name: "Silver" },
+      { hex: "#b8703a", name: "Copper" },
+      { hex: "#8a7fd0", name: "Oil slick" },
+    ],
+  },
 ];
+const ALL = TRAYS.flatMap((t) => t.swatches);
+
+const FINISH_NOTE: Record<Finish, string> = {
+  flat: "Plain ink, like the press prints it.",
+  neon: "Each letter glows in its own colour. Strongest on dark paper.",
+  foil: "Metal leaf that catches the light — move the cursor and the shine slides across it.",
+};
 
 export function PaintPanel(p: {
   tool: Tool;
@@ -75,6 +112,10 @@ export function PaintPanel(p: {
   setStrength: (n: number) => void;
   colour: string;
   setColour: (c: string) => void;
+  finish: Finish;
+  setFinish: (f: Finish) => void;
+  bare: boolean;
+  setBare: (v: boolean) => void;
   canUndo: boolean;
   canRedo: boolean;
   hasPaint: boolean;
@@ -86,7 +127,7 @@ export function PaintPanel(p: {
   const inks = p.tool === "brush" || p.tool === "spray";
   return (
     <div>
-      <p className="-mt-2 mb-5 font-serif text-ink-2">Paint straight onto the letters. Paint into empty paper and new letters are set there.</p>
+      <p className="-mt-2 mb-5 font-serif text-ink-2">Paint straight onto the letters. The paper stays clean unless you choose to set new letters on it.</p>
       <div className="grid grid-cols-2 gap-2">
         {TOOLS.map((t) => (
           <button
@@ -120,26 +161,71 @@ export function PaintPanel(p: {
         </div>
       </Group>
 
-      <Group title="Colour" hint={inks ? SWATCHES.find((s) => s.hex === p.colour)?.name ?? p.colour : "not used by this tool"}>
-        <div className={cn("grid grid-cols-5 gap-2 transition-opacity", !inks && "opacity-40")}>
-          {SWATCHES.map((s) => (
-            <button
-              key={s.hex}
-              type="button"
-              title={s.name}
-              aria-label={s.name}
-              aria-pressed={p.colour === s.hex}
-              onClick={() => p.setColour(s.hex)}
-              className={cn("aspect-square border transition-transform", p.colour === s.hex ? "scale-90 border-ink outline outline-1 outline-offset-2 outline-ink" : "border-rule hover:scale-95")}
-              style={{ background: s.hex }}
-            />
+      <Group title="Finish" hint={inks ? undefined : "brush and spray only"}>
+        <div className={cn("transition-opacity", !inks && "opacity-40")}>
+          <Segmented
+            label="Finish"
+            value={p.finish}
+            onChange={(f) => {
+              p.setFinish(f);
+              // Switching finish offers that finish's tray.
+              const tray = TRAYS.find((t) => t.for === f)!;
+              if (!tray.swatches.some((sw) => sw.hex === p.colour)) p.setColour(tray.swatches[0].hex);
+            }}
+            options={[
+              { value: "flat", label: "Ink" },
+              { value: "neon", label: "Neon" },
+              { value: "foil", label: "Foil" },
+            ]}
+          />
+          <p className="mt-2 font-serif text-sm text-ink-3">{FINISH_NOTE[p.finish]}</p>
+        </div>
+      </Group>
+
+      <Group title="Colour" hint={inks ? ALL.find((sw) => sw.hex === p.colour)?.name ?? p.colour : "not used by this tool"}>
+        <div className={cn("space-y-4 transition-opacity", !inks && "opacity-40")}>
+          {TRAYS.map((tray) => (
+            <div key={tray.name}>
+              <p className="label mb-2 text-[10px] text-ink-3">{tray.name}</p>
+              <div className="grid grid-cols-5 gap-2">
+                {tray.swatches.map((sw) => (
+                  <button
+                    key={sw.hex}
+                    type="button"
+                    title={sw.name}
+                    aria-label={sw.name}
+                    aria-pressed={p.colour === sw.hex}
+                    onClick={() => {
+                      p.setColour(sw.hex);
+                      if (tray.for !== "flat") p.setFinish(tray.for);
+                    }}
+                    className={cn(
+                      "aspect-square border transition-transform",
+                      p.colour === sw.hex ? "scale-90 border-ink outline outline-1 outline-offset-2 outline-ink" : "border-rule hover:scale-95",
+                    )}
+                    style={{
+                      background:
+                        tray.for === "foil"
+                          ? `linear-gradient(135deg, ${sw.hex} 0%, #fff8 45%, ${sw.hex} 60%, #0003 100%), ${sw.hex}`
+                          : sw.hex,
+                      boxShadow: tray.for === "neon" ? `0 0 10px ${sw.hex}aa` : undefined,
+                    }}
+                  />
+                ))}
+                {tray.for === "flat" ? (
+                  <label className="relative flex aspect-square cursor-pointer items-center justify-center border border-dashed border-ink" title="Any colour">
+                    <span className="font-display text-xl" aria-hidden>
+                      +
+                    </span>
+                    <input id="paint-colour" type="color" value={p.colour} onChange={(e) => p.setColour(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label="Pick any colour" />
+                  </label>
+                ) : null}
+              </div>
+            </div>
           ))}
-          <label className="relative flex aspect-square cursor-pointer items-center justify-center border border-dashed border-ink" title="Any colour">
-            <span className="font-display text-xl" aria-hidden>
-              +
-            </span>
-            <input type="color" value={p.colour} onChange={(e) => p.setColour(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label="Pick any colour" />
-          </label>
+        </div>
+        <div className="mt-5">
+          <Toggle label="Paint on bare paper" note="set new letters where there were none" checked={p.bare} onChange={p.setBare} />
         </div>
       </Group>
 

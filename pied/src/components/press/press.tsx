@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { createField, type FieldController, type FieldData } from "@/lib/field";
 import {
   CELL,
@@ -12,11 +12,15 @@ import {
   composeCell,
   emptyPaint,
   fieldData,
+  fitImage,
   gridFor,
   hexToRgb,
   loadImage,
   physics,
   sample,
+  FINISH_CODE,
+  type Composed,
+  type Finish,
   type Paint,
   type Settings,
   type Source,
@@ -42,7 +46,9 @@ export function Press() {
   const [source, setSource] = useState<Source>(FIRST);
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [settings, setSettings] = useState<Settings>({ ...DEFAULTS, format: "original", cols: 120, text: "a woman pours water from a heavy jug — " });
-  const [busy, setBusy] = useState<string | null>(null);
+  const [job, setJob] = useState<{ label: string; cancel?: () => void } | null>(null);
+  const busy = job?.label ?? null;
+  const setBusy = useCallback((label: string | null, cancel?: () => void) => setJob(label ? { label, cancel } : null), []);
   const [error, setError] = useState<string | null>(null);
 
   // paint tools
@@ -50,6 +56,10 @@ export function Press() {
   const [size, setSize] = useState(4);
   const [strength, setStrength] = useState(1);
   const [colour, setColour] = useState("#c8341e");
+  const [finish, setFinish] = useState<Finish>("flat");
+  // Paint goes on the letters only, unless the painter asks to set new
+  // letters on bare paper.
+  const [bare, setBare] = useState(false);
   const [hist, setHist] = useState({ undo: 0, redo: 0, painted: false });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,7 +68,7 @@ export function Press() {
   const brushRef = useRef<HTMLDivElement>(null);
   const field = useRef<FieldController | null>(null);
   const paint = useRef<Paint>(emptyPaint(0));
-  const rgba = useRef<Uint8Array>(new Uint8Array(0));
+  const composed = useRef<Composed>({ rgba: new Uint8Array(0), fx: new Uint8Array(0) });
   const data = useRef<FieldData | null>(null);
   const undo = useRef<Paint[]>([]);
   const redo = useRef<Paint[]>([]);
@@ -69,6 +79,7 @@ export function Press() {
   useEffect(() => {
     let live = true;
     loadImage(source.url)
+      .then(fitImage)
       .then((i) => {
         if (!live) return;
         setError(null);
@@ -89,7 +100,10 @@ export function Press() {
   const cols = grid?.cols ?? 0;
   const rows = grid?.rows ?? 0;
   const pixels = useMemo(() => (img && cols ? sample(img, cols, rows, trim) : null), [img, cols, rows, trim]);
-  const { text, glyphs, ink, paper, contrast, cutoff, invert } = settings;
+  // Typing in the words box or dragging a slider re-sets thousands of letters;
+  // let React finish the keystroke first and typeset with the latest value.
+  const typeset = useDeferredValue(settings);
+  const { text, glyphs, ink, paper, contrast, cutoff, invert } = typeset;
   const plate = useMemo(
     () => (pixels ? buildPlate(pixels, cols, rows, { ...DEFAULTS, text, glyphs, ink, paper, contrast, cutoff, invert }) : null),
     [pixels, cols, rows, text, glyphs, ink, paper, contrast, cutoff, invert],
@@ -110,8 +124,8 @@ export function Press() {
       redo.current = [];
       setHist({ undo: 0, redo: 0, painted: false });
     }
-    rgba.current = compose(plate, paint.current);
-    const d = fieldData(plate, rgba.current, { ...DEFAULTS, paper, face, weight });
+    composed.current = compose(plate, paint.current);
+    const d = fieldData(plate, composed.current.rgba, { ...DEFAULTS, paper, face, weight }, composed.current.fx);
     data.current = d;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -159,13 +173,13 @@ export function Press() {
   }, [cols, rows]);
 
   // ── painting ────────────────────────────────────────────────────────────
-  const snapshot = (p: Paint): Paint => ({ mask: p.mask.slice(), rgba: p.rgba.slice() });
+  const snapshot = (p: Paint): Paint => ({ mask: p.mask.slice(), rgba: p.rgba.slice(), fx: p.fx.slice() });
   const syncHist = useCallback(() => {
     setHist({ undo: undo.current.length, redo: redo.current.length, painted: paint.current.mask.some((m) => m !== 0) });
   }, []);
   const refresh = useCallback(() => {
     if (!plate) return;
-    rgba.current.set(compose(plate, paint.current));
+    compose(plate, paint.current, composed.current);
     const all = new Int32Array(cols * rows);
     for (let i = 0; i < all.length; i++) all[i] = i;
     field.current?.changed(all);
@@ -181,7 +195,9 @@ export function Press() {
       const r0 = Math.max(0, Math.floor((y - R) / CELL));
       const r1 = Math.min(rows - 1, Math.floor((y + R) / CELL));
       const [cr, cg, cb] = hexToRgb(colour);
+      const fxCode = FINISH_CODE[finish];
       const p = paint.current;
+      const out = composed.current;
       const changed: number[] = [];
       for (let r = r0; r <= r1; r++) {
         for (let c = c0; c <= c1; c++) {
@@ -192,8 +208,10 @@ export function Press() {
           const i = r * cols + c;
           const j = i * 4;
           if (tool === "brush" || tool === "spray") {
+            if (!bare && !out.rgba[j + 3]) continue;
             if (tool === "spray" && Math.random() > 0.16 * (1 - d / R) + 0.02) continue;
             p.mask[i] = 1;
+            p.fx[i] = fxCode;
             p.rgba[j] = cr;
             p.rgba[j + 1] = cg;
             p.rgba[j + 2] = cb;
@@ -204,13 +222,13 @@ export function Press() {
           } else {
             p.mask[i] = 0;
           }
-          composeCell(rgba.current, plate, p, i);
+          composeCell(out, plate, p, i);
           changed.push(i);
         }
       }
       if (changed.length) field.current?.changed(changed);
     },
-    [plate, cols, rows, size, colour, tool, strength],
+    [plate, cols, rows, size, colour, tool, strength, finish, bare],
   );
 
   const placeBrush = (e: React.PointerEvent) => {
@@ -392,6 +410,10 @@ export function Press() {
               setStrength={setStrength}
               colour={colour}
               setColour={setColour}
+              finish={finish}
+              setFinish={setFinish}
+              bare={bare}
+              setBare={setBare}
               canUndo={hist.undo > 0}
               canRedo={hist.redo > 0}
               hasPaint={hist.painted}
@@ -427,8 +449,9 @@ export function Press() {
                   className="pointer-events-none absolute left-0 top-0 rounded-full border border-ink opacity-0 mix-blend-difference outline outline-1 outline-white/70"
                 />
               )}
-              {busy ? <Composing label={busy} /> : null}
+              {job ? <Composing label={job.label} onCancel={job.cancel} /> : null}
             </div>
+            {!plate ? <Skeleton /> : null}
             {error ? <p className="label absolute bottom-4 left-1/2 -translate-x-1/2 bg-ink px-3 py-2 text-paper">{error}</p> : null}
           </div>
           <div className="label flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-rule px-4 py-2.5 text-ink-3 sm:px-6">
@@ -436,7 +459,7 @@ export function Press() {
               Plate — {cols} × {rows} · {letterCount.toLocaleString()} letters · {FACES[settings.face].label} {settings.weight === 700 ? "Bold" : "Regular"}
             </span>
             <span className="text-ink">
-              {tab === "paint" ? `${tool} · ${size} · [ ] to resize · ⌘Z to undo` : "Move through it — the type scatters"}
+              {tab === "paint" ? `${tool}${finish !== "flat" && (tool === "brush" || tool === "spray") ? ` · ${finish}` : ""} · ${size} · [ ] to resize · ⌘Z to undo` : "Move through it — the type scatters"}
             </span>
           </div>
         </main>
@@ -458,7 +481,20 @@ function CropMarks() {
 }
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ&@#%*";
-function Composing({ label }: { label: string }) {
+function Skeleton() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" role="status" aria-label="Setting the type">
+      <div className="flex aspect-[4/5] h-[70%] max-w-[80%] flex-col justify-center gap-[3%] bg-paper p-[6%] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)]">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <span key={i} className="flicker h-[2.5%] bg-ink/10" style={{ width: `${55 + ((i * 37) % 45)}%`, animationDelay: `${i * 70}ms` }} />
+        ))}
+        <p className="label mt-4 text-ink-3">Setting the type…</p>
+      </div>
+    </div>
+  );
+}
+
+function Composing({ label, onCancel }: { label: string; onCancel?: () => void }) {
   const [s, setS] = useState("PIED");
   useEffect(() => {
     const id = setInterval(() => {
@@ -474,6 +510,11 @@ function Composing({ label }: { label: string }) {
       <p className="label flicker" role="status">
         {label}
       </p>
+      {onCancel ? (
+        <button type="button" onClick={onCancel} className="label border-b border-ink pb-0.5">
+          Cancel
+        </button>
+      ) : null}
     </div>
   );
 }

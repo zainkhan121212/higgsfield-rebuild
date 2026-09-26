@@ -92,6 +92,31 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
+/**
+ * A 24-megapixel phone photo is ~100 MB decoded, and every re-typeset would
+ * sample it again. Anything larger than `max` on its long edge is scaled down
+ * once, on arrival; the grid never needs more than a couple of thousand px.
+ */
+export async function fitImage(img: HTMLImageElement, max = 2048): Promise<HTMLImageElement> {
+  const long = Math.max(img.naturalWidth, img.naturalHeight);
+  if (long <= max) return img;
+  const k = max / long;
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.naturalWidth * k);
+  c.height = Math.round(img.naturalHeight * k);
+  const cx = c.getContext("2d")!;
+  cx.imageSmoothingQuality = "high";
+  cx.drawImage(img, 0, 0, c.width, c.height);
+  const blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/jpeg", 0.92));
+  if (!blob) return img;
+  const url = URL.createObjectURL(blob);
+  try {
+    return await loadImage(url);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 /** Downsample the image onto the grid, returning raw RGBA per cell. */
 export function sample(img: HTMLImageElement, cols: number, rows: number, trim = 0) {
   const sw = img.naturalWidth;
@@ -205,36 +230,45 @@ export function buildPlate(pixels: Uint8ClampedArray, cols: number, rows: number
 /**
  * Paint lives in its own layer so re-typesetting (contrast, words, ink) keeps
  * what you painted. mask: 0 = printed ink, 1 = painted, 2 = erased.
+ * fx: the finish of painted letters (0 flat, 1 neon, 2 foil).
  */
-export type Paint = { mask: Uint8Array; rgba: Uint8Array };
+export type Paint = { mask: Uint8Array; rgba: Uint8Array; fx: Uint8Array };
 
 export function emptyPaint(n: number): Paint {
-  return { mask: new Uint8Array(n), rgba: new Uint8Array(n * 4) };
+  return { mask: new Uint8Array(n), rgba: new Uint8Array(n * 4), fx: new Uint8Array(n) };
 }
 
-export function composeCell(out: Uint8Array, plate: Plate, paint: Paint, i: number) {
+export type Finish = "flat" | "neon" | "foil";
+export const FINISH_CODE: Record<Finish, number> = { flat: 0, neon: 1, foil: 2 };
+
+/** Composed output: the colours the engine draws, and each letter's finish. */
+export type Composed = { rgba: Uint8Array; fx: Uint8Array };
+
+export function composeCell(out: Composed, plate: Plate, paint: Paint, i: number) {
   const j = i * 4;
   const m = paint.mask[i];
   const src = m === 1 ? paint.rgba : plate.base;
+  out.fx[i] = m === 1 ? paint.fx[i] : 0;
   if (m === 2) {
-    out[j + 3] = 0;
+    out.rgba[j + 3] = 0;
     return;
   }
-  out[j] = src[j];
-  out[j + 1] = src[j + 1];
-  out[j + 2] = src[j + 2];
-  out[j + 3] = src[j + 3];
+  out.rgba[j] = src[j];
+  out.rgba[j + 1] = src[j + 1];
+  out.rgba[j + 2] = src[j + 2];
+  out.rgba[j + 3] = src[j + 3];
 }
 
-export function compose(plate: Plate, paint: Paint) {
+export function compose(plate: Plate, paint: Paint, into?: Composed): Composed {
   const n = plate.cols * plate.rows;
-  const out = new Uint8Array(n * 4);
+  const out = into ?? { rgba: new Uint8Array(n * 4), fx: new Uint8Array(n) };
   for (let i = 0; i < n; i++) composeCell(out, plate, paint, i);
   return out;
 }
 
-export function fieldData(plate: Plate, rgba: Uint8Array, s: Settings): FieldData {
+export function fieldData(plate: Plate, rgba: Uint8Array, s: Settings, fx?: Uint8Array): FieldData {
   return {
+    fx,
     cols: plate.cols,
     rows: plate.rows,
     cell: CELL,

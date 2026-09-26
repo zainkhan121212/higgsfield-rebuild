@@ -12,7 +12,20 @@ npm install
 npm run dev        # http://localhost:3100
 ```
 
-Nothing else is needed. Prompt → picture uses Pollinations' keyless FLUX endpoint. Set `FAL_KEY` to use fal's FLUX schnell instead, which is faster and leaves no watermark. There's no database and no account, and uploaded photographs never leave the browser.
+Nothing else is needed to try it. With no key set, prompt → picture falls back to Pollinations' keyless FLUX endpoint, which is slow, rate-limited and watermarked.
+
+**For production, use fal.** Set these environment variables in Vercel:
+
+| Variable | Needed | What it does |
+|---|---|---|
+| `FAL_KEY` | yes | your fal.ai key (server-only) |
+| `LOG_SALT` | recommended | any random string, used to hash visitor IPs in logs |
+| `FAL_MODEL` | optional | defaults to `fal-ai/flux/schnell`; e.g. `fal-ai/flux/dev` for higher quality |
+| `IMAGINE_PER_10_MIN`, `IMAGINE_PER_DAY`, `IMAGINE_SITE_PER_DAY` | optional | spend caps (defaults 8 / 40 / 500) |
+
+**How a prompt becomes type.** The visitor writes only the subject ("a tiger face in the dark"). The server wraps it in the press's standing brief (`src/lib/server/prompt.ts`): one subject filling the frame, a plain background, very high contrast, a strong silhouette, no text or watermark, plus the chosen look. Only then does it go to fal. The model returns a picture built to survive being set in letters, and the press does the lettering. Image models can't draw thousands of legible characters, so that part is always the press's job.
+
+Security: [`docs/SECURITY.md`](docs/SECURITY.md) · Performance: [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md)
 
 To deploy on Vercel, import the repo and set **Root Directory** to `pied`.
 
@@ -30,8 +43,8 @@ To deploy on Vercel, import the repo and set **Root Directory** to `pied`.
 | Route | What it is |
 |---|---|
 | `/` | The landing page. The hero is the product: a woman pouring water, set in the sentence that describes her. Scrolling spills the type. |
-| `/make` | The press: **I Source** (write / upload / paste / samples) → **II Set** (words, face, detail, format, ink, paper, contrast, cut-off, motion) → **III Paint** (brush, spray, eraser, restore, size, strength, colours, undo) → **IV Keep** (exports). |
-| `/api/imagine` | Prompt → image bytes from our own origin, so the canvas can read the pixels. |
+| `/make` | The press: **I Source** (write / upload / paste / samples) → **II Set** (words, face, detail, format, ink, paper, contrast, cut-off, motion) → **III Paint** (brush, spray, eraser, restore; ink, neon or foil finish; size, strength, colours, undo; paint stays on the letters unless *Paint on bare paper* is on) → **IV Keep** (exports). |
+| `POST /api/imagine` | `{prompt, look, format}` → image bytes from our own origin, so the canvas can read the pixels. Same-origin only, size-capped, rate-limited and spend-capped; see SECURITY.md. |
 
 ## How it works
 

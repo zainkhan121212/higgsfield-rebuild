@@ -21,6 +21,8 @@ export type WallpaperOptions = {
   force: number;
   spring: number;
   drift: boolean;
+  /** "contain" shows the whole picture on any screen; "cover" fills it and crops */
+  fit: "contain" | "cover";
 };
 
 /**
@@ -30,7 +32,8 @@ export type WallpaperOptions = {
  */
 export function wallpaperHtml(d: FieldData, w: WallpaperOptions) {
   const meta = { cols: d.cols, rows: d.rows, cell: d.cell, ch: d.ch, paper: d.paper, font: d.font, weight: d.weight };
-  const opts = { fit: "auto", listen: "window", assemble: true, radius: w.radius, force: w.force, spring: w.spring, drift: w.drift };
+  const hasFx = !!d.fx && d.fx.some((v) => v !== 0);
+  const opts = { fit: w.fit, listen: "window", assemble: true, radius: w.radius, force: w.force, spring: w.spring, drift: w.drift };
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -50,7 +53,15 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
   var bin = atob(${scriptSafe(toBase64(d.rgba))});
   var rgba = new Uint8Array(bin.length);
   for (var i = 0; i < bin.length; i++) rgba[i] = bin.charCodeAt(i);
-  D.rgba = rgba;
+  D.rgba = rgba;${
+    hasFx
+      ? `
+  var fxb = atob(${scriptSafe(toBase64(d.fx!))});
+  var fx = new Uint8Array(fxb.length);
+  for (var k = 0; k < fxb.length; k++) fx[k] = fxb.charCodeAt(k);
+  D.fx = fx;`
+      : ""
+  }
   var createField = (${createField.toString()});
   var o = ${scriptSafe(opts)};
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { o.mode = "still"; o.assemble = false; o.drift = false; }
@@ -147,7 +158,7 @@ export function canvasBlob(c: HTMLCanvasElement, type = "image/png", q?: number)
 export async function wallpaperKit(d: FieldData, w: WallpaperOptions) {
   const enc = new TextEncoder();
   const html = wallpaperHtml(d, w);
-  const preview = new Uint8Array(await (await canvasBlob(renderStill(d, 1280, 720, "auto"), "image/jpeg", 0.88)).arrayBuffer());
+  const preview = new Uint8Array(await (await canvasBlob(renderStill(d, 1280, 720, w.fit), "image/jpeg", 0.88)).arrayBuffer());
   const lively = {
     AppVersion: "2.0.0.0",
     Title: w.title,
@@ -226,7 +237,7 @@ export function recordClip(
   // painting it while it is captured.
   canvas.style.cssText = "position:fixed;left:-99999px;top:0;pointer-events:none";
   document.body.appendChild(canvas);
-  const field = createField(canvas, d, { size: { w, h }, fit: "cover", listen: "none", assemble: true, ...physics });
+  const field = createField(canvas, d, { size: { w, h }, fit: "contain", listen: "none", assemble: true, ...physics });
   const W = d.cols * d.cell;
   const H = d.rows * d.cell;
   const stream = canvas.captureStream(60);

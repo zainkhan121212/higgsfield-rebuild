@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Libre_Caslon_Display, Libre_Caslon_Text, Courier_Prime } from "next/font/google";
 import "./globals.css";
 import { Cursor } from "@/components/cursor";
@@ -17,7 +18,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#f4f3ee" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Reading the request makes every page render per request, which is what
+  // lets Next stamp this request's CSP nonce on its own scripts (proxy.ts).
+  await headers();
   return (
     <html lang="en" className={`${display.variable} ${text.variable} ${mono.variable}`}>
       <body className="grain min-h-svh">

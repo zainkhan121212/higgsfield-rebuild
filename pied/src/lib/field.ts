@@ -13,6 +13,12 @@
 //   · the physics only touches the "active" set: letters near the pointer
 //     (found through the grid, not a full scan) and letters still returning
 //   · the loop parks itself when nothing moves; a pointer move wakes it
+//
+// Paint finishes (fx, one byte per letter):
+//   · 1 neon — drawn with a glow of its own colour, baked into the layer
+//   · 2 foil — a metal leaf that catches the light: its shade is worked out
+//     every frame from where the cursor (the lamp) is, so the sheen slides
+//     across the letters as the cursor moves. Only foil letters are redrawn.
 
 export type FieldData = {
   cols: number;
@@ -27,6 +33,8 @@ export type FieldData = {
   /** CSS font-family stack */
   font: string;
   weight: number;
+  /** optional finish per cell: 0 flat ink, 1 neon, 2 foil */
+  fx?: Uint8Array;
 };
 
 export type FieldOptions = {
@@ -82,6 +90,9 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
   const pointer = { x: -1e5, y: -1e5, on: false };
   let raf = 0, running = false, dead = false, last = 0, spill = 0;
   let drift = !!o.drift, ghost = false, lastReal = Date.now();
+  let foil = new Int32Array(0);
+  const light = { x: 0, y: 0 };
+  const foilCache: Record<string, string> = {};
 
   function hx(i: number) {
     return ((i % cols) + 0.5) * cell;
@@ -94,6 +105,52 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     const a = d.rgba[j + 3];
     if (!a) return "";
     return "rgba(" + d.rgba[j] + "," + d.rgba[j + 1] + "," + d.rgba[j + 2] + "," + (a / 255).toFixed(3) + ")";
+  }
+  function fxOf(i: number) {
+    return d.fx ? d.fx[i] : 0;
+  }
+  // Foil: mix the ink towards white where the lamp is close, with bands that
+  // run diagonally across the leaf and shift as the lamp moves.
+  function foilStyle(i: number) {
+    const j = i * 4;
+    const x = hx(i);
+    const y = hy(i);
+    const reach = Math.max(W, H) * 0.3;
+    const dx = (x - light.x) / reach;
+    const dy = (y - light.y) / reach;
+    const near = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy));
+    const band = 0.5 + 0.5 * Math.sin((x + y) / (cell * 5) - (light.x + light.y) / (cell * 9));
+    const lvl = Math.round(Math.min(1, near * near * 1.1 + band * 0.35) * 12);
+    const key = d.rgba[j] + "," + d.rgba[j + 1] + "," + d.rgba[j + 2] + "," + d.rgba[j + 3] + "," + lvl;
+    let st = foilCache[key];
+    if (!st) {
+      // dull metal in shadow, bright metal in the light, a white glint at the peak
+      const t = lvl / 12;
+      const shade = 0.45 + t * 0.95;
+      const mix = Math.max(0, t - 0.72) * 2.6;
+      const c = function (v: number) {
+        return Math.round(Math.min(255, v * shade * (1 - mix) + 255 * mix));
+      };
+      st = foilCache[key] = "rgba(" + c(d.rgba[j]) + "," + c(d.rgba[j + 1]) + "," + c(d.rgba[j + 2]) + "," + (d.rgba[j + 3] / 255).toFixed(3) + ")";
+    }
+    return st;
+  }
+  // Neon: a glow of the tube's colour around a core that burns almost white.
+  function glowOn(c: CanvasRenderingContext2D, i: number) {
+    const j = i * 4;
+    c.shadowColor = "rgb(" + d.rgba[j] + "," + d.rgba[j + 1] + "," + d.rgba[j + 2] + ")";
+    c.shadowBlur = cell * s * dpr * 1.3;
+  }
+  function neonCore(i: number) {
+    const j = i * 4;
+    const w = function (v: number) {
+      return Math.round(v + (255 - v) * 0.5);
+    };
+    return "rgba(" + w(d.rgba[j]) + "," + w(d.rgba[j + 1]) + "," + w(d.rgba[j + 2]) + "," + (d.rgba[j + 3] / 255).toFixed(3) + ")";
+  }
+  function glowOff(c: CanvasRenderingContext2D) {
+    c.shadowBlur = 0;
+    c.shadowColor = "transparent";
   }
   function setPhysics(p: { radius?: number; force?: number; spring?: number }) {
     if (p.radius) R = p.radius;
@@ -135,6 +192,8 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       sx[i] = Math.cos(ang) * dist * W;
       sy[i] = Math.sin(ang) * dist * H * 0.6 + Math.random() * H * 0.9;
     }
+    light.x = W * 0.25;
+    light.y = H * 0.15;
     rebuildOrder();
   }
 
@@ -161,6 +220,13 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     for (let q = 0; q < keys.length; q++) {
       const list = groups[keys[q]];
       for (let m = 0; m < list.length; m++) order[k++] = list[m];
+    }
+    let nf = 0;
+    if (d.fx) for (let i = 0; i < N; i++) if (d.fx[i] === 2 && styles[i]) nf++;
+    foil = new Int32Array(nf);
+    if (nf) {
+      let f = 0;
+      for (let i = 0; i < N; i++) if (d.fx![i] === 2 && styles[i]) foil[f++] = i;
     }
   }
 
@@ -213,6 +279,34 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       }
       lx.fillText(d.ch[i], hx(i), hy(i));
     }
+    // neon: a second pass with a glow of the letter's own colour
+    if (d.fx) {
+      for (let k = 0; k < order.length; k++) {
+        const i = order[k];
+        if (d.fx[i] !== 1) continue;
+        glowOn(lx, i);
+        lx.fillStyle = neonCore(i);
+        lx.fillText(d.ch[i], hx(i), hy(i));
+      }
+      glowOff(lx);
+    }
+  }
+
+  function drawFoil() {
+    if (!foil.length) return;
+    tf(ctx);
+    const half = cell / 2 + 0.5;
+    ctx.fillStyle = d.paper;
+    for (let k = 0; k < foil.length; k++) {
+      const i = foil[k];
+      if (!inAct[i]) ctx.fillRect(hx(i) - half, hy(i) - half, half * 2, half * 2);
+    }
+    for (let k = 0; k < foil.length; k++) {
+      const i = foil[k];
+      if (inAct[i]) continue;
+      ctx.fillStyle = foilStyle(i);
+      ctx.fillText(d.ch[i], hx(i), hy(i));
+    }
   }
 
   function render() {
@@ -236,6 +330,7 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       return;
     }
     ctx.drawImage(layer, 0, 0);
+    drawFoil();
     if (!nAct) return;
     tf(ctx);
     ctx.fillStyle = d.paper;
@@ -249,11 +344,19 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       const ib = active[b];
       const sb = styles[ib];
       if (!sb) continue;
-      if (sb !== cur2) {
+      const f = fxOf(ib);
+      if (f === 2) {
+        ctx.fillStyle = cur2 = foilStyle(ib);
+      } else if (sb !== cur2) {
         ctx.fillStyle = sb;
         cur2 = sb;
       }
+      if (f === 1) {
+        glowOn(ctx, ib);
+        ctx.fillStyle = cur2 = neonCore(ib);
+      }
       ctx.fillText(d.ch[ib], px[ib], py[ib]);
+      if (f === 1) glowOff(ctx);
     }
   }
 
@@ -330,6 +433,8 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       pointer.on = true;
       pointer.x = W * (0.5 + 0.42 * Math.sin(t * 0.00031));
       pointer.y = H * (0.5 + 0.38 * Math.sin(t * 0.00047 + 1.3));
+      light.x = pointer.x;
+      light.y = pointer.y;
     }
     const n = Math.min(3, Math.max(1, Math.round(dt / 16.7)));
     let e = 0;
@@ -370,8 +475,8 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
   function onMove(e: PointerEvent | MouseEvent) {
     if (mode !== "scatter") return;
     const p = toLogical(e.clientX, e.clientY);
-    pointer.x = p.x;
-    pointer.y = p.y;
+    pointer.x = light.x = p.x;
+    pointer.y = light.y = p.y;
     pointer.on = true;
     ghost = false;
     lastReal = Date.now();
@@ -452,6 +557,10 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     setPointer: function (x, y, on) {
       pointer.x = x;
       pointer.y = y;
+      if (on) {
+        light.x = x;
+        light.y = y;
+      }
       pointer.on = on;
       lastReal = Date.now();
       ghost = false;
@@ -480,9 +589,13 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       for (let k2 = 0; k2 < cells.length; k2++) {
         const j = cells[k2];
         if (!styles[j]) continue;
-        lx.fillStyle = styles[j];
+        const f = fxOf(j);
+        if (f === 1) glowOn(lx, j);
+        lx.fillStyle = f === 1 ? neonCore(j) : styles[j];
         lx.fillText(d.ch[j], hx(j), hy(j));
+        if (f === 1) glowOff(lx);
       }
+      rebuildOrder();
       orderDirty = true;
       render();
     },

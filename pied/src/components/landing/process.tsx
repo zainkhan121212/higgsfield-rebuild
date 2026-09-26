@@ -22,7 +22,7 @@ const STEPS = [
   {
     n: "III",
     title: "Paint over it",
-    body: "Brush, spray and erase straight onto the type. Paint into the empty paper and new letters appear; erase and they're lifted out of the forme.",
+    body: "Brush and spray straight onto the letters in plain ink, neon that glows, or metal foil that catches the light as your cursor moves. Erase, and letters are lifted out of the forme.",
     fig: "brush, spray, eraser",
   },
   {
