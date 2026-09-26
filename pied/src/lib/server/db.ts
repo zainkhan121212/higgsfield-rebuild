@@ -22,7 +22,9 @@ export function cleanUrl(raw: string | undefined) {
   }
 }
 
-const url = cleanUrl(process.env.DATABASE_URL);
+// DATABASE_URL, or what Vercel's database integrations create when a prefix
+// is chosen (PIED_URL) or none is (POSTGRES_URL).
+const url = cleanUrl(process.env.DATABASE_URL || process.env.PIED_URL || process.env.PIED_DATABASE_URL || process.env.POSTGRES_URL);
 const local = !!url && /@(127\.0\.0\.1|localhost)[:/]/.test(url);
 
 type Sql = ReturnType<typeof postgres>;

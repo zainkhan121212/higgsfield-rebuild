@@ -48,6 +48,7 @@ if (cmd === "start" || cmd === "stop") {
   console.log("Postgres on 127.0.0.1:54329 — DATABASE_URL=postgres://pied:pied-local-only@127.0.0.1:54329/pied");
 } else if (cmd === "migrate") {
   env();
+  process.env.DATABASE_URL ||= process.env.PIED_URL || process.env.PIED_DATABASE_URL || process.env.POSTGRES_URL || "";
   // --if-configured: part of the build; skip quietly when there's no database.
   if (!process.env.DATABASE_URL) {
     if (process.argv.includes("--if-configured")) {
