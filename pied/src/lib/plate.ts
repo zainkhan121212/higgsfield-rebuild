@@ -19,6 +19,8 @@ export type Settings = {
   radius: number;
   force: number;
   spring: number;
+  /** printed as type, or lit as an LED board in one of these colours */
+  led: "off" | "full" | "amber" | "green" | "red" | "white";
 };
 
 export const DEFAULTS: Settings = {
@@ -36,6 +38,7 @@ export const DEFAULTS: Settings = {
   radius: 9,
   force: 2.2,
   spring: 0.05,
+  led: "off",
 };
 
 export const CELL = 10;

@@ -39,6 +39,7 @@ import { call, useSession } from "@/lib/session";
 import { unpack, type Packed } from "@/lib/pack";
 import { plateImage } from "@/lib/remix";
 import { describePlate } from "@/lib/describe";
+import { ledCells, ledData } from "@/lib/led";
 
 export type Tab = "source" | "set" | "paint" | "keep";
 const TABS: { id: Tab; n: string; label: string }[] = [
@@ -142,13 +143,24 @@ export function Press() {
   // Typing in the words box or dragging a slider re-sets thousands of letters;
   // let React finish the keystroke first and typeset with the latest value.
   const typeset = useDeferredValue(settings);
-  const { text, glyphs, ink, paper, contrast, cutoff, invert } = typeset;
+  const { text, glyphs, paper, contrast, cutoff, invert } = typeset;
+  // A full-colour LED board lights each lamp in the picture's own colour.
+  const ink = typeset.led === "full" ? "colour" : typeset.ink;
   const plate = useMemo(
     () => (pixels ? buildPlate(pixels, cols, rows, { ...DEFAULTS, text, glyphs, ink, paper, contrast, cutoff, invert }) : null),
     [pixels, cols, rows, text, glyphs, ink, paper, contrast, cutoff, invert],
   );
 
-  const { face, weight } = settings;
+  const { face, weight, led } = settings;
+  // The plate as printed; data holds what's drawn (the same, or its LED re-lighting).
+  const src = useRef<FieldData | null>(null);
+  const touched = useCallback(
+    (cells: ArrayLike<number>) => {
+      if (led !== "off" && src.current && data.current) ledCells(src.current, data.current, led, cells);
+      field.current?.changed(cells as number[]);
+    },
+    [led],
+  );
   const lastGrid = useRef("");
   const url = source.url;
   useEffect(() => {
@@ -164,7 +176,9 @@ export function Press() {
       setHist({ undo: 0, redo: 0, painted: false });
     }
     composed.current = compose(plate, paint.current);
-    const d = fieldData(plate, composed.current.rgba, { ...DEFAULTS, paper, face, weight }, composed.current.fx, composed.current.ch);
+    const printed = fieldData(plate, composed.current.rgba, { ...DEFAULTS, paper, face, weight }, composed.current.fx, composed.current.ch);
+    src.current = printed;
+    const d = led === "off" ? printed : ledData(printed, led);
     data.current = d;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -172,7 +186,7 @@ export function Press() {
       const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       field.current = createField(canvas, d, { fit: "contain", listen: "canvas", assemble: !still, mode: still ? "still" : "scatter" });
     } else field.current.update(d);
-  }, [plate, paper, face, weight, url]);
+  }, [plate, paper, face, weight, url, led]);
 
   useEffect(() => () => field.current?.destroy(), []);
 
@@ -230,8 +244,8 @@ export function Press() {
     compose(plate, paint.current, composed.current);
     const all = new Int32Array(cols * rows);
     for (let i = 0; i < all.length; i++) all[i] = i;
-    field.current?.changed(all);
-  }, [plate, cols, rows]);
+    touched(all);
+  }, [plate, cols, rows, touched]);
 
   // Per stroke, the column where the phrase starts on each row, so the words
   // read left to right however the brush wanders.
@@ -299,9 +313,9 @@ export function Press() {
           changed.push(i);
         }
       }
-      if (changed.length) field.current?.changed(changed);
+      if (changed.length) touched(changed);
     },
-    [plate, cols, rows, size, colour, tool, strength, finish, bare, phrase],
+    [plate, cols, rows, size, colour, tool, strength, finish, bare, phrase, touched],
   );
 
   // A stamp: the ornament drawn once on a scratch canvas, one pixel per
@@ -346,9 +360,9 @@ export function Press() {
           changed.push(i);
         }
       }
-      if (changed.length) field.current?.changed(changed);
+      if (changed.length) touched(changed);
     },
-    [plate, cols, rows, size, colour, strength, finish, ornament],
+    [plate, cols, rows, size, colour, strength, finish, ornament, touched],
   );
 
   const placeBrush = (e: React.PointerEvent) => {

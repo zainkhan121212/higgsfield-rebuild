@@ -1,6 +1,7 @@
 "use client";
 
 import { FACES, type Settings } from "@/lib/plate";
+import { LED_TINTS } from "@/lib/led";
 import { Button, Group, Segmented, Slider, Toggle } from "./controls";
 
 export function SetPanel({
@@ -20,6 +21,42 @@ export function SetPanel({
 }) {
   return (
     <div>
+      <Group title="Printed as" hint={s.led === "off" ? "letters" : "lamps"}>
+        <Segmented
+          label="Printed as"
+          value={s.led === "off" ? "type" : "led"}
+          onChange={(v) => set("led", v === "type" ? "off" : "amber")}
+          options={[
+            { value: "type", label: "Type" },
+            { value: "led", label: "LED board" },
+          ]}
+        />
+        {s.led !== "off" ? (
+          <div className="mt-3">
+            <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="LED colour">
+              {LED_TINTS.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={s.led === t.value}
+                  onClick={() => set("led", t.value)}
+                  className={`flex flex-col items-center gap-1 border px-1 py-2 ${s.led === t.value ? "border-ink bg-ink text-paper" : "border-rule hover:border-ink"}`}
+                >
+                  <span
+                    aria-hidden
+                    className="block h-3 w-3 rounded-full"
+                    style={{ background: t.hex || "conic-gradient(#ff3b2f,#ffae1a,#39ff6a,#27e1ff,#a855ff,#ff3b2f)", boxShadow: `0 0 8px ${t.hex || "#fff"}` }}
+                  />
+                  <span className="label text-[9px]">{t.label}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 font-serif text-sm text-ink-3">Every letter becomes a lamp. The brighter the picture, the harder it burns. Fewer columns look more like a real sign.</p>
+          </div>
+        ) : null}
+      </Group>
+
       <Group title="Words" hint={s.glyphs === "ramp" ? "used for painted letters" : undefined}>
         <textarea
           value={s.text}
