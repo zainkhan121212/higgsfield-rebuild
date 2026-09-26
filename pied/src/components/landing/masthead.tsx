@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "@/lib/session";
 
 // Fixed masthead drawn in difference mode, so it stays legible over paper,
 // over the dark room and over the type itself without ever changing colour.
 export function Masthead() {
   const [time, setTime] = useState("");
+  const { enabled, user } = useSession();
   useEffect(() => {
     const tick = () => setTime(new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
     tick();
@@ -21,7 +23,17 @@ export function Masthead() {
         </Link>
         <p className="label hidden md:block">Nº 001 — Pictures set in loose type</p>
         <nav className="pointer-events-auto flex items-center gap-5">
-          <span className="label hidden tabular-nums sm:inline">{time || "--:--"}</span>
+          <span className="label hidden tabular-nums lg:inline">{time || "--:--"}</span>
+          {enabled ? (
+            <Link href="/gallery" className="label hidden sm:inline">
+              Gallery
+            </Link>
+          ) : null}
+          {enabled ? (
+            <Link href={user ? "/library" : "/signin"} className="label hidden sm:inline">
+              {user ? "Library" : "Sign in"}
+            </Link>
+          ) : null}
           <Link href="/make" className="label border-b border-current pb-0.5">
             Open the press →
           </Link>

@@ -1,4 +1,5 @@
 import { capability, type Downloads } from "./claude";
+import { pack } from "./pack";
 import { clockPlate } from "./clock";
 import { createField, type FieldData } from "./field";
 import { runWallpaper, type WallpaperKind, type WallpaperRun } from "./wallpaper";
@@ -6,12 +7,6 @@ import { runWallpaper, type WallpaperKind, type WallpaperRun } from "./wallpaper
 // Everything a plate can leave the site as. All of it is built in the
 // browser; nothing is uploaded.
 
-function toBase64(bytes: Uint8Array) {
-  let s = "";
-  const CH = 0x8000;
-  for (let i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CH)));
-  return btoa(s);
-}
 
 // JSON is not script-safe on its own: "</script>" inside a string would end
 // the element. Escaping "<" makes any string inert.
@@ -46,20 +41,6 @@ export function runOptions(w: WallpaperOptions): WallpaperRun {
   };
 }
 
-function packPlate(d: FieldData) {
-  const ch = typeof d.ch === "string" ? d.ch : d.ch.join("");
-  return {
-    cols: d.cols,
-    rows: d.rows,
-    cell: d.cell,
-    ch,
-    paper: d.paper,
-    font: d.font,
-    weight: d.weight,
-    rgba: toBase64(d.rgba),
-    fx: d.fx && d.fx.some((v) => v !== 0) ? toBase64(d.fx) : "",
-  };
-}
 
 /**
  * A single, self-contained HTML file: the plates' data inline and the same
@@ -91,7 +72,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
     for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   }
-  var packed = ${scriptSafe(w.kind === "clock" ? [] : plates.map(packPlate))};
+  var packed = ${scriptSafe(w.kind === "clock" ? [] : plates.map(pack))};
   var plates = packed.map(function (p) {
     return { cols: p.cols, rows: p.rows, cell: p.cell, ch: p.ch, paper: p.paper, font: p.font, weight: p.weight, rgba: bytes(p.rgba), fx: p.fx ? bytes(p.fx) : undefined };
   });

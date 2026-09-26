@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { HttpError, caller, limit, readJson, sameOrigin, securityEvent } from "@/lib/server/guard";
+import { HttpError, caller, limitDurable, readJson, sameOrigin, securityEvent } from "@/lib/server/guard";
 import { LOOKS, cleanSubject, composePrompt, type Look } from "@/lib/server/prompt";
 
 // Prompt → picture. POST {prompt, look, format} → image bytes from our own
@@ -41,16 +41,18 @@ export async function POST(req: Request) {
       throw new HttpError(403, "Requests must come from the Pied site.");
     }
     for (const [key, max, win] of [
-      [`m:${who}`, PER_10_MIN, 10 * 60_000],
-      [`d:${who}`, PER_DAY, 24 * 3600_000],
-      ["site", SITE_PER_DAY, 24 * 3600_000],
+      [`imagine:m:${who}`, PER_10_MIN, 600],
+      [`imagine:d:${who}`, PER_DAY, 86400],
+      ["imagine:site", SITE_PER_DAY, 86400],
     ] as const) {
-      const r = limit(key, max, win);
+      // Durable (database-backed) when accounts are set up, so the caps hold
+      // across every serverless instance; in-memory otherwise.
+      const r = await limitDurable(key, max, win);
       if (!r.ok) {
-        securityEvent("imagine.rate_limited", { who, bucket: key.split(":")[0] });
+        securityEvent("imagine.rate_limited", { who, bucket: key.split(":")[1] });
         throw new HttpError(
           429,
-          key === "site" ? "The press has made all the pictures it can today. Upload one of your own, or try tomorrow." : "That's a lot of pictures. Give it a few minutes.",
+          key === "imagine:site" ? "The press has made all the pictures it can today. Upload one of your own, or try tomorrow." : "That's a lot of pictures. Give it a few minutes.",
           { "retry-after": String(r.retryAfter) },
         );
       }

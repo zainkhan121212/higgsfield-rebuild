@@ -1,10 +1,10 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { db, hasDb } from "./db";
 
-// Request guards shared by the API routes. Pied has no accounts, no
-// database and no payments, so the attack surface is one thing: an endpoint
-// that spends money (fal credits) on behalf of anonymous visitors. These
-// guards keep it from being abused.
+// Request guards shared by the API routes: same-origin checks, hashed
+// visitor ids, rate limits (in-memory, or durable in the database), size-
+// capped JSON bodies, and the security event log.
 
 /** Same-origin writes only. Browsers stamp every request with Sec-Fetch-Site. */
 export function sameOrigin(req: Request) {
@@ -49,9 +49,32 @@ export function limit(key: string, max: number, windowMs: number) {
   return { ok: b.n <= max, retryAfter: Math.ceil((b.reset - now) / 1000) };
 }
 
-/** Structured security log line; Vercel keeps these in its log drain. */
+/**
+ * Durable fixed-window limit, shared by every server instance through the
+ * database. Falls back to the in-memory limiter when there's no database.
+ */
+export async function limitDurable(key: string, max: number, windowSec: number) {
+  if (!hasDb()) return limit(key, max, windowSec * 1000);
+  const [r] = await db()`
+    insert into pied.rate_limits (key, count, reset_at)
+    values (${key}, 1, now() + make_interval(secs => ${windowSec}))
+    on conflict (key) do update set
+      count = case when pied.rate_limits.reset_at < now() then 1 else pied.rate_limits.count + 1 end,
+      reset_at = case when pied.rate_limits.reset_at < now() then excluded.reset_at else pied.rate_limits.reset_at end
+    returning count, extract(epoch from (reset_at - now()))::int as left`;
+  return { ok: r.count <= max, retryAfter: Math.max(1, r.left) };
+}
+
+/**
+ * Structured security log line (Vercel keeps these in its log drain) and,
+ * when there's a database, a row in pied.security_events for the audit trail.
+ * Never pass passwords, tokens, keys or prompts in `detail`.
+ */
 export function securityEvent(event: string, detail: Record<string, unknown> = {}) {
   console.warn(JSON.stringify({ level: "security", event, at: new Date().toISOString(), ...detail }));
+  if (!hasDb()) return;
+  const { userId, who, ...rest } = detail as { userId?: string; who?: string };
+  db()`insert into pied.security_events (kind, user_id, who, detail) values (${event}, ${userId ?? null}, ${who ?? ""}, ${db().json(rest as never)})`.catch(() => {});
 }
 
 /** Read a JSON body with a hard size cap, whatever Content-Length claims. */

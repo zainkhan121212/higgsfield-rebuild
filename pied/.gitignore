@@ -46,3 +46,7 @@ next-env.d.ts
 
 # artifact build output (node scripts/artifact.mjs)
 /artifact/
+
+# local embedded database
+/.pg/
+!.env.example

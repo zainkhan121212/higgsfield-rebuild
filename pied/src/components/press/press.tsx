@@ -31,8 +31,10 @@ import { SourcePanel } from "./source-panel";
 import { SetPanel } from "./set-panel";
 import { PaintPanel, type Tool } from "./paint-panel";
 import { KeepPanel } from "./keep-panel";
+import { SaveCard } from "./save-card";
 import { keep, type TrayItem } from "@/lib/tray";
 import { useTilt } from "@/lib/tilt";
+import { useSession } from "@/lib/session";
 
 export type Tab = "source" | "set" | "paint" | "keep";
 const TABS: { id: Tab; n: string; label: string }[] = [
@@ -406,7 +408,7 @@ export function Press() {
             </button>
           ))}
         </nav>
-        <span className="label hidden text-ink-3 md:inline">The press</span>
+        <PressNav />
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
@@ -470,6 +472,7 @@ export function Press() {
               tray={tray}
               onKeep={(title) => data.current && setTray((t) => [...t, keep(data.current!, title)].slice(-12))}
               onDrop={(id) => setTray((t) => t.filter((x) => x.id !== id))}
+              extra={<SaveCard data={data} name={source.name} />}
             />
           )}
         </aside>
@@ -518,6 +521,27 @@ export function Press() {
         </main>
       </div>
     </div>
+  );
+}
+
+function PressNav() {
+  const { enabled, user } = useSession();
+  if (!enabled) return <span className="label hidden text-ink-3 md:inline">The press</span>;
+  return (
+    <span className="hidden items-center gap-5 md:flex">
+      <Link href="/gallery" className="label text-ink-3 hover:text-ink">
+        Gallery
+      </Link>
+      {user ? (
+        <Link href="/library" className="label text-ink-3 hover:text-ink">
+          Library
+        </Link>
+      ) : (
+        <Link href="/signin?next=/make" className="label text-ink-3 hover:text-ink">
+          Sign in
+        </Link>
+      )}
+    </span>
   );
 }
 
