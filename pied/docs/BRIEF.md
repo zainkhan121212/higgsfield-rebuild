@@ -29,6 +29,9 @@ This file is written so another person or AI model can understand the project qu
 
 ### The landing page (scroll-driven, black and white, vintage print-shop)
 
+- **Any picture, in any light** (right after the hero): two old paintings, an orator in the senate and a mosaic of a young king, dissolve into type, take colour, burn as neon, light up as an LED board (amber, green, red, white, full colour) and return, on a loop.
+- **On your desktop:** the monitor wears live widgets (clock, weather over Lahore cycling through its skies, calendar, countdown) that switch between lamps and letters.
+
 - **Hero:** a woman pouring water, drawn in letters, which scatter under the cursor. Scrolling "spills" the type off the page. The headline is loose type: its letters drop into place on load, then dodge the cursor.
 - **Pie, n.:** a pinned dictionary entry that inks itself in word by word as you scroll.
 - **Ticker:** two lines of huge Caslon type. Scroll speed throws them and leans them.
@@ -56,6 +59,7 @@ This file is written so another person or AI model can understand the project qu
 - **Samples.**
 
 **II. Set**
+- printed as **Type** or as an **LED board** (amber, green, red, white or full colour; every letter becomes a lamp)
 - your words, or a density ramp
 - typeface (Mono / Typewriter / Serif) and weight
 - detail (60–240 columns)
@@ -75,7 +79,7 @@ This file is written so another person or AI model can understand the project qu
   - *This picture*
   - *Slideshow* (a tray of plates that morph into each other every 20 s to 15 min)
   - *Clock* (the time in type, spelled in words, dark paper at night)
-- **Desktop Studio:** drag widgets onto the wallpaper — clock, calendar, weather (the letters feel rain, snow, storms and wind), countdown, verse of the day, note, now playing (a turning record with the album cover, in Lively and Wallpaper Engine), FPS (CPU/RAM in Lively).
+- **Desktop Studio:** every widget is made of letters or LED lamps (a 5×7 dot-matrix face), and scatters under the cursor. The weather is a live scene in the same cells (sun, clouds, rain, snow, fog, storm, moon and stars at night) above the temperature and city. Drag widgets onto the wallpaper — clock, calendar, weather (the letters feel rain, snow, storms and wind), countdown, verse of the day, note, now playing (a turning record with the album cover, in Lively and Wallpaper Engine), FPS (CPU/RAM in Lively).
 - **Options:** whole picture or fill; idle drift; **dance to music** (Wallpaper Engine and Lively send audio to the page).
 - **Full-screen preview**, where you can play a song through it.
 - **Other exports:** PNG (plate ×4, 4K desktop, phone), a 7 s video and a looping GIF.
