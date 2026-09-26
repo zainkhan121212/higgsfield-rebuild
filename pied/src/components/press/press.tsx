@@ -13,6 +13,7 @@ import {
   emptyPaint,
   fieldData,
   fitImage,
+  autoFrame,
   gridFor,
   hexToRgb,
   loadImage,
@@ -78,8 +79,11 @@ export function Press() {
   // ── source → image ──────────────────────────────────────────────────────
   useEffect(() => {
     let live = true;
+    const frame = !!source.frame;
+    const cut = source.trim ?? 0;
     loadImage(source.url)
       .then(fitImage)
+      .then((i) => (frame ? autoFrame(i, cut) : i))
       .then((i) => {
         if (!live) return;
         setError(null);
@@ -89,10 +93,11 @@ export function Press() {
     return () => {
       live = false;
     };
-  }, [source.url]);
+  }, [source.url, source.frame, source.trim]);
 
   // ── image + settings → plate ────────────────────────────────────────────
-  const trim = source.trim ?? 0;
+  // A framed picture already had its watermark strip cropped off.
+  const trim = source.frame ? 0 : (source.trim ?? 0);
   const grid = useMemo(
     () => (img ? gridFor(settings, { w: img.naturalWidth, h: img.naturalHeight * (1 - trim) }) : null),
     [img, trim, settings],

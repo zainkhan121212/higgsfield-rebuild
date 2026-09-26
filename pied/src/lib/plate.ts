@@ -55,7 +55,14 @@ export const PAPER = {
 
 const RAMP = " .:-=+*#%@";
 
-export type Source = { url: string; name: string; /** fraction of height to trim from the bottom (watermarks) */ trim?: number };
+export type Source = {
+  url: string;
+  name: string;
+  /** fraction of height to trim from the bottom (watermarks) */
+  trim?: number;
+  /** crop to the subject on arrival (generated pictures) */
+  frame?: boolean;
+};
 
 export function formatAspect(format: Settings["format"], img?: { w: number; h: number }) {
   if (format === "desktop") return 16 / 9;
@@ -108,6 +115,69 @@ export async function fitImage(img: HTMLImageElement, max = 2048): Promise<HTMLI
   cx.imageSmoothingQuality = "high";
   cx.drawImage(img, 0, 0, c.width, c.height);
   const blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/jpeg", 0.92));
+  if (!blob) return img;
+  const url = URL.createObjectURL(blob);
+  try {
+    return await loadImage(url);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * Crop away the empty background around the subject, so it fills the plate.
+ * The background is whatever the border of the picture is; the subject is
+ * every pixel noticeably different from it. Keeps a little air around it.
+ */
+export async function autoFrame(img: HTMLImageElement, trim = 0, pad = 0.05): Promise<HTMLImageElement> {
+  // Work within the picture minus any watermark strip at the bottom.
+  const nh = img.naturalHeight * (1 - trim);
+  const S = 256;
+  const k = S / Math.max(img.naturalWidth, nh);
+  const w = Math.max(1, Math.round(img.naturalWidth * k));
+  const h = Math.max(1, Math.round(nh * k));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const cx = c.getContext("2d", { willReadFrequently: true })!;
+  cx.drawImage(img, 0, 0, img.naturalWidth, nh, 0, 0, w, h);
+  const px = cx.getImageData(0, 0, w, h).data;
+  const lum = (i: number) => (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+  const border: number[] = [];
+  for (let x = 0; x < w; x++) border.push(lum(x * 4), lum(((h - 1) * w + x) * 4));
+  for (let y = 0; y < h; y++) border.push(lum(y * w * 4), lum((y * w + w - 1) * 4));
+  border.sort((a, b) => a - b);
+  const bg = border[border.length >> 1];
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++)
+      if (Math.abs(lum((y * w + x) * 4) - bg) > 0.14) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+  const bw = x1 - x0 + 1;
+  const bh = y1 - y0 + 1;
+  // No subject found, it already fills the frame, or it's too small to be a
+  // subject: keep the whole picture (minus the watermark strip).
+  const keep = x1 < 0 || bw * bh > w * h * 0.7 || bw < w * 0.05 || bh < h * 0.05;
+  if (keep && !trim) return img;
+  const m = Math.round(Math.max(bw, bh) * pad);
+  const sx = keep ? 0 : Math.max(0, x0 - m) / k;
+  const sy = keep ? 0 : Math.max(0, y0 - m) / k;
+  const sw = keep ? img.naturalWidth : Math.min(w, x1 + 1 + m) / k - sx;
+  const sh = keep ? nh : Math.min(h, y1 + 1 + m) / k - sy;
+  const out = document.createElement("canvas");
+  out.width = Math.round(sw);
+  out.height = Math.round(sh);
+  const ox = out.getContext("2d")!;
+  // Fill with the background tone first so the crop never shows a hard edge.
+  const g = Math.round(bg * 255);
+  ox.fillStyle = `rgb(${g},${g},${g})`;
+  ox.fillRect(0, 0, out.width, out.height);
+  ox.drawImage(img, sx, sy, sw, sh, 0, 0, out.width, out.height);
+  const blob = await new Promise<Blob | null>((r) => out.toBlob(r, "image/jpeg", 0.92));
   if (!blob) return img;
   const url = URL.createObjectURL(blob);
   try {

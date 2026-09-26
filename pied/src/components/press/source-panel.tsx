@@ -109,7 +109,7 @@ export function SourcePanel({
         const url = URL.createObjectURL(await drawWithClaude(p, style, w, h));
         if (ctl.signal.aborted) return;
         objectUrls.current.push(url);
-        onSource({ url, name: p.slice(0, 40) }, p);
+        onSource({ url, name: p.slice(0, 40), frame: true }, p);
         return;
       }
       const res = await fetch("/api/imagine", {
@@ -125,7 +125,7 @@ export function SourcePanel({
       const trim = Number(res.headers.get("x-trim-bottom") ?? 0) || 0;
       const url = URL.createObjectURL(await res.blob());
       objectUrls.current.push(url);
-      onSource({ url, name: p.slice(0, 40), trim }, p);
+      onSource({ url, name: p.slice(0, 40), trim, frame: true }, p);
     } catch (e) {
       if (ctl.signal.aborted) return;
       setErr(e instanceof Error ? e.message : "Could not make that picture.");

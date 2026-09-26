@@ -12,7 +12,7 @@ import "server-only";
 // the lettering is always the press's job, not the model's.)
 
 export const LOOKS = {
-  photo: "black and white studio photograph, dramatic single-source lighting, deep blacks and bright highlights",
+  photo: "monochrome black and white studio photograph, no colour, dramatic single-source lighting, deep blacks and bright highlights",
   silhouette: "stark solid black silhouette, crisp clean edges, no interior detail",
   ink: "bold black ink illustration, thick confident strokes, solid black fills, no hatching noise",
   engraving: "vintage copperplate engraving, fine black linework and dense cross-hatching",
@@ -21,7 +21,10 @@ export const LOOKS = {
 
 export type Look = keyof typeof LOOKS;
 
-const BRIEF_BEFORE = "A single clear subject, centred and filling most of the frame:";
+// FLUX weighs the start of a prompt most, so the framing and the tone lead:
+// a tight close-up (a small subject wastes most of the letters) and, for
+// the monochrome looks, "black and white" before anything else.
+const BRIEF_BEFORE = "Tightly framed close-up, the subject fills the entire frame edge to edge, large and centred:";
 const BRIEF_AFTER = [
   "isolated on a plain, empty, pale background",
   "very high contrast, strong readable silhouette, large areas of solid tone",
@@ -47,5 +50,6 @@ export function cleanSubject(raw: unknown) {
 }
 
 export function composePrompt(subject: string, look: Look) {
-  return `${BRIEF_BEFORE} ${subject}. Style: ${LOOKS[look]}. ${BRIEF_AFTER}.`;
+  const tone = look === "colour" ? "" : "Black and white. ";
+  return `${tone}${BRIEF_BEFORE} ${subject}. Style: ${LOOKS[look]}. ${BRIEF_AFTER}.`;
 }

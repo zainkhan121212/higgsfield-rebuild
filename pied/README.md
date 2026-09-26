@@ -23,7 +23,7 @@ Nothing else is needed to try it. With no key set, prompt → picture falls back
 | `FAL_MODEL` | optional | defaults to `fal-ai/flux/schnell`; e.g. `fal-ai/flux/dev` for higher quality |
 | `IMAGINE_PER_10_MIN`, `IMAGINE_PER_DAY`, `IMAGINE_SITE_PER_DAY` | optional | spend caps (defaults 8 / 40 / 500) |
 
-**How a prompt becomes type.** The visitor writes only the subject ("a tiger face in the dark"). The server wraps it in the press's standing brief (`src/lib/server/prompt.ts`): one subject filling the frame, a plain background, very high contrast, a strong silhouette, no text or watermark, plus the chosen look. Only then does it go to fal. The model returns a picture built to survive being set in letters, and the press does the lettering. Image models can't draw thousands of legible characters, so that part is always the press's job.
+**How a prompt becomes type.** The visitor writes only the subject ("a tiger face in the dark"). The server wraps it in the press's standing brief (`src/lib/server/prompt.ts`): one subject filling the frame, a plain background, very high contrast, a strong silhouette, no text or watermark, plus the chosen look. Only then does it go to fal. The model returns a picture built to survive being set in letters, in about 2–3 seconds on FLUX schnell. The press then **auto-frames** it: it finds the subject against the plain background and crops the empty margin, so the subject fills the plate even when the model draws it small. Then the press does the lettering. Image models can't draw thousands of legible characters, so that part is always the press's job.
 
 Security: [`docs/SECURITY.md`](docs/SECURITY.md) · Performance: [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md)
 
