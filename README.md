@@ -7,6 +7,7 @@ A working rebuild of [higgsfield.ai](https://higgsfield.ai): image and video gen
 - What was built first and what was left out: [`docs/PLAN.md`](docs/PLAN.md)
 - Agent capture proof: [`CAPTURE-TEST.md`](CAPTURE-TEST.md), logs in [`.agent-logs/`](.agent-logs/)
 - Security measures and how to talk about them: [`docs/SECURITY.md`](docs/SECURITY.md)
+- **Pied**, a separate app in [`pied/`](pied/): pictures set in loose type that scatters under the cursor, with a paint editor and live-wallpaper export. See [`pied/README.md`](pied/README.md).
 
 ## Stack
 
