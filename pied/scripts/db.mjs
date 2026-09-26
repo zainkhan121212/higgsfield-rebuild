@@ -48,10 +48,21 @@ if (cmd === "start" || cmd === "stop") {
   console.log("Postgres on 127.0.0.1:54329 — DATABASE_URL=postgres://pied:pied-local-only@127.0.0.1:54329/pied");
 } else if (cmd === "migrate") {
   env();
-  if (!process.env.DATABASE_URL) throw new Error("Set DATABASE_URL first.");
+  // --if-configured: part of the build; skip quietly when there's no database.
+  if (!process.env.DATABASE_URL) {
+    if (process.argv.includes("--if-configured")) {
+      console.log("no DATABASE_URL: accounts off, skipping migration");
+      process.exit(0);
+    }
+    throw new Error("Set DATABASE_URL first.");
+  }
   const { default: postgres } = await import("postgres");
-  const local = /@(127\.0\.0\.1|localhost)[:/]/.test(process.env.DATABASE_URL);
-  const sql = postgres(process.env.DATABASE_URL, { max: 1, prepare: false, ssl: local ? false : "require", onnotice: () => {} });
+  // Same cleanup as the app: drop Prisma-only options from the URL.
+  const u = new URL(process.env.DATABASE_URL);
+  for (const k of ["pgbouncer", "connection_limit", "pool_timeout", "schema", "statement_cache_size"]) u.searchParams.delete(k);
+  const dbUrl = u.toString();
+  const local = /@(127\.0\.0\.1|localhost)[:/]/.test(dbUrl);
+  const sql = postgres(dbUrl, { max: 1, prepare: false, ssl: local ? false : "require", onnotice: () => {} });
   await sql.unsafe(fs.readFileSync(path.join(root, "sql/schema.sql"), "utf8"));
   await sql.end();
   console.log("schema applied");

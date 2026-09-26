@@ -6,7 +6,23 @@ import postgres from "postgres";
 // compatible with transaction pooling). Every query goes through the `sql`
 // tagged template, which sends values as parameters, never as SQL text.
 
-const url = process.env.DATABASE_URL;
+/**
+ * Prisma-style connection strings carry options Postgres itself doesn't know
+ * (pgbouncer=true, connection_limit, schema). Strip them so the same
+ * DATABASE_URL works for both apps in this repo.
+ */
+export function cleanUrl(raw: string | undefined) {
+  if (!raw) return raw;
+  try {
+    const u = new URL(raw);
+    for (const k of ["pgbouncer", "connection_limit", "pool_timeout", "schema", "statement_cache_size"]) u.searchParams.delete(k);
+    return u.toString();
+  } catch {
+    return raw;
+  }
+}
+
+const url = cleanUrl(process.env.DATABASE_URL);
 const local = !!url && /@(127\.0\.0\.1|localhost)[:/]/.test(url);
 
 type Sql = ReturnType<typeof postgres>;
