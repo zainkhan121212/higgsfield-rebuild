@@ -22,7 +22,9 @@ export const GET = api(async (req) => {
   return json({ plates: page.map(card), next: more ? cursorOf(page[page.length - 1]) : null });
 });
 
-const Save = z.object({ title: Title, isPublic: z.boolean().default(false), plate: PlateData, thumb: Thumb }).strict();
+const Save = z
+  .object({ title: Title, isPublic: z.boolean().default(false), plate: PlateData, thumb: Thumb, remixOf: z.string().regex(/^[A-Za-z0-9]{12}$/).optional() })
+  .strict();
 
 // POST: save a plate to your library.
 export const POST = api(
@@ -34,9 +36,13 @@ export const POST = api(
     const [{ n }] = await db()`select count(*)::int as n from pied.plates where user_id = ${s.user.id}`;
     if (n >= QUOTA) throw new HttpError(409, `Your library is full (${QUOTA} plates). Delete a few to make room.`);
     const id = plateId();
+    // Credit only a plate this person could see: a public one, or their own.
+    const [src] = body.remixOf
+      ? await db()`select id from pied.plates where id = ${body.remixOf} and (is_public or user_id = ${s.user.id})`
+      : [];
     await db()`
-      insert into pied.plates (id, user_id, title, is_public, cols, rows, data, thumb)
-      values (${id}, ${s.user.id}, ${body.title}, ${body.isPublic}, ${body.plate.cols}, ${body.plate.rows}, ${db().json(body.plate)}, ${body.thumb})`;
+      insert into pied.plates (id, user_id, title, is_public, cols, rows, data, thumb, remix_of)
+      values (${id}, ${s.user.id}, ${body.title}, ${body.isPublic}, ${body.plate.cols}, ${body.plate.rows}, ${db().json(body.plate)}, ${body.thumb}, ${src?.id ?? null})`;
     securityEvent("plate.saved", { userId: s.user.id, who: caller(req), plate: id });
     return json({ ok: true, id }, 201);
   },

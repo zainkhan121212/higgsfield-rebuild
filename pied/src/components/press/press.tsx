@@ -34,7 +34,9 @@ import { KeepPanel } from "./keep-panel";
 import { SaveCard } from "./save-card";
 import { keep, type TrayItem } from "@/lib/tray";
 import { useTilt } from "@/lib/tilt";
-import { useSession } from "@/lib/session";
+import { call, useSession } from "@/lib/session";
+import { unpack, type Packed } from "@/lib/pack";
+import { plateImage } from "@/lib/remix";
 
 export type Tab = "source" | "set" | "paint" | "keep";
 const TABS: { id: Tab; n: string; label: string }[] = [
@@ -81,6 +83,27 @@ export function Press() {
   const data = useRef<FieldData | null>(null);
   const undo = useRef<Paint[]>([]);
   const redo = useRef<Paint[]>([]);
+
+  // Remixing a plate from the gallery: /make?remix=<id> sets it as the
+  // source, and the saved plate credits the original.
+  const [remix, setRemix] = useState<{ id: string; title: string; by: string } | null>(null);
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("remix");
+    if (!id || !/^[A-Za-z0-9]{12}$/.test(id)) return;
+    let live = true;
+    call<{ id: string; title: string; by: string; plate: Packed }>(`/api/plates/${id}`)
+      .then((r) => {
+        if (!live) return;
+        const d = unpack(r.plate);
+        setSource({ url: plateImage(d), name: `${r.title} (remix)` });
+        setSettings((s) => ({ ...s, format: "original", cols: Math.max(60, Math.min(240, d.cols)) }));
+        setRemix({ id: r.id, title: r.title, by: r.by });
+      })
+      .catch(() => live && setError("That plate can't be remixed — it may be private."));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const set = useCallback(<K extends keyof Settings>(k: K, v: Settings[K]) => setSettings((s) => ({ ...s, [k]: v })), []);
 
@@ -432,6 +455,7 @@ export function Press() {
               setBusy={setBusy}
               onSource={(s, prompt) => {
                 setSource(s);
+                setRemix(null);
                 if (prompt) set("text", `${prompt} — `);
               }}
               current={source}
@@ -472,7 +496,7 @@ export function Press() {
               tray={tray}
               onKeep={(title) => data.current && setTray((t) => [...t, keep(data.current!, title)].slice(-12))}
               onDrop={(id) => setTray((t) => t.filter((x) => x.id !== id))}
-              extra={<SaveCard data={data} name={source.name} />}
+              extra={<SaveCard data={data} name={source.name} remixOf={remix?.id} />}
             />
           )}
         </aside>
@@ -507,6 +531,11 @@ export function Press() {
               <button type="button" onClick={tilt.ask} className="label absolute left-4 top-4 z-10 bg-ink px-3 py-2 text-paper">
                 Tilt to play
               </button>
+            ) : null}
+            {remix ? (
+              <p className="label absolute right-4 top-4 z-10 border border-ink bg-paper px-3 py-2">
+                Remixing “{remix.title}” · by {remix.by}
+              </p>
             ) : null}
             {error ? <p className="label absolute bottom-4 left-1/2 -translate-x-1/2 bg-ink px-3 py-2 text-paper">{error}</p> : null}
           </div>

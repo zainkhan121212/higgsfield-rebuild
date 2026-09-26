@@ -8,6 +8,7 @@ import { Specimens } from "@/components/landing/specimens";
 import { Desktop } from "@/components/landing/desktop";
 import { Finale } from "@/components/landing/finale";
 import { Changing } from "@/components/landing/changing";
+import { PlateOfTheDay } from "@/components/landing/today";
 import { TypeTrail } from "@/components/fx/type-trail";
 import { ScrollGauge } from "@/components/fx/scroll-gauge";
 
@@ -25,6 +26,7 @@ export default function Home() {
         <Ticker />
         <Process />
         <Specimens />
+        <PlateOfTheDay />
         <Changing />
         <Desktop />
         <Finale />

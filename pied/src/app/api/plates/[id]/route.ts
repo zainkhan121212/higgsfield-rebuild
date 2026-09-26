@@ -21,11 +21,23 @@ export const GET = api(async (_req: Request, ctx: Ctx) => {
   const pid = await id(ctx);
   const s = await currentSession();
   const [row] = await db()`
-    select p.id, p.title, p.is_public, p.user_id, p.data, p.created_at, u.display_name
+    select p.id, p.title, p.is_public, p.user_id, p.data, p.created_at, u.display_name,
+           r.id as remix_id, r.title as remix_title, ru.display_name as remix_by
     from pied.plates p join pied.users u on u.id = p.user_id
+    left join pied.plates r on r.id = p.remix_of and (r.is_public or r.user_id = ${s?.user.id ?? null})
+    left join pied.users ru on ru.id = r.user_id
     where p.id = ${pid} and (p.is_public or p.user_id = ${s?.user.id ?? null})`;
   if (!row) throw new HttpError(404, "No such plate.");
-  return json({ id: row.id, title: row.title, isPublic: row.is_public, mine: row.user_id === s?.user.id, by: row.display_name || "Anonymous", createdAt: row.created_at, plate: row.data });
+  return json({
+    id: row.id,
+    title: row.title,
+    isPublic: row.is_public,
+    mine: row.user_id === s?.user.id,
+    by: row.display_name || "Anonymous",
+    createdAt: row.created_at,
+    plate: row.data,
+    remixOf: row.remix_id ? { id: row.remix_id, title: row.remix_title, by: row.remix_by || "Anonymous" } : null,
+  });
 });
 
 // PATCH: only the title and whether it's public can change (no mass assignment).

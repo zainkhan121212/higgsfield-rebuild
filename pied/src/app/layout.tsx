@@ -10,7 +10,13 @@ const display = Libre_Caslon_Display({ variable: "--font-caslon-display", subset
 const text = Libre_Caslon_Text({ variable: "--font-caslon-text", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"] });
 const mono = Courier_Prime({ variable: "--font-courier", subsets: ["latin"], weight: ["400", "700"] });
 
+// Absolute links for share previews: APP_URL when set, else Vercel's own.
+const SITE = process.env.APP_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3100");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
+  openGraph: { siteName: "Pied", type: "website" },
+  twitter: { card: "summary_large_image" },
   title: { default: "Pied — pictures set in type", template: "%s · Pied" },
   description:
     "Give Pied a picture or a sentence. It sets it in letters that scatter when your cursor passes through — paint it, then keep it as a live desktop wallpaper.",

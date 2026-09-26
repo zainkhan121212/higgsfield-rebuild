@@ -9,7 +9,7 @@ import { DEFAULTS, physics } from "@/lib/plate";
 import { unpack, type Packed } from "@/lib/pack";
 import { call } from "@/lib/session";
 
-type Full = { id: string; title: string; isPublic: boolean; mine: boolean; by: string; createdAt: string; plate: Packed };
+type Full = { id: string; title: string; isPublic: boolean; mine: boolean; by: string; createdAt: string; plate: Packed; remixOf?: { id: string; title: string; by: string } | null };
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -58,6 +58,15 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               {p.by} · {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
             </p>
             <h1 className="mt-3 font-display text-5xl leading-none">{p.title}</h1>
+            {p.remixOf ? (
+              <p className="label mt-3 text-ink-3">
+                Remixed from{" "}
+                <Link href={`/p/${p.remixOf.id}`} className="border-b border-ink-3 text-ink hover:border-ink">
+                  {p.remixOf.title}
+                </Link>{" "}
+                · by {p.remixOf.by}
+              </p>
+            ) : null}
             <p className="mt-4 font-serif text-ink-2">
               {data.cols} × {data.rows} letters. Move your cursor through it.
             </p>
@@ -68,6 +77,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <button type="button" onClick={savePng} className="label border border-ink px-4 py-3 hover:bg-ink hover:text-paper">
                 Download PNG
               </button>
+              <Link href={`/make?remix=${p.id}`} className="label border border-ink px-4 py-3 text-center hover:bg-ink hover:text-paper">
+                Remix this plate
+              </Link>
               <Link href="/make" className="label mt-4 text-center text-ink-3 hover:text-ink">
                 Make your own →
               </Link>

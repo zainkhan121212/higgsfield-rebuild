@@ -10,7 +10,7 @@ import { call, useSession } from "@/lib/session";
 import { Button, Toggle } from "./controls";
 
 // Keep the plate in your library (and, if you like, the public gallery).
-export function SaveCard({ data, name }: { data: RefObject<FieldData | null>; name: string }) {
+export function SaveCard({ data, name, remixOf }: { data: RefObject<FieldData | null>; name: string; remixOf?: string }) {
   const { enabled, user } = useSession();
   const [title, setTitle] = useState(name);
   const [pub, setPub] = useState(false);
@@ -26,7 +26,7 @@ export function SaveCard({ data, name }: { data: RefObject<FieldData | null>; na
     setErr(null);
     try {
       const thumb = renderStill(d, 480, 270, "contain").toDataURL("image/jpeg", 0.8);
-      const r = await call<{ id: string }>("/api/plates", { body: { title: title.trim() || "Untitled", isPublic: pub, plate: pack(d), thumb } });
+      const r = await call<{ id: string }>("/api/plates", { body: { title: title.trim() || "Untitled", isPublic: pub, plate: pack(d), thumb, ...(remixOf ? { remixOf } : {}) } });
       setSaved(r.id);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Couldn't save it.");

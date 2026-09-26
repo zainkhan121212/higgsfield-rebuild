@@ -52,6 +52,10 @@ create table if not exists pied.plates (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- A remix remembers the plate it was set from (the credit line on its share
+-- page). If the original is deleted the credit goes too, the remix stays.
+alter table pied.plates add column if not exists remix_of text references pied.plates(id) on delete set null;
+
 create index if not exists plates_owner on pied.plates(user_id, created_at desc);
 create index if not exists plates_public on pied.plates(created_at desc) where is_public;
 
