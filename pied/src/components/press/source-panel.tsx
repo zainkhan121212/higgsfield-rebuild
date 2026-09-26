@@ -6,6 +6,7 @@ import { drawWithClaude } from "@/lib/draw";
 import type { Settings, Source } from "@/lib/plate";
 import { cn } from "@/lib/utils";
 import { Button, Group, Segmented } from "./controls";
+import { DrawPad } from "./draw-pad";
 
 const SAMPLES: (Source & { thumb: string })[] = [
   { url: "/samples/pour.jpg", thumb: "/samples/pour.jpg", name: "Pour" },
@@ -40,6 +41,12 @@ function dims(format: Settings["format"]) {
   return { w: 1344, h: 768 };
 }
 
+function drawSize(format: Settings["format"]) {
+  if (format === "phone") return { w: 540, h: 1100 };
+  if (format === "desktop") return { w: 960, h: 540 };
+  return { w: 800, h: 800 };
+}
+
 export function SourcePanel({
   format,
   busy,
@@ -55,7 +62,7 @@ export function SourcePanel({
   current: Source;
   onNext: () => void;
 }) {
-  const [mode, setMode] = useState<"write" | "upload" | "samples">("write");
+  const [mode, setMode] = useState<"write" | "upload" | "draw" | "samples">("write");
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<(typeof STYLES)[number]["id"]>("photo");
   const [err, setErr] = useState<string | null>(null);
@@ -143,6 +150,7 @@ export function SourcePanel({
         options={[
           { value: "write", label: "Write" },
           { value: "upload", label: "Upload" },
+          { value: "draw", label: "Draw" },
           { value: "samples", label: "Samples" },
         ]}
       />
@@ -223,6 +231,8 @@ export function SourcePanel({
           <p className="mt-4 font-serif text-sm text-ink-3">Your picture is read in this browser and never uploaded anywhere.</p>
         </div>
       )}
+
+      {mode === "draw" && <DrawPad {...drawSize(format)} onSource={(s) => onSource(s)} />}
 
       {mode === "samples" && (
         <div className="mt-5 grid grid-cols-3 gap-2">

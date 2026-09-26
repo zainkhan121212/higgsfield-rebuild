@@ -71,6 +71,7 @@ export function Press() {
   const [bare, setBare] = useState(false);
   // The word brush writes this phrase into the letters it passes over.
   const [phrase, setPhrase] = useState("love");
+  const [ornament, setOrnament] = useState("❦");
   // The slideshow tray: plates kept aside for a morphing wallpaper.
   const [tray, setTray] = useState<TrayItem[]>([]);
   const [hist, setHist] = useState({ undo: 0, redo: 0, painted: false });
@@ -303,6 +304,53 @@ export function Press() {
     [plate, cols, rows, size, colour, tool, strength, finish, bare, phrase],
   );
 
+  // A stamp: the ornament drawn once on a scratch canvas, one pixel per
+  // cell, and every cell it covers set as a letter in the chosen ink —
+  // on bare paper too, since that's what a stamp is for.
+  const pressOrnament = useCallback(
+    (x: number, y: number) => {
+      if (!plate) return;
+      const N = Math.max(12, Math.round(size * 4));
+      const g = document.createElement("canvas");
+      g.width = g.height = N;
+      const ctx = g.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.font = `${N}px "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2", "DejaVu Sans", serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(ornament, N / 2, N / 2 + N * 0.04);
+      const px = ctx.getImageData(0, 0, N, N).data;
+      const [cr, cg, cb] = hexToRgb(colour);
+      const fxCode = FINISH_CODE[finish];
+      const p = paint.current;
+      const out = composed.current;
+      const c0 = Math.floor(x / CELL) - Math.floor(N / 2);
+      const r0 = Math.floor(y / CELL) - Math.floor(N / 2);
+      const changed: number[] = [];
+      for (let v = 0; v < N; v++) {
+        for (let u = 0; u < N; u++) {
+          const a = px[(v * N + u) * 4 + 3];
+          if (a < 110) continue;
+          const c = c0 + u;
+          const r = r0 + v;
+          if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
+          const i = r * cols + c;
+          const j = i * 4;
+          p.mask[i] = 1;
+          p.fx[i] = fxCode;
+          p.rgba[j] = cr;
+          p.rgba[j + 1] = cg;
+          p.rgba[j + 2] = cb;
+          p.rgba[j + 3] = Math.round(255 * strength);
+          composeCell(out, plate, p, i);
+          changed.push(i);
+        }
+      }
+      if (changed.length) field.current?.changed(changed);
+    },
+    [plate, cols, rows, size, colour, strength, finish, ornament],
+  );
+
   const placeBrush = (e: React.PointerEvent) => {
     const b = brushRef.current;
     const sheet = sheetRef.current;
@@ -324,6 +372,10 @@ export function Press() {
     redo.current = [];
     setHist({ undo: undo.current.length, redo: 0, painted: true });
     const p = field.current.toLogical(e.clientX, e.clientY);
+    if (tool === "stamp") {
+      pressOrnament(p.x, p.y);
+      return;
+    }
     stroke.current = { down: true, x: p.x, y: p.y, rows: new Map() };
     stamp(p.x, p.y);
   };
@@ -383,7 +435,7 @@ export function Press() {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
-      const tools: Record<string, Tool> = { b: "brush", s: "spray", w: "words", e: "eraser", r: "restore" };
+      const tools: Record<string, Tool> = { b: "brush", s: "spray", w: "words", o: "stamp", e: "eraser", r: "restore" };
       if (tools[k]) {
         setTool(tools[k]);
         setTab("paint");
@@ -489,6 +541,8 @@ export function Press() {
               setBare={setBare}
               phrase={phrase}
               setPhrase={setPhrase}
+              ornament={ornament}
+              setOrnament={setOrnament}
               canUndo={hist.undo > 0}
               canRedo={hist.redo > 0}
               hasPaint={hist.painted}

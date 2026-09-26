@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { clockPlate } from "@/lib/clock";
 import { createField, type FieldData } from "@/lib/field";
-import { canvasBlob, download, recordClip, recordingMime, renderStill, runOptions, slug, wallpaperHtml, wallpaperKit, type WallpaperOptions } from "@/lib/export";
+import { canvasBlob, download, recordClip, recordGif, recordingMime, renderStill, runOptions, slug, wallpaperHtml, wallpaperKit, type WallpaperOptions } from "@/lib/export";
 import { physics, type Settings } from "@/lib/plate";
 import type { TrayItem } from "@/lib/tray";
 import { cn } from "@/lib/utils";
@@ -112,6 +112,21 @@ export function KeepPanel({
     const [w, h, how] =
       still === "desktop" ? [3840, 2160, fit] : still === "phone" ? [1290, 2796, fit] : [Math.round(W * 4), Math.round(H * 4), "contain" as const];
     save(() => canvasBlob(renderStill(d, w, h, how)), `${file}-${still}.png`);
+  };
+  const saveGif = async () => {
+    const d = data.current;
+    if (!d) return setMsg("Nothing on the plate yet.");
+    setMsg(null);
+    try {
+      setProgress(0);
+      const blob = await recordGif(d, 640, phys, setProgress);
+      setProgress(null);
+      await save(() => blob, `${file}.gif`);
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Couldn't make the GIF.");
+    } finally {
+      setProgress(null);
+    }
   };
   const saveClip = async () => {
     const d = data.current;
@@ -253,19 +268,24 @@ export function KeepPanel({
         </Button>
       </Card>
 
-      <Card n="C" title="Motion" meta={canRecord ? `${(recordingMime() ?? "").includes("mp4") ? ".mp4" : ".webm"} · 7 seconds` : "not supported here"}>
+      <Card n="C" title="Motion" meta={`${canRecord ? `${(recordingMime() ?? "").includes("mp4") ? ".mp4" : ".webm"} · 7 seconds · ` : ""}looping .gif`}>
         <p className="font-serif text-ink-2">The type assembles, an invisible hand sweeps through it, and it settles again.</p>
         {progress !== null ? (
           <div className="mt-4">
             <div className="h-[3px] w-full bg-rule">
               <div className="h-full bg-ink transition-[width] duration-200" style={{ width: `${Math.round(progress * 100)}%` }} />
             </div>
-            <p className="label mt-2 flicker">Recording… {Math.round(progress * 100)}%</p>
+            <p className="label mt-2 flicker">{progress < 0.85 ? "Recording" : "Printing the frames"}… {Math.round(progress * 100)}%</p>
           </div>
         ) : (
-          <Button onClick={saveClip} disabled={!canRecord} className="mt-4 w-full">
-            Record clip
-          </Button>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Button onClick={saveClip} disabled={!canRecord}>
+              Record clip
+            </Button>
+            <Button variant="line" onClick={saveGif}>
+              Looping GIF
+            </Button>
+          </div>
         )}
       </Card>
 

@@ -345,3 +345,53 @@ export function slug(s: string) {
       .slice(0, 40) || "pied"
   );
 }
+
+/**
+ * A looping GIF of the same film as the clip — assemble, the hand's sweep,
+ * settle — at 12 frames a second, small enough for a chat.
+ */
+export async function recordGif(d: FieldData, maxW: number, physics: { radius: number; force: number; spring: number }, onProgress: (p: number) => void) {
+  const { encodeGif } = await import("./gif");
+  const aspect = (d.cols * d.cell) / (d.rows * d.cell);
+  const w = aspect >= 1 ? maxW : Math.round(maxW * aspect);
+  const h = Math.round(w / aspect);
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;left:-99999px;top:0;pointer-events:none";
+  document.body.appendChild(canvas);
+  const field = createField(canvas, d, { size: { w, h }, fit: "contain", listen: "none", assemble: true, ...physics });
+  const W = d.cols * d.cell;
+  const H = d.rows * d.cell;
+  const g = canvas.getContext("2d", { willReadFrequently: true })!;
+  const frames: Uint8ClampedArray[] = [];
+  const FPS = 12;
+  const total = 5000;
+  await new Promise<void>((resolve) => {
+    const start = performance.now();
+    let lastShot = -1e9;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / total);
+      onProgress(p * 0.8);
+      if (p > 0.12 && p < 0.72) {
+        const q = ((p - 0.12) / 0.6) * Math.PI * 2;
+        field.setPointer(W * (0.5 + 0.36 * Math.sin(q)), H * (0.5 + 0.3 * Math.sin(q * 2)), true);
+      } else if (p >= 0.72) field.setPointer(-1e5, -1e5, false);
+      if (t - lastShot >= 1000 / FPS - 2) {
+        lastShot = t;
+        frames.push(g.getImageData(0, 0, canvas.width, canvas.height).data);
+      }
+      if (p < 1) requestAnimationFrame(tick);
+      else resolve();
+    };
+    requestAnimationFrame(tick);
+  });
+  const cw = canvas.width;
+  const ch = canvas.height;
+  field.destroy();
+  canvas.remove();
+  onProgress(0.9);
+  // Let the progress bar paint before the encoder takes the thread.
+  await new Promise((r) => setTimeout(r, 30));
+  const blob = encodeGif(frames, cw, ch, 1000 / FPS);
+  onProgress(1);
+  return blob;
+}

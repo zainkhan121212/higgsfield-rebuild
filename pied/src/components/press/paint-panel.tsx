@@ -5,7 +5,10 @@ import type { Finish } from "@/lib/plate";
 import { cn } from "@/lib/utils";
 import { Button, Group, Segmented, Slider, Toggle } from "./controls";
 
-export type Tool = "brush" | "spray" | "words" | "eraser" | "restore";
+export type Tool = "brush" | "spray" | "words" | "stamp" | "eraser" | "restore";
+
+// Printer's ornaments and dingbats, pressed into the plate as letters.
+export const ORNAMENTS = ["☞", "❦", "✦", "★", "✿", "☾", "♥", "❧", "☀", "✽", "♞", "❖"];
 
 const TOOLS: { id: Tool; label: string; key: string; note: string; icon: ReactNode }[] = [
   {
@@ -45,6 +48,13 @@ const TOOLS: { id: Tool; label: string; key: string; note: string; icon: ReactNo
     key: "W",
     note: "write your words in",
     icon: <path d="M4 7V5h10v2M9 5v12m-2 0h4M14 13l2 6 2-6m-3 3h2" strokeLinecap="round" strokeLinejoin="round" />,
+  },
+  {
+    id: "stamp",
+    label: "Stamp",
+    key: "O",
+    note: "press an ornament in",
+    icon: <path d="M9 3h6v5l3 3v3H6v-3l3-3V3Zm-4 14h14v4H5v-4Z" strokeLinejoin="round" />,
   },
   {
     id: "eraser",
@@ -125,6 +135,8 @@ export function PaintPanel(p: {
   setBare: (v: boolean) => void;
   phrase: string;
   setPhrase: (v: string) => void;
+  ornament: string;
+  setOrnament: (v: string) => void;
   canUndo: boolean;
   canRedo: boolean;
   hasPaint: boolean;
@@ -133,7 +145,7 @@ export function PaintPanel(p: {
   onClear: () => void;
   onNext: () => void;
 }) {
-  const inks = p.tool === "brush" || p.tool === "spray" || p.tool === "words";
+  const inks = p.tool === "brush" || p.tool === "spray" || p.tool === "words" || p.tool === "stamp";
   return (
     <div>
       <p className="-mt-2 mb-5 font-serif text-ink-2">Paint straight onto the letters. The paper stays clean unless you choose to set new letters on it.</p>
@@ -177,7 +189,27 @@ export function PaintPanel(p: {
         </Group>
       ) : null}
 
-      <Group title="Nib" className={p.tool === "words" ? "" : "mt-6"}>
+      {p.tool === "stamp" ? (
+        <Group title="Ornament" className="mt-6" hint="click the plate to press it">
+          <div className="grid grid-cols-6 gap-1.5" role="radiogroup" aria-label="Ornament">
+            {ORNAMENTS.map((o) => (
+              <button
+                key={o}
+                type="button"
+                role="radio"
+                aria-checked={p.ornament === o}
+                onClick={() => p.setOrnament(o)}
+                className={cn("aspect-square border font-serif text-2xl leading-none transition-colors", p.ornament === o ? "border-ink bg-ink text-paper" : "border-rule hover:border-ink")}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 font-serif text-sm text-ink-3">Each click sets the ornament in letters, in your colour and finish. Size sets how big.</p>
+        </Group>
+      ) : null}
+
+      <Group title="Nib" className={p.tool === "words" || p.tool === "stamp" ? "" : "mt-6"}>
         <div className="space-y-4">
           <Slider label="Size" value={p.size} min={1} max={24} step={1} onChange={p.setSize} format={(v) => `${v}`} />
           <Slider label={p.tool === "eraser" ? "Pressure" : "Strength"} value={p.strength} min={0.1} max={1} step={0.05} onChange={p.setStrength} format={(v) => `${Math.round(v * 100)}%`} />
