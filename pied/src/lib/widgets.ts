@@ -51,6 +51,8 @@ export type WidgetsOptions = {
   preview?: boolean;
   /** the letters of the picture answer the weather */
   onWeather?: (mood: WeatherMood) => void;
+  /** the front page: weather without a place runs through every sky */
+  demo?: boolean;
 };
 
 export type WidgetsHandle = {
@@ -843,6 +845,30 @@ export function runWidgets(root: HTMLElement, initial: Widget[], opts: WidgetsOp
       fr = 0;
       since = 0;
     }
+  }
+
+  // The demo sky: Lahore, going through a day's worth of weather.
+  if (opts.demo) {
+    const SKIES = [
+      [0, 1, 34],
+      [2, 1, 31],
+      [61, 1, 24],
+      [95, 1, 22],
+      [3, 1, 27],
+      [71, 1, -2],
+      [0, 0, 19],
+    ];
+    let k = 0;
+    const turn = () => {
+      const [code, day, t] = SKIES[k++ % SKIES.length];
+      list.forEach((w) => {
+        if (w.type === "weather" && w.lat == null) weather[w.id] = { at: Date.now(), t, code, wind: 6, day: !!day };
+      });
+      dirtyAll();
+      kick();
+    };
+    turn();
+    timers.push(setInterval(turn, 5200));
   }
 
   render();

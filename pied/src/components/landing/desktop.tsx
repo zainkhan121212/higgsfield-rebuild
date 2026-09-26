@@ -2,6 +2,7 @@
 
 import { PlateCanvas } from "../plate-canvas";
 import { Lines, Reveal } from "../reveal";
+import { DeskDemo } from "./desk-demo";
 
 const GUIDES = [
   {
@@ -34,8 +35,9 @@ export function Desktop() {
             <Lines className="font-display text-[clamp(2.6rem,5.6vw,6rem)] leading-[0.92] tracking-[-0.02em]" lines={["A wallpaper that", <em key="e" className="font-serif italic">notices you.</em>]} />
             <Reveal>
               <p className="mt-6 max-w-xl font-serif text-lg leading-snug text-ink-2">
-                The download is one small HTML file with the picture and the press inside it — no account, no network, no fonts to fetch. Wallpaper
-                apps run it behind your icons, and the letters still move out of your cursor&apos;s way.
+                The download is one small HTML file with the picture and the press inside it — no account, no fonts to fetch. Wallpaper apps run
+                it behind your icons, and the letters still move out of your cursor&apos;s way. Dress it with a clock, the weather where you are,
+                the month, a countdown or what you&apos;re playing — each one made of letters or LED lamps, placed wherever you drag it.
               </p>
             </Reveal>
           </div>
@@ -52,6 +54,7 @@ export function Desktop() {
                   className="absolute inset-0"
                   settings={{ format: "desktop", cols: 150, paper: "dark", contrast: 1.7, cutoff: 0.34, text: "keep the light burning — keep the light burning — ", face: "mono" }}
                 />
+                <DeskDemo />
                 <div className="pointer-events-none absolute inset-x-0 top-0 flex h-7 items-center justify-between bg-black/45 px-4 backdrop-blur-sm">
                   <span className="label text-[9px] text-paper/70">Finder  File  Edit  View  Go</span>
                   <span className="label text-[9px] text-paper/70">Pied · live</span>
