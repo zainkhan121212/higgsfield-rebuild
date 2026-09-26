@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The launch videos and their source (a separate Remotion project).
+    "brag-output/**",
   ]),
 ]);
 
