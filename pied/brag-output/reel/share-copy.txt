@@ -1,0 +1,1 @@
+Pied, a letterpress for pictures: write a sentence, draw, or upload a photo, and it's set in thousands of letters that scatter under your cursor. Colour it, light it as neon or an LED board, paint on the letters, then keep it as a live desktop wallpaper with a clock, the weather and your calendar made of type. Built end to end, try it at pied-topaz.vercel.app
