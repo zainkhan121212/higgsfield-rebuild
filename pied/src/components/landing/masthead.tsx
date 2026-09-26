@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/session";
+import { Scramble } from "../fx/scramble";
 
 // Fixed masthead drawn in difference mode, so it stays legible over paper,
 // over the dark room and over the type itself without ever changing colour.
@@ -21,21 +22,21 @@ export function Masthead() {
         <Link href="/" className="pointer-events-auto font-display text-2xl leading-none tracking-tight" aria-label="Pied, home">
           Pied
         </Link>
-        <p className="label hidden md:block">Nº 001 — Pictures set in loose type</p>
+        <Scramble as="p" className="label hidden md:block" text="Nº 001 — Pictures set in loose type" />
         <nav className="pointer-events-auto flex items-center gap-5">
           <span className="label hidden tabular-nums lg:inline">{time || "--:--"}</span>
           {enabled ? (
             <Link href="/gallery" className="label hidden sm:inline">
-              Gallery
+              <Scramble text="Gallery" />
             </Link>
           ) : null}
           {enabled ? (
             <Link href={user ? "/library" : "/signin"} className="label hidden sm:inline">
-              {user ? "Library" : "Sign in"}
+              <Scramble text={user ? "Library" : "Sign in"} />
             </Link>
           ) : null}
           <Link href="/make" className="label border-b border-current pb-0.5">
-            Open the press →
+            <Scramble text="Open the press →" />
           </Link>
         </nav>
       </div>

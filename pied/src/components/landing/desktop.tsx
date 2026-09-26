@@ -26,10 +26,10 @@ const GUIDES = [
 
 export function Desktop() {
   return (
-    <section className="bg-paper-2">
+    <section data-section="On your desktop" className="bg-paper-2">
       <div className="mx-auto max-w-[1600px] px-4 py-28 sm:px-8 sm:py-40">
         <div className="grid gap-6 lg:grid-cols-12">
-          <p className="label text-ink-3 lg:col-span-3">§ 04 — On your desktop</p>
+          <p className="label text-ink-3 lg:col-span-3">§ 05 — On your desktop</p>
           <div className="lg:col-span-9">
             <Lines className="font-display text-[clamp(2.6rem,5.6vw,6rem)] leading-[0.92] tracking-[-0.02em]" lines={["A wallpaper that", <em key="e" className="font-serif italic">notices you.</em>]} />
             <Reveal>

@@ -2,100 +2,122 @@
 
 ## What there is to protect
 
-Pied has **no accounts, no passwords, no database, no payments and no file storage.** Uploaded photographs are read in the visitor's browser and never leave it. The server does two things:
+- **Accounts:** email and password, stored as bcrypt hashes. Sessions are cookies.
+- **Libraries:** plates people save, private by default. Public ones appear in the gallery.
+- **`POST /api/imagine`:** spends **fal credits** for anonymous visitors.
+- **Pages** that must not run anyone else's script.
 
-1. serves the pages
-2. runs one endpoint, `POST /api/imagine`, which spends **fal credits** to turn a sentence into a picture
-
-So the real risks are someone draining the fal balance, abusing the endpoint (CSRF, oversized input, prompt tricks, SSRF through the image URL), leaking the fal key, and script injection into the pages. Everything below is checked against that surface.
+There are **no payments**. Uploaded photographs are read in the browser and never sent to the server; only finished plates are, when someone saves one.
 
 **Status key:**
-- ✅ **done** — in the code, with the file named
-- ➖ **N/A** — the feature it protects doesn't exist in Pied, with the reason
-- ⚠️ **deploy** — something you set in Vercel or fal
+- ✅ **done** — in the code, with the file named, and **tested** where it says so
+- ➖ **N/A** — the feature doesn't exist, with the reason
+- ⚠️ **deploy** — something you set in Vercel, Supabase, fal or GitHub
 
-## Transport, headers, browser
+"Tested" means checked against the running app and a real Postgres, with `curl` and a headless browser, while this was built.
+
+## Accounts and sessions
 
 | Item | Status | Where / how |
 |---|---|---|
-| HSTS | ✅ | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (`src/proxy.ts`, `next.config.ts`) |
-| Missing security headers | ✅ | CSP, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP, CORP (`src/proxy.ts`) |
-| XSS | ✅ | **Nonce CSP**: only scripts this server issued run, and inline handlers and injected `<script>` are inert. React escapes all text. No `dangerouslySetInnerHTML` anywhere. Visitor text is only ever drawn on a canvas as characters. |
-| CSRF | ✅ | The single write endpoint only accepts JSON (so a cross-site form can't send it). It refuses any request whose `Sec-Fetch-Site` isn't `same-origin` (`src/proxy.ts` and `sameOrigin()` in `src/lib/server/guard.ts`). There are no cookies to ride. |
-| Clickjacking | ✅ | `frame-ancestors 'none'` + `X-Frame-Options: DENY` |
-| Insecure cookie settings | ➖ | Pied sets no cookies |
-| Exposed source maps | ✅ | `productionBrowserSourceMaps: false`; `/_next/…/*.map` returns 404 (tested) |
-| Framework fingerprinting | ✅ | `poweredByHeader: false` |
-| Verbose production errors | ✅ | The API returns plain sentences and never forwards upstream error bodies (`route.ts`). `app/error.tsx` shows no stack or message. |
-| Disable directory listing | ✅ | Next/Vercel never list directories; `/.env` and unknown paths return the 404 page (tested) |
-| Client-only security | ✅ | Every limit that matters (size, rate, spend, validation, the prompt brief) is enforced on the server. The browser's checks are only for convenience. |
+| Password storage | ✅ | bcrypt, cost 12 (`lib/server/auth.ts`). Never logged, never returned. |
+| Password policy | ✅ | 10–200 characters, not a common password, and not built from the email's name part. Tested: `password123` refused. |
+| Sessions | ✅ | A random 256-bit token in a `__Host-pied` cookie: HttpOnly, Secure, SameSite=Lax, Path=/. The database stores only its SHA-256, so a leaked table can't be replayed. 30-day sliding expiry. Tested: stored ids are hashes. |
+| CSRF tokens | ✅ | Each session has its own random token (`/api/auth/me`), which must be sent back as `x-csrf-token` on every write. It's compared in constant time. This sits on top of SameSite cookies, JSON-only bodies and the `Sec-Fetch-Site` check. Tested: saving without the token → 403. |
+| Reset sessions on password change | ✅ | A change signs out every other device; a reset signs out every device. Tested: the second device is signed out. |
+| Expire reset links | ✅ | Single use, 30 minutes, stored hashed, and a new link cancels the old. Tested: a reused link is refused. |
+| Broken password reset | ✅ | Token in the URL is removed from the address bar on load. Links are built from `APP_URL`, never the `Host` header (no host-header injection). No third-party resources on the page to leak the referrer to. |
+| Prevent user enumeration | ✅ | Forgot-password always gives the same answer (tested). Login uses one message for a wrong email or a wrong password, and an unknown email is checked against a dummy hash so timing matches (tested: 0.37 s vs 0.40 s). The lockout is counted per address whether or not it exists. With email configured, sign-up always says "check your inbox" (see note below). |
+| Rate-limit password resets | ✅ | 3 per address and 10 per visitor per hour; hitting the limit gives the same answer as success |
+| Lock accounts after failed logins | ✅ | 5 failures per address or 30 per visitor locks for 15 minutes. Tested: the 6th try gets 429. |
+| Weak session management | ✅ | Sign out, sign out everywhere, and sessions that end on password change, reset and account deletion |
+| Email verification | ✅ | Optional: with `RESEND_API_KEY` + `MAIL_FROM` set, sign-up sends a 24-hour, single-use link, and sign-in requires it |
+| Delete account | ✅ | Needs the password, and removes the user, sessions, tokens and plates (cascade) |
+| Weak / missing auth, missing auth checks, misconfigured auth | ✅ | Every write goes through `requireUser()` (session + CSRF). Reads of private data check ownership in the SQL itself. |
+| JWT secrets | ➖ | No JWTs: server-side sessions instead, which can be revoked |
+| Default credentials | ✅ | No built-in or seeded accounts. The local dev database password (`pied-local-only`) only works on 127.0.0.1. |
+
+**About the sign-up note:** without an email service there's no way to tell a new person "check your inbox". Sign-up then has to say "that address already has an account", which lets someone test whether an email is registered. That case is rate-limited (5 sign-ups per visitor per hour) and logged. **Set up email (Resend) for production** and the gap closes.
+
+## Data and access
+
+| Item | Status | Where / how |
+|---|---|---|
+| IDOR / cross-user access | ✅ | Plate queries include the owner in the `WHERE`. Someone else's private plate answers 404, the same as a missing one, so ids can't be probed. Tested: read, edit and delete by another user → 404. |
+| Mass assignment | ✅ | PATCH accepts only `title` and `isPublic` (strict zod). Tested: `user_id` → 400. |
+| Input validation / sanitize before storing | ✅ | Plates are checked before storage (`lib/server/plates.ts`): grid size limits; letters, colours and finishes must match the grid exactly; hex paper colour; one of our fonts; a real JPEG thumbnail (magic bytes); titles stripped of control and bidi characters. Tested: a mismatched plate is refused. |
+| XSS | ✅ | A nonce CSP (only our scripts run), React escaping, and no `dangerouslySetInnerHTML`. Tested: a title of `<script>x</script>` is shown as text. |
+| SQL / NoSQL injection | ✅ | Every query is a `postgres` tagged template, so values are sent as parameters, never spliced into SQL. Tested: `' or 1=1--` as an id → 404. |
+| Excessive / open DB permissions, poor tenant isolation | ✅ | Tables live in their own `pied` schema with row level security on and **no policies**. Supabase's `anon` and `authenticated` roles are revoked (`sql/schema.sql`), so the public Supabase API can't reach a row. The server connects as the owner and checks access itself. |
+| Quotas | ✅ | 200 plates per account, 30 saves an hour, 4 MB per plate (a DB `check` as well as the code) |
+| Pagination | ✅ | Keyset cursors, 12 per page, for the library and the gallery |
+| Encrypt data | ✅ / ⚠️ | TLS in transit (HSTS; `sslmode=require` to Supabase). Supabase encrypts storage at rest. Passwords are hashed and tokens hashed. |
+| Backups and restore | ⚠️ | Supabase: turn on daily backups / PITR, and do a test restore once |
+| Gallery privacy | ✅ | Public cards carry only title, display name, date and thumbnail, never an email or user id (tested) |
 
 ## The AI endpoint
 
 | Item | Status | Where / how |
 |---|---|---|
-| Cap AI usage | ✅ | Per visitor: 8 per 10 minutes and 40 per day. Whole site: 500 per day (`IMAGINE_*` env vars override). |
-| Rate limits | ✅ | Same limiter, keyed on a salted hash of the IP (`limit()` in `guard.ts`) |
-| Limit request size | ✅ | The body is read with a hard 2 KB cap, whatever `Content-Length` claims; 413 above it (tested) |
-| Input validation | ✅ | Prompt: string, 2–300 characters. `look` and `format` must be one of a fixed list; anything else falls back to the default. |
-| Block prompt injection | ✅ | The visitor supplies only the *subject*. The brief (look, contrast, "no text, no watermark") is composed on the server in `src/lib/server/prompt.ts` and placed **after** their words, so the brief always has the last word. Control characters, bidi overrides, zero-width characters and brackets are stripped. |
-| Unpermissioned AI access | ✅ | The fal key never reaches the browser. The client can't pick the model (`FAL_MODEL` is server-only and checked against a pattern). |
-| Content safety | ✅ | fal's safety checker is on, and `has_nsfw_concepts` results are refused. Pollinations is called with `safe=true`. |
-| SSRF | ✅ | The image comes back inline (`sync_mode`). If fal ever returns a URL instead, it's fetched only if it's `https` on `*.fal.media`; anything else is refused, not fetched. Returned bytes must be JPEG/PNG/WebP and under 12 MB. |
-| Upstream timeouts | ✅ | fal 55 s, image fetch 20 s, Pollinations 40 s; `maxDuration = 60` |
-| Cancel in-flight request | ✅ | The Cancel button aborts the fetch |
+| Cap AI usage | ✅ | Per visitor: 8 per 10 minutes, 40 per day. Whole site: 500 per day. **Durable in the database**, so the caps hold across serverless instances. |
+| Block prompt injection | ✅ | The visitor supplies only the subject. The brief is composed on the server (`lib/server/prompt.ts`) and placed after their words, and control, bidi and zero-width characters are stripped. |
+| Unpermissioned AI access | ✅ | The key stays server-only, and the model is set by the server |
+| Content safety | ✅ | fal's safety checker is on, NSFW results are refused, and Pollinations is called with `safe=true` |
+| SSRF | ✅ | The image comes back inline. A URL is accepted only as https on `*.fal.media`; anything else is refused, not fetched. |
+| Limit request size | ✅ | Hard body caps on every endpoint: 2 KB for prompts and auth, 1.6 MB for plates |
+
+## Headers, browser, platform
+
+| Item | Status | Where / how |
+|---|---|---|
+| HSTS | ✅ | 2 years, includeSubDomains, preload |
+| Missing security headers | ✅ | Nonce CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy, COOP, CORP (`src/proxy.ts`). Tested. |
+| CSRF (platform) | ✅ | Cross-site writes to `/api` are refused in `proxy.ts` before any handler runs |
+| Insecure cookie settings | ✅ | `__Host-` prefix, HttpOnly, Secure, SameSite=Lax |
+| Exposed source maps | ✅ | Off; `.map` returns 404 (tested) |
+| Verbose production errors | ✅ | Plain sentences only. Unexpected errors log a short reason and return a generic 500. The error page shows no stack. |
+| Disable directory listing / exposed env files | ✅ | `/.env` and unknown paths return 404 (tested) |
+| Client-only security | ✅ | Every rule that matters is enforced on the server |
+| Open redirects | ✅ | `?next=` accepts only same-site paths (`safeNext`) |
+| Uploads | ✅ | JPEG, PNG, WebP, GIF, AVIF or BMP only, up to 25 MB, decoded in the browser, never uploaded |
+| Path traversal | ➖ | The server never reads a file path from a request |
+| Command injection, insecure deserialisation | ➖ | No shell; nothing but `JSON.parse` of size-capped bodies |
+| Admin routes, internal dashboards, debug tools | ➖ | None exist, and production has no debug endpoints. If you add admin, put it behind auth and an IP allowlist. |
 
 ## Secrets
 
 | Item | Status | Where / how |
 |---|---|---|
-| Hard-coded secrets / secrets in JS / secrets in Git | ✅ | The only secret is `FAL_KEY`, read from the environment on the server. `.env*` is git-ignored. `server-only` makes the build fail if server code is ever imported into the browser. |
-| Exposed environments / `public.env` files | ✅ | No `NEXT_PUBLIC_` secrets. `NEXT_PUBLIC_PIED_STATIC` is only a build flag. |
-| Logs leak secrets | ✅ | Security logs hold an event name, a time, a **hashed** visitor ID and a short reason (e.g. `fal 401`). Never the key, the prompt or the IP. |
-| JWT secrets | ➖ | No JWTs |
-| Exposed DB credentials | ➖ | No database |
-| Default credentials | ➖ | No accounts of any kind |
-
-## Uploads
-
-| Item | Status | Where / how |
-|---|---|---|
-| Whitelist upload types | ✅ | JPEG, PNG, WebP, GIF, AVIF, BMP; no SVG (`source-panel.tsx`) |
-| Insecure file uploads | ✅ | Files are never uploaded: they're decoded in the browser, capped at 25 MB, and downsampled to 2048 px on arrival (`fitImage` in `plate.ts`) |
-| Path traversal | ➖ | The server never reads a path from a request |
-| Sanitize before storing | ➖ | Nothing is stored. Exported wallpaper files embed data as `JSON.stringify` with `<` escaped, so a title can't break out of the script (`export.ts`). |
-
-## Things Pied doesn't have (so they can't be misconfigured)
-
-| Item | Why it's N/A | If you add it later |
-|---|---|---|
-| Reset sessions on password change, expire reset links, rate-limit password resets, lock accounts after failed logins, prevent user enumeration, broken password reset, weak session management, weak/missing auth, misconfigured auth | No accounts | Use a vetted library (Auth.js / Clerk / Supabase Auth). Hash with argon2/bcrypt, reset tokens single-use and ≤ 30 min, the same response for "no such user", lockout with backoff. |
-| Verify payment webhooks, set price server-side, frontend payment checks, unsigned webhooks | No payments | Verify Stripe's `Stripe-Signature`, compute the price on the server from a product ID, and fulfil only from the webhook. |
-| IDOR, cross-user access, poor tenant isolation, missing auth checks, mass assignment, excessive DB permissions, open DB permissions | No user data or records | Check ownership on every read and write, and allowlist writable fields (zod). Use a least-privilege DB role with row-level security. |
-| SQL / NoSQL injection | No database | Parameterised queries only (Prisma, Drizzle) |
-| Command injection, insecure deserialisation | The server never runs a shell or deserialises anything but `JSON.parse` of a 2 KB body | — |
-| Remove default admin routes, unprotected admin routes, exposed internal dashboards, exposed prod debug tools | None exist; production has no debug endpoints | Keep admin behind auth and an IP allowlist, or on a separate deploy |
-| Encrypt data | Nothing at rest; TLS in transit (HSTS) | — |
-| Backups and restores | Nothing to back up except the Git repo | — |
-
-## Supply chain
-
-| Item | Status | Where / how |
-|---|---|---|
-| Vulnerable dependencies | ✅ | `npm audit`: **0 vulnerabilities** (checked for this change). Runtime deps are only `next`, `react`, `react-dom`, `server-only`. |
-| Malicious packages | ✅ | A minimal dependency tree and a committed lockfile; `esbuild`, `postcss` and `tailwind` are dev-only |
-| Unreviewed code | ⚠️ | Turn on branch protection so `main` needs a reviewed PR. Add Dependabot or Renovate for updates. |
+| Hard-coded secrets / secrets in JS / in Git | ✅ | Everything comes from environment variables, and `.env*` is ignored (only `.env.example` is committed). `server-only` fails the build if server code reaches the browser. |
+| Logs leak secrets | ✅ | Logs hold an event name, a time, a **hashed** visitor id, the user id and a short reason. Never a password, token, key, prompt or IP. |
 
 ## Monitoring
 
 | Item | Status | Where / how |
 |---|---|---|
-| Log security events | ✅ | `securityEvent()` writes JSON lines for cross-site attempts, rate-limit hits, blocked content and upstream failures (`guard.ts`) |
-| Missing audit logs / no security monitoring | ⚠️ | Add a Vercel log drain, e.g. to Axiom or Datadog, and alert on `"level":"security"` spikes |
+| Log security events / audit logs | ✅ | JSON log lines **and** rows in `pied.security_events`. Events: sign-ups, logins, failures, lockouts, password changes and resets, account deletion, plates saved, published and deleted, cross-site attempts, rate limits, blocked content. Tested. |
+| Security monitoring | ⚠️ | Add a Vercel log drain (Axiom, Datadog) and alert on spikes of `auth.login_failed` or `api.cross_site` |
 
-## Before you go live — the ⚠️ items
+## Supply chain
 
-1. **Vercel → Settings → Environment Variables:** add `FAL_KEY` (Production only) and `LOG_SALT` (any random string). Optionally set `IMAGINE_SITE_PER_DAY` to match your budget.
-2. **fal dashboard → Billing:** set a monthly spending limit. It's the backstop if everything else fails.
-3. **Durable rate limits.** The built-in limiter is in-memory, so on serverless each instance counts on its own. For a hard limit, add a Vercel Firewall rate-limit rule on `/api/imagine`, or back `limit()` with Upstash Redis or Vercel KV.
-4. **GitHub:** enable branch protection, secret scanning and Dependabot.
+| Item | Status | Where / how |
+|---|---|---|
+| Vulnerable dependencies | ✅ | `npm audit`: 0 vulnerabilities at the time of this change |
+| Malicious packages | ✅ | Small tree: `next`, `react`, `postgres`, `bcryptjs`, `zod`, `server-only`. Lockfile committed. |
+| Unreviewed code | ⚠️ | Branch protection on `main`, and Dependabot or Renovate |
+
+## Payments
+
+➖ Not built. When posters or paid plans come:
+- Stripe Checkout, with the price looked up on the server from a product id (never sent by the browser)
+- fulfilment only from the `checkout.session.completed` webhook, verified with `Stripe-Signature`
+- idempotency on event ids
+- no card data ever touches the server
+
+## Before you go live — the ⚠️ list
+
+1. **Supabase:** create a project. Copy *Settings → Database → Connection string → Transaction pooler* into `DATABASE_URL`. Run `npm run db:migrate` once. Turn on backups.
+2. **Vercel env vars:** `DATABASE_URL`, `APP_URL` (your real https address), `LOG_SALT`, `FAL_KEY`, and ideally `RESEND_API_KEY` + `MAIL_FROM`.
+3. **fal:** set a monthly spending limit.
+4. **GitHub:** branch protection, secret scanning, Dependabot.
+5. **Monitoring:** a log drain with alerts on security events.

@@ -5,6 +5,7 @@ import { demoPaint } from "@/lib/demo";
 import { cn } from "@/lib/utils";
 import { PlateCanvas } from "../plate-canvas";
 import { Lines, Reveal } from "../reveal";
+import { PressIn } from "../fx/press-in";
 
 const STEPS = [
   {
@@ -53,7 +54,7 @@ export function Process() {
   }, []);
 
   return (
-    <section id="process" className="relative bg-night text-paper">
+    <PressIn id="process" data-section="How it prints" className="relative bg-night text-paper">
       <div className="mx-auto max-w-[1600px] px-4 pt-28 sm:px-8 sm:pt-36">
         <div className="flex flex-wrap items-end justify-between gap-6 border-b border-paper/20 pb-8">
           <Lines className="font-display text-[clamp(2.8rem,6.5vw,7rem)] leading-[0.9] tracking-[-0.02em]" lines={["Four operations,", <em key="e" className="font-serif italic">one press.</em>]} />
@@ -88,7 +89,7 @@ export function Process() {
           </div>
         </div>
       </div>
-    </section>
+    </PressIn>
   );
 }
 

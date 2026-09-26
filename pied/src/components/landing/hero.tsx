@@ -6,7 +6,8 @@ import type { FieldController } from "@/lib/field";
 import { useScrollProgress } from "@/lib/scroll";
 import { useTilt } from "@/lib/tilt";
 import { PlateCanvas } from "../plate-canvas";
-import { Lines } from "../reveal";
+import { LooseType } from "../fx/loose-type";
+import { Magnetic } from "../fx/magnetic";
 
 // The first screen is the product: a woman pouring water, set in the
 // sentence that describes her. Touch her and the type scatters. Scroll and
@@ -27,15 +28,16 @@ export function Hero() {
   });
 
   return (
-    <section ref={section} className="relative min-h-svh overflow-hidden">
+    <section ref={section} data-section="Title page" className="relative min-h-svh overflow-hidden">
       <div className="mx-auto grid min-h-svh max-w-[1600px] grid-cols-1 gap-6 px-4 pb-14 pt-20 sm:px-8 lg:grid-cols-12 lg:pt-24">
         <div ref={copy} className="relative z-10 flex flex-col justify-between lg:col-span-5">
           <div>
             <p className="label reveal in text-ink-3">Vol. I — A letterpress for pictures</p>
-            <Lines
+            <LooseType
               as="h1"
+              enter
               className="mt-6 font-display text-[clamp(3.4rem,8.4vw,9.5rem)] leading-[0.86] tracking-[-0.02em]"
-              lines={["Pictures,", "set in", <em key="l" className="font-serif italic tracking-[-0.04em]">loose type.</em>]}
+              lines={[{ text: "Pictures," }, { text: "set in" }, { text: "loose type.", className: "font-serif italic tracking-[-0.04em]" }]}
             />
           </div>
           <div className="mt-10 max-w-md space-y-6">
@@ -44,12 +46,11 @@ export function Hero() {
               through and find their way home. Paint it, then keep it running on your desktop.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/make"
-                className="label group inline-flex items-center gap-3 bg-ink px-5 py-3.5 text-paper transition-transform duration-300 hover:-translate-y-0.5"
-              >
-                Set your picture <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </Link>
+              <Magnetic>
+                <Link href="/make" className="label group inline-flex items-center gap-3 bg-ink px-5 py-3.5 text-paper">
+                  Set your picture <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </Link>
+              </Magnetic>
               <a href="#process" className="label border-b border-ink pb-0.5">
                 How it prints
               </a>

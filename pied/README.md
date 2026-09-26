@@ -38,12 +38,27 @@ To deploy on Vercel, import the repo and set **Root Directory** to `pied`.
 - **Prompt → picture.** The artifact has no network, so it can't reach an image model. Instead Claude draws the subject as a bold SVG through the viewer's `sample` capability.
 - **Dialogs and pop-ups.** `confirm()` and `window.open` don't work in the frame. The full-screen preview and the "clear paint?" question are both built into the page, which also makes them better on the normal site.
 
+**Project brief** (for collaborators and other AI tools): [`docs/BRIEF.md`](docs/BRIEF.md)
+
+## Accounts (optional)
+
+Accounts, the library, share links and the public gallery need Postgres. Locally:
+
+```bash
+npm run db:start      # bundled Postgres on 127.0.0.1:54329, no Docker
+npm run db:migrate    # applies sql/schema.sql (safe to repeat)
+```
+
+Then put `DATABASE_URL=postgres://pied:pied-local-only@127.0.0.1:54329/pied` in `.env.local`. For **Supabase**, use the *Transaction pooler* connection string and run `npm run db:migrate` once. Without `DATABASE_URL`, the site runs without accounts and hides those links.
+
 ## Pages
 
 | Route | What it is |
 |---|---|
 | `/` | The landing page. The hero is the product: a woman pouring water, set in the sentence that describes her. Scrolling spills the type. |
 | `/make` | The press: **I Source** (write / upload / paste / samples) → **II Set** (words, face, detail, format, ink, paper, contrast, cut-off, motion) → **III Paint** (brush, spray, eraser, restore; ink, neon or foil finish; size, strength, colours, undo; paint stays on the letters unless *Paint on bare paper* is on) → **IV Keep** (exports). |
+| `/gallery`, `/library`, `/p/[id]` | Public plates · your saved plates (publish, share, slideshow) · a plate's share page |
+| `/signin`, `/signup`, `/forgot`, `/reset`, `/verify`, `/account` | Accounts |
 | `POST /api/imagine` | `{prompt, look, format}` → image bytes from our own origin, so the canvas can read the pixels. Same-origin only, size-capped, rate-limited and spend-capped; see SECURITY.md. |
 
 ## How it works

@@ -33,7 +33,7 @@ const PLATES: { src: string; title: string; spec: string; settings: Partial<Sett
 // The specimen book: three plates set three different ways, each one live.
 export function Specimens() {
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-28 sm:px-8 sm:py-40">
+    <section data-section="Specimen book" className="mx-auto max-w-[1600px] px-4 py-28 sm:px-8 sm:py-40">
       <div className="grid gap-6 border-b border-rule pb-8 lg:grid-cols-12">
         <p className="label text-ink-3 lg:col-span-3">§ 03 — Specimen book</p>
         <Lines className="font-display text-[clamp(2.6rem,5.6vw,6rem)] leading-[0.92] tracking-[-0.02em] lg:col-span-9" lines={["One press,", <em key="e" className="font-serif italic">many hands.</em>]} />

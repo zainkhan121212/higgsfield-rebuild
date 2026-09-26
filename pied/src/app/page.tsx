@@ -7,6 +7,9 @@ import { Process } from "@/components/landing/process";
 import { Specimens } from "@/components/landing/specimens";
 import { Desktop } from "@/components/landing/desktop";
 import { Finale } from "@/components/landing/finale";
+import { Changing } from "@/components/landing/changing";
+import { TypeTrail } from "@/components/fx/type-trail";
+import { ScrollGauge } from "@/components/fx/scroll-gauge";
 
 export default function Home() {
   // The hero plate is the first thing anyone sees; fetch its picture with the page.
@@ -14,12 +17,15 @@ export default function Home() {
   return (
     <>
       <Masthead />
+      <ScrollGauge />
+      <TypeTrail />
       <main>
         <Hero />
         <Definition />
         <Ticker />
         <Process />
         <Specimens />
+        <Changing />
         <Desktop />
         <Finale />
       </main>

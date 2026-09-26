@@ -156,6 +156,17 @@ input[type="range"].slug:focus-visible {
   scrollbar-color: var(--color-ink-3) transparent;
 }
 
+/* Type being set: each letter drops into the stick in turn. "backwards" so
+   that once it lands, the cursor springs (inline transforms) take over. */
+@keyframes set-in {
+  from { opacity: 0; transform: translateY(-0.7em) rotate(-10deg); }
+  to { opacity: 1; transform: none; }
+}
+.set-in [data-l] {
+  animation: set-in 0.9s var(--ease-out-expo) backwards;
+  animation-delay: calc(var(--i, 0) * 32ms + 150ms);
+}
+
 @keyframes flicker {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
@@ -172,4 +183,5 @@ input[type="range"].slug:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .grain::after { animation: none; }
   .line-mask > span, .reveal, .rule-draw { transition: none; transform: none; opacity: 1; }
+  .set-in [data-l] { animation: none; }
 }

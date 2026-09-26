@@ -29,7 +29,7 @@ export function Definition() {
   );
 
   return (
-    <section ref={wrap} className="relative h-[240vh]">
+    <section ref={wrap} data-section="Pie, n." className="relative h-[240vh]">
       <div className="sticky top-0 flex h-svh items-center">
         <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-8">
           <div className="grid gap-8 lg:grid-cols-12">

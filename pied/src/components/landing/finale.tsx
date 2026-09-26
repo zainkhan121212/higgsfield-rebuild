@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { PressIn } from "../fx/press-in";
+import { Magnetic } from "../fx/magnetic";
 
 const LINES = ["Set", "something", "loose."];
 
@@ -70,9 +72,9 @@ export function Finale() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-night text-paper">
+    <PressIn data-section="Colophon" className="relative overflow-hidden bg-night text-paper">
       <div ref={wrap} className="mx-auto max-w-[1600px] px-4 pb-16 pt-28 sm:px-8 sm:pt-40" data-cursor="push">
-        <p className="label text-paper/50">§ 05 — Colophon</p>
+        <p className="label text-paper/50">§ 06 — Colophon</p>
         <h2 className="mt-8 font-display text-[clamp(4rem,15vw,16rem)] leading-[0.82] tracking-[-0.03em]" aria-label="Set something loose.">
           {LINES.map((w, li) => (
             <span key={li} className={li === 2 ? "block font-serif italic" : "block"} aria-hidden>
@@ -85,9 +87,11 @@ export function Finale() {
           ))}
         </h2>
         <div className="mt-14 flex flex-wrap items-center justify-between gap-8">
-          <Link href="/make" className="label group inline-flex items-center gap-3 bg-paper px-6 py-4 text-ink transition-transform duration-300 hover:-translate-y-0.5">
-            Open the press <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-          </Link>
+          <Magnetic>
+            <Link href="/make" className="label group inline-flex items-center gap-3 bg-paper px-6 py-4 text-ink">
+              Open the press <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </Link>
+          </Magnetic>
           <p className="max-w-sm font-serif text-paper/60">Free, in your browser. Your photographs are read on your own machine and never uploaded.</p>
         </div>
         <div className="mt-24 grid gap-4 border-t border-paper/15 pt-6 sm:grid-cols-3">
@@ -96,6 +100,6 @@ export function Finale() {
           <p className="label text-paper/40 sm:text-right">Pied · Vol. I · MMXXVI</p>
         </div>
       </div>
-    </section>
+    </PressIn>
   );
 }
