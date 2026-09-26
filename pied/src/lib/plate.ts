@@ -302,23 +302,24 @@ export function buildPlate(pixels: Uint8ClampedArray, cols: number, rows: number
  * what you painted. mask: 0 = printed ink, 1 = painted, 2 = erased.
  * fx: the finish of painted letters (0 flat, 1 neon, 2 foil).
  */
-export type Paint = { mask: Uint8Array; rgba: Uint8Array; fx: Uint8Array };
+export type Paint = { mask: Uint8Array; rgba: Uint8Array; fx: Uint8Array; /** word-brush letters; "" = the printed letter */ ch: string[] };
 
 export function emptyPaint(n: number): Paint {
-  return { mask: new Uint8Array(n), rgba: new Uint8Array(n * 4), fx: new Uint8Array(n) };
+  return { mask: new Uint8Array(n), rgba: new Uint8Array(n * 4), fx: new Uint8Array(n), ch: new Array<string>(n).fill("") };
 }
 
 export type Finish = "flat" | "neon" | "foil";
 export const FINISH_CODE: Record<Finish, number> = { flat: 0, neon: 1, foil: 2 };
 
 /** Composed output: the colours the engine draws, and each letter's finish. */
-export type Composed = { rgba: Uint8Array; fx: Uint8Array };
+export type Composed = { rgba: Uint8Array; fx: Uint8Array; ch: string[] };
 
 export function composeCell(out: Composed, plate: Plate, paint: Paint, i: number) {
   const j = i * 4;
   const m = paint.mask[i];
   const src = m === 1 ? paint.rgba : plate.base;
   out.fx[i] = m === 1 ? paint.fx[i] : 0;
+  out.ch[i] = paint.ch[i] || plate.ch[i];
   if (m === 2) {
     out.rgba[j + 3] = 0;
     return;
@@ -331,18 +332,18 @@ export function composeCell(out: Composed, plate: Plate, paint: Paint, i: number
 
 export function compose(plate: Plate, paint: Paint, into?: Composed): Composed {
   const n = plate.cols * plate.rows;
-  const out = into ?? { rgba: new Uint8Array(n * 4), fx: new Uint8Array(n) };
+  const out = into ?? { rgba: new Uint8Array(n * 4), fx: new Uint8Array(n), ch: new Array<string>(n) };
   for (let i = 0; i < n; i++) composeCell(out, plate, paint, i);
   return out;
 }
 
-export function fieldData(plate: Plate, rgba: Uint8Array, s: Settings, fx?: Uint8Array): FieldData {
+export function fieldData(plate: Plate, rgba: Uint8Array, s: Settings, fx?: Uint8Array, ch?: string[]): FieldData {
   return {
     fx,
     cols: plate.cols,
     rows: plate.rows,
     cell: CELL,
-    ch: plate.ch,
+    ch: ch ?? plate.ch,
     rgba,
     paper: PAPER[s.paper].paper,
     font: FACES[s.face].stack,

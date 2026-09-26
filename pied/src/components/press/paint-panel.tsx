@@ -5,7 +5,7 @@ import type { Finish } from "@/lib/plate";
 import { cn } from "@/lib/utils";
 import { Button, Group, Segmented, Slider, Toggle } from "./controls";
 
-export type Tool = "brush" | "spray" | "eraser" | "restore";
+export type Tool = "brush" | "spray" | "words" | "eraser" | "restore";
 
 const TOOLS: { id: Tool; label: string; key: string; note: string; icon: ReactNode }[] = [
   {
@@ -38,6 +38,13 @@ const TOOLS: { id: Tool; label: string; key: string; note: string; icon: ReactNo
         ))}
       </>
     ),
+  },
+  {
+    id: "words",
+    label: "Word brush",
+    key: "W",
+    note: "write your words in",
+    icon: <path d="M4 7V5h10v2M9 5v12m-2 0h4M14 13l2 6 2-6m-3 3h2" strokeLinecap="round" strokeLinejoin="round" />,
   },
   {
     id: "eraser",
@@ -116,6 +123,8 @@ export function PaintPanel(p: {
   setFinish: (f: Finish) => void;
   bare: boolean;
   setBare: (v: boolean) => void;
+  phrase: string;
+  setPhrase: (v: string) => void;
   canUndo: boolean;
   canRedo: boolean;
   hasPaint: boolean;
@@ -124,7 +133,7 @@ export function PaintPanel(p: {
   onClear: () => void;
   onNext: () => void;
 }) {
-  const inks = p.tool === "brush" || p.tool === "spray";
+  const inks = p.tool === "brush" || p.tool === "spray" || p.tool === "words";
   return (
     <div>
       <p className="-mt-2 mb-5 font-serif text-ink-2">Paint straight onto the letters. The paper stays clean unless you choose to set new letters on it.</p>
@@ -154,7 +163,21 @@ export function PaintPanel(p: {
         ))}
       </div>
 
-      <Group title="Nib" className="mt-6">
+      {p.tool === "words" ? (
+        <Group title="Words to write" className="mt-6" hint={`${p.phrase.length}/60`}>
+          <input
+            id="word-brush"
+            value={p.phrase}
+            maxLength={60}
+            onChange={(e) => p.setPhrase(e.target.value)}
+            placeholder="a name, a line of a song…"
+            className="w-full border border-ink bg-transparent p-3 font-mono text-sm outline-none focus:bg-white/40"
+          />
+          <p className="mt-2 font-serif text-sm text-ink-3">Brush over the picture and these words replace the letters beneath, reading left to right.</p>
+        </Group>
+      ) : null}
+
+      <Group title="Nib" className={p.tool === "words" ? "" : "mt-6"}>
         <div className="space-y-4">
           <Slider label="Size" value={p.size} min={1} max={24} step={1} onChange={p.setSize} format={(v) => `${v}`} />
           <Slider label={p.tool === "eraser" ? "Pressure" : "Strength"} value={p.strength} min={0.1} max={1} step={0.05} onChange={p.setStrength} format={(v) => `${Math.round(v * 100)}%`} />

@@ -1,5 +1,7 @@
 import { capability, type Downloads } from "./claude";
+import { clockPlate } from "./clock";
 import { createField, type FieldData } from "./field";
+import { runWallpaper, type WallpaperKind, type WallpaperRun } from "./wallpaper";
 
 // Everything a plate can leave the site as. All of it is built in the
 // browser; nothing is uploaded.
@@ -23,49 +25,82 @@ export type WallpaperOptions = {
   drift: boolean;
   /** "contain" shows the whole picture on any screen; "cover" fills it and crops */
   fit: "contain" | "cover";
+  kind: WallpaperKind;
+  /** seconds between pictures in a slideshow */
+  every: number;
+  /** answer music in Wallpaper Engine / Lively */
+  audio: boolean;
+  h24: boolean;
 };
 
+const CLOCK_FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace';
+
+/** How the wallpaper runs, shared by the downloaded file and the preview. */
+export function runOptions(w: WallpaperOptions): WallpaperRun {
+  return {
+    kind: w.kind,
+    every: w.every,
+    audio: w.audio,
+    clock: { cols: 160, rows: 90, cell: 10, font: CLOCK_FONT, weight: 700, h24: w.h24 },
+    field: { fit: w.fit, listen: "window", assemble: true, radius: w.radius, force: w.force, spring: w.spring, drift: w.drift },
+  };
+}
+
+function packPlate(d: FieldData) {
+  const ch = typeof d.ch === "string" ? d.ch : d.ch.join("");
+  return {
+    cols: d.cols,
+    rows: d.rows,
+    cell: d.cell,
+    ch,
+    paper: d.paper,
+    font: d.font,
+    weight: d.weight,
+    rgba: toBase64(d.rgba),
+    fx: d.fx && d.fx.some((v) => v !== 0) ? toBase64(d.fx) : "",
+  };
+}
+
 /**
- * A single, self-contained HTML file: the plate's data inline and the same
- * engine the site runs (`createField.toString()`), so the wallpaper behaves
- * exactly like the preview. No network, no fonts to fetch.
+ * A single, self-contained HTML file: the plates' data inline and the same
+ * code the site runs (`createField`, `clockPlate` and `runWallpaper`, each
+ * embedded with toString), so the wallpaper behaves exactly like the
+ * preview. No network, no fonts to fetch.
  */
-export function wallpaperHtml(d: FieldData, w: WallpaperOptions) {
-  const meta = { cols: d.cols, rows: d.rows, cell: d.cell, ch: d.ch, paper: d.paper, font: d.font, weight: d.weight };
-  const hasFx = !!d.fx && d.fx.some((v) => v !== 0);
-  const opts = { fit: w.fit, listen: "window", assemble: true, radius: w.radius, force: w.force, spring: w.spring, drift: w.drift };
+export function wallpaperHtml(plates: FieldData[], w: WallpaperOptions) {
+  const first = plates[0];
+  const safeTitle = w.title.replace(/[<>&"]/g, "");
+  const paper = w.kind === "clock" ? "#f4f3ee" : first.paper;
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${w.title.replace(/[<>&"]/g, "")} — Pied</title>
+<title>${safeTitle} — Pied</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:${d.paper}}
+html,body{margin:0;height:100%;overflow:hidden;background:${paper}}
 canvas{display:block;width:100vw;height:100vh;touch-action:none}
 </style>
 </head>
 <body>
-<canvas id="pied" aria-label="${w.title.replace(/[<>&"]/g, "")}, set in type"></canvas>
+<canvas id="pied" aria-label="${safeTitle}, set in type"></canvas>
 <script>
 (function () {
-  var D = ${scriptSafe(meta)};
-  var bin = atob(${scriptSafe(toBase64(d.rgba))});
-  var rgba = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) rgba[i] = bin.charCodeAt(i);
-  D.rgba = rgba;${
-    hasFx
-      ? `
-  var fxb = atob(${scriptSafe(toBase64(d.fx!))});
-  var fx = new Uint8Array(fxb.length);
-  for (var k = 0; k < fxb.length; k++) fx[k] = fxb.charCodeAt(k);
-  D.fx = fx;`
-      : ""
+  function bytes(b64) {
+    var bin = atob(b64), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
   }
+  var packed = ${scriptSafe(w.kind === "clock" ? [] : plates.map(packPlate))};
+  var plates = packed.map(function (p) {
+    return { cols: p.cols, rows: p.rows, cell: p.cell, ch: p.ch, paper: p.paper, font: p.font, weight: p.weight, rgba: bytes(p.rgba), fx: p.fx ? bytes(p.fx) : undefined };
+  });
   var createField = (${createField.toString()});
-  var o = ${scriptSafe(opts)};
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { o.mode = "still"; o.assemble = false; o.drift = false; }
-  createField(document.getElementById("pied"), D, o);
+  var clockPlate = (${clockPlate.toString()});
+  var runWallpaper = (${runWallpaper.toString()});
+  var o = ${scriptSafe(runOptions(w))};
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { o.field.mode = "still"; o.field.assemble = false; o.field.drift = false; }
+  runWallpaper(document.getElementById("pied"), plates, o, createField, clockPlate);
 })();
 </script>
 </body>
@@ -155,9 +190,10 @@ export function canvasBlob(c: HTMLCanvasElement, type = "image/png", q?: number)
   return new Promise<Blob>((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), type, q));
 }
 
-export async function wallpaperKit(d: FieldData, w: WallpaperOptions) {
+export async function wallpaperKit(plates: FieldData[], w: WallpaperOptions) {
+  const d = w.kind === "clock" ? clockPlate(new Date(), runOptions(w).clock) : plates[0];
   const enc = new TextEncoder();
-  const html = wallpaperHtml(d, w);
+  const html = wallpaperHtml(plates, w);
   const preview = new Uint8Array(await (await canvasBlob(renderStill(d, 1280, 720, w.fit), "image/jpeg", 0.88)).arrayBuffer());
   const lively = {
     AppVersion: "2.0.0.0",
@@ -168,7 +204,7 @@ export async function wallpaperKit(d: FieldData, w: WallpaperOptions) {
     Author: "Pied",
     License: "",
     Contact: "",
-    Type: 1, // web
+    Type: w.audio ? 2 : 1, // 1 = web, 2 = web with audio
     FileName: "index.html",
     Arguments: null,
     IsAbsolutePath: false,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import type { FieldController } from "@/lib/field";
 import { useScrollProgress } from "@/lib/scroll";
+import { useTilt } from "@/lib/tilt";
 import { PlateCanvas } from "../plate-canvas";
 import { Lines } from "../reveal";
 
@@ -14,6 +15,7 @@ export function Hero() {
   const section = useRef<HTMLElement>(null);
   const field = useRef<FieldController | null>(null);
   const copy = useRef<HTMLDivElement>(null);
+  const tilt = useTilt(() => field.current);
 
   useScrollProgress(section, (_p, r) => {
     const p = Math.min(1, Math.max(0, -r.top / (r.height * 0.9)));
@@ -74,7 +76,14 @@ export function Hero() {
             }}
             onReady={(f) => (field.current = f)}
           />
-          <p className="label pointer-events-none absolute -bottom-6 right-0 text-ink-3">Fig. 1 — move through her ↗</p>
+          <p className="label pointer-events-none absolute -bottom-6 right-0 text-ink-3">
+            Fig. 1 — {tilt.state === "on" ? "tilt your phone" : "move through her ↗"}
+          </p>
+          {tilt.state === "ask" ? (
+            <button type="button" onClick={tilt.ask} className="label absolute left-0 top-0 bg-ink px-3 py-2 text-paper">
+              Tilt to play
+            </button>
+          ) : null}
         </div>
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto flex max-w-[1600px] justify-between px-4 pb-4 sm:px-8">

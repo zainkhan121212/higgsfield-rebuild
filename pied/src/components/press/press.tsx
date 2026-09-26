@@ -31,6 +31,8 @@ import { SourcePanel } from "./source-panel";
 import { SetPanel } from "./set-panel";
 import { PaintPanel, type Tool } from "./paint-panel";
 import { KeepPanel } from "./keep-panel";
+import { keep, type TrayItem } from "@/lib/tray";
+import { useTilt } from "@/lib/tilt";
 
 export type Tab = "source" | "set" | "paint" | "keep";
 const TABS: { id: Tab; n: string; label: string }[] = [
@@ -61,6 +63,10 @@ export function Press() {
   // Paint goes on the letters only, unless the painter asks to set new
   // letters on bare paper.
   const [bare, setBare] = useState(false);
+  // The word brush writes this phrase into the letters it passes over.
+  const [phrase, setPhrase] = useState("love");
+  // The slideshow tray: plates kept aside for a morphing wallpaper.
+  const [tray, setTray] = useState<TrayItem[]>([]);
   const [hist, setHist] = useState({ undo: 0, redo: 0, painted: false });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -69,7 +75,7 @@ export function Press() {
   const brushRef = useRef<HTMLDivElement>(null);
   const field = useRef<FieldController | null>(null);
   const paint = useRef<Paint>(emptyPaint(0));
-  const composed = useRef<Composed>({ rgba: new Uint8Array(0), fx: new Uint8Array(0) });
+  const composed = useRef<Composed>({ rgba: new Uint8Array(0), fx: new Uint8Array(0), ch: [] });
   const data = useRef<FieldData | null>(null);
   const undo = useRef<Paint[]>([]);
   const redo = useRef<Paint[]>([]);
@@ -130,7 +136,7 @@ export function Press() {
       setHist({ undo: 0, redo: 0, painted: false });
     }
     composed.current = compose(plate, paint.current);
-    const d = fieldData(plate, composed.current.rgba, { ...DEFAULTS, paper, face, weight }, composed.current.fx);
+    const d = fieldData(plate, composed.current.rgba, { ...DEFAULTS, paper, face, weight }, composed.current.fx, composed.current.ch);
     data.current = d;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -141,6 +147,7 @@ export function Press() {
   }, [plate, paper, face, weight, url]);
 
   useEffect(() => () => field.current?.destroy(), []);
+  const tilt = useTilt(() => (tab === "paint" ? null : field.current));
 
   const { radius, force, spring } = settings;
   useEffect(() => {
@@ -178,7 +185,7 @@ export function Press() {
   }, [cols, rows]);
 
   // ── painting ────────────────────────────────────────────────────────────
-  const snapshot = (p: Paint): Paint => ({ mask: p.mask.slice(), rgba: p.rgba.slice(), fx: p.fx.slice() });
+  const snapshot = (p: Paint): Paint => ({ mask: p.mask.slice(), rgba: p.rgba.slice(), fx: p.fx.slice(), ch: p.ch.slice() });
   const syncHist = useCallback(() => {
     setHist({ undo: undo.current.length, redo: redo.current.length, painted: paint.current.mask.some((m) => m !== 0) });
   }, []);
@@ -190,7 +197,9 @@ export function Press() {
     field.current?.changed(all);
   }, [plate, cols, rows]);
 
-  const stroke = useRef<{ down: boolean; x: number; y: number }>({ down: false, x: 0, y: 0 });
+  // Per stroke, the column where the phrase starts on each row, so the words
+  // read left to right however the brush wanders.
+  const stroke = useRef<{ down: boolean; x: number; y: number; rows: Map<number, number> }>({ down: false, x: 0, y: 0, rows: new Map() });
   const stamp = useCallback(
     (x: number, y: number) => {
       if (!plate) return;
@@ -200,6 +209,7 @@ export function Press() {
       const r0 = Math.max(0, Math.floor((y - R) / CELL));
       const r1 = Math.min(rows - 1, Math.floor((y + R) / CELL));
       const [cr, cg, cb] = hexToRgb(colour);
+      const words = Array.from(phrase.replace(/\s+/g, " ")).filter((c) => c.length === 1);
       const fxCode = FINISH_CODE[finish];
       const p = paint.current;
       const out = composed.current;
@@ -212,7 +222,28 @@ export function Press() {
           if (d > R) continue;
           const i = r * cols + c;
           const j = i * 4;
-          if (tool === "brush" || tool === "spray") {
+          if (tool === "words") {
+            if (!words.length) continue;
+            const empty = !out.rgba[j + 3];
+            if (!bare && empty) continue;
+            const rowsSeen = stroke.current.rows;
+            let start = rowsSeen.get(r);
+            if (start === undefined) {
+              start = c;
+              rowsSeen.set(r, c);
+            }
+            const L = words.length;
+            const letter = words[(((c - start) % L) + L) % L];
+            p.ch[i] = letter === " " ? "·" : letter;
+            if (empty) {
+              p.mask[i] = 1;
+              p.fx[i] = fxCode;
+              p.rgba[j] = cr;
+              p.rgba[j + 1] = cg;
+              p.rgba[j + 2] = cb;
+              p.rgba[j + 3] = Math.round(255 * strength);
+            }
+          } else if (tool === "brush" || tool === "spray") {
             if (!bare && !out.rgba[j + 3]) continue;
             if (tool === "spray" && Math.random() > 0.16 * (1 - d / R) + 0.02) continue;
             p.mask[i] = 1;
@@ -226,6 +257,7 @@ export function Press() {
             p.mask[i] = 2;
           } else {
             p.mask[i] = 0;
+            p.ch[i] = "";
           }
           composeCell(out, plate, p, i);
           changed.push(i);
@@ -233,7 +265,7 @@ export function Press() {
       }
       if (changed.length) field.current?.changed(changed);
     },
-    [plate, cols, rows, size, colour, tool, strength, finish, bare],
+    [plate, cols, rows, size, colour, tool, strength, finish, bare, phrase],
   );
 
   const placeBrush = (e: React.PointerEvent) => {
@@ -257,7 +289,7 @@ export function Press() {
     redo.current = [];
     setHist({ undo: undo.current.length, redo: 0, painted: true });
     const p = field.current.toLogical(e.clientX, e.clientY);
-    stroke.current = { down: true, x: p.x, y: p.y };
+    stroke.current = { down: true, x: p.x, y: p.y, rows: new Map() };
     stamp(p.x, p.y);
   };
   const onMove = (e: React.PointerEvent) => {
@@ -270,7 +302,7 @@ export function Press() {
     const spacing = Math.max(CELL * 0.6, size * CELL * 0.35);
     const n = Math.max(1, Math.ceil(dist / spacing));
     for (let k = 1; k <= n; k++) stamp(s.x + ((p.x - s.x) * k) / n, s.y + ((p.y - s.y) * k) / n);
-    stroke.current = { down: true, x: p.x, y: p.y };
+    stroke.current = { ...stroke.current, x: p.x, y: p.y };
   };
   const onUp = () => {
     stroke.current.down = false;
@@ -316,7 +348,7 @@ export function Press() {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
-      const tools: Record<string, Tool> = { b: "brush", s: "spray", e: "eraser", r: "restore" };
+      const tools: Record<string, Tool> = { b: "brush", s: "spray", w: "words", e: "eraser", r: "restore" };
       if (tools[k]) {
         setTool(tools[k]);
         setTab("paint");
@@ -419,6 +451,8 @@ export function Press() {
               setFinish={setFinish}
               bare={bare}
               setBare={setBare}
+              phrase={phrase}
+              setPhrase={setPhrase}
               canUndo={hist.undo > 0}
               canRedo={hist.redo > 0}
               hasPaint={hist.painted}
@@ -428,7 +462,16 @@ export function Press() {
               onNext={() => setTab("keep")}
             />
           )}
-          {tab === "keep" && <KeepPanel data={data} settings={settings} name={source.name} />}
+          {tab === "keep" && (
+            <KeepPanel
+              data={data}
+              settings={settings}
+              name={source.name}
+              tray={tray}
+              onKeep={(title) => data.current && setTray((t) => [...t, keep(data.current!, title)].slice(-12))}
+              onDrop={(id) => setTray((t) => t.filter((x) => x.id !== id))}
+            />
+          )}
         </aside>
 
         {/* stage */}
@@ -457,6 +500,11 @@ export function Press() {
               {job ? <Composing label={job.label} onCancel={job.cancel} /> : null}
             </div>
             {!plate ? <Skeleton /> : null}
+            {tilt.state === "ask" && tab !== "paint" ? (
+              <button type="button" onClick={tilt.ask} className="label absolute left-4 top-4 z-10 bg-ink px-3 py-2 text-paper">
+                Tilt to play
+              </button>
+            ) : null}
             {error ? <p className="label absolute bottom-4 left-1/2 -translate-x-1/2 bg-ink px-3 py-2 text-paper">{error}</p> : null}
           </div>
           <div className="label flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-rule px-4 py-2.5 text-ink-3 sm:px-6">

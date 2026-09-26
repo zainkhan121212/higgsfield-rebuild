@@ -25,8 +25,8 @@ export type FieldData = {
   rows: number;
   /** logical cell size; the grid is cols*cell × rows*cell logical px */
   cell: number;
-  /** one character per cell, row-major */
-  ch: string;
+  /** one character per cell, row-major (an array once the word brush has rewritten some) */
+  ch: string | string[];
   /** r,g,b,a per cell; a = 0 means the cell is empty */
   rgba: Uint8Array;
   paper: string;
@@ -61,6 +61,12 @@ export type FieldController = {
   setPointer(x: number, y: number, on: boolean): void;
   setSpill(v: number): void;
   setDrift(on: boolean): void;
+  /** re-set the type as another picture: every letter flies from where it is to its new home */
+  morph(d: FieldData): void;
+  /** a beat: throw a handful of letters outward, more the louder it is (0..1) */
+  kick(level: number): void;
+  /** tilt, -1..1 each way: letters slide as if the sheet were tipped (each at its own depth) */
+  setTilt(x: number, y: number): void;
   toLogical(clientX: number, clientY: number): { x: number; y: number };
   /** the given cells changed colour/alpha in data.rgba */
   changed(cells: ArrayLike<number>): void;
@@ -81,7 +87,8 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
   let cols = 0, rows = 0, cell = 0, N = 0, W = 0, H = 0, font = "";
   let R = 0, F = 0, K = 0;
   const DAMP = 0.84;
-  let px = new Float32Array(0), py = px, vx = px, vy = px, sx = px, sy = px;
+  let px = new Float32Array(0), py = px, vx = px, vy = px, sx = px, sy = px, dz = px;
+  const tilt = { x: 0, y: 0 };
   let styles: string[] = [];
   let order = new Int32Array(0);
   let orderDirty = false;
@@ -178,6 +185,7 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     vy = new Float32Array(N);
     sx = new Float32Array(N);
     sy = new Float32Array(N);
+    dz = new Float32Array(N);
     active = new Int32Array(N);
     inAct = new Uint8Array(N);
     nAct = 0;
@@ -191,6 +199,7 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       const dist = 0.15 + Math.random() * Math.random() * 0.9;
       sx[i] = Math.cos(ang) * dist * W;
       sy[i] = Math.sin(ang) * dist * H * 0.6 + Math.random() * H * 0.9;
+      dz[i] = 0.25 + Math.random() * 0.75;
     }
     light.x = W * 0.25;
     light.y = H * 0.15;
@@ -311,12 +320,18 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
 
   function render() {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (spill > 0.001) {
+    const tilted = Math.abs(tilt.x) + Math.abs(tilt.y) > 0.02;
+    if (spill > 0.001 || tilted) {
+      // Free render: every letter drawn where it is, offset by the spill
+      // (scrolling the type off the page) and the tilt (each letter slides by
+      // its own depth, so the sheet reads as sand, not a sliding picture).
       ctx.fillStyle = d.paper;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       tf(ctx);
       if (orderDirty) rebuildOrder();
       const e = spill * spill;
+      const gx = tilt.x * cell * 6;
+      const gy = tilt.y * cell * 6;
       let cur = "";
       for (let k = 0; k < order.length; k++) {
         const i = order[k];
@@ -325,7 +340,7 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
           ctx.fillStyle = st;
           cur = st;
         }
-        ctx.fillText(d.ch[i], px[i] + sx[i] * e, py[i] + sy[i] * e);
+        ctx.fillText(d.ch[i], px[i] + sx[i] * e + gx * dz[i], py[i] + sy[i] * e + gy * dz[i]);
       }
       return;
     }
@@ -605,6 +620,58 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
       measure();
       paintLayer();
       render();
+    },
+    morph: function (dd) {
+      // Where every visible letter is now, as a fraction of the old sheet.
+      const n = order.length;
+      const fx = new Float32Array(n);
+      const fy = new Float32Array(n);
+      for (let k = 0; k < n; k++) {
+        fx[k] = px[order[k]] / W;
+        fy[k] = py[order[k]] / H;
+      }
+      releaseAll();
+      init(dd);
+      measure();
+      paintLayer();
+      for (let k = 0; k < order.length; k++) {
+        const i = order[k];
+        if (n) {
+          const from = Math.floor(Math.random() * n);
+          px[i] = fx[from] * W;
+          py[i] = fy[from] * H;
+        } else {
+          px[i] = Math.random() * W;
+          py[i] = Math.random() * H;
+        }
+        // a small swirl so the letters don't travel in straight lines
+        vx[i] = (Math.random() - 0.5) * cell * 1.5;
+        vy[i] = (Math.random() - 0.5) * cell * 1.5;
+        activate(i);
+      }
+      if (mode === "scatter") wake();
+      else render();
+    },
+    kick: function (level) {
+      if (mode !== "scatter" || !order.length) return;
+      const l = Math.max(0, Math.min(1, level));
+      const n = Math.min(order.length, Math.floor(order.length * 0.035 * l) + 1);
+      for (let q = 0; q < n; q++) {
+        const i = order[Math.floor(Math.random() * order.length)];
+        const dx = hx(i) - W / 2;
+        const dy = hy(i) - H / 2;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const f = (0.6 + Math.random()) * l * F * 5;
+        vx[i] += (dx / len) * f;
+        vy[i] += (dy / len) * f;
+        activate(i);
+      }
+      wake();
+    },
+    setTilt: function (x, y) {
+      tilt.x = Math.max(-1, Math.min(1, x));
+      tilt.y = Math.max(-1, Math.min(1, y));
+      if (!running) render();
     },
     render: render,
     resize: resize,
