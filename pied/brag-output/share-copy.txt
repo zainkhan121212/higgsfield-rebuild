@@ -1,0 +1,1 @@
+I built Pied: give it a photograph or a sentence and it sets the picture in thousands of letters that scatter when your cursor passes, then light up as neon or an LED board. Keep it as a live wallpaper with a clock, the weather and your calendar, all made of type. pied-topaz.vercel.app
