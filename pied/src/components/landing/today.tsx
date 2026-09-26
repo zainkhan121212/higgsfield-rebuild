@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { STATIC } from "@/lib/claude";
 import { unpack, type Packed } from "@/lib/pack";
 import { LiveField } from "../site/live-field";
+import { describePlate } from "@/lib/describe";
 import { Reveal } from "../reveal";
 
 type Today = { id: string; title: string; by: string; plate: Packed };
@@ -42,7 +43,7 @@ export function PlateOfTheDay() {
       <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:items-end">
         <Reveal className="lg:col-span-8">
           <div className="bg-paper-2 p-4 sm:p-8" style={{ aspectRatio: `${data.cols} / ${data.rows}`, maxHeight: "80svh", marginInline: "auto" }}>
-            <LiveField data={data} label={`${t.title}, set in ${data.cols * data.rows} letters, by ${t.by}`} className="h-full w-full" />
+            <LiveField data={data} label={`${describePlate(data, t.title)} Printed by ${t.by}.`} className="h-full w-full" />
           </div>
         </Reveal>
         <Reveal className="lg:col-span-4" delay={120}>

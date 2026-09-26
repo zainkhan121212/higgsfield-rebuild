@@ -32,11 +32,13 @@ import { SetPanel } from "./set-panel";
 import { PaintPanel, type Tool } from "./paint-panel";
 import { KeepPanel } from "./keep-panel";
 import { SaveCard } from "./save-card";
+import { SoundMenu } from "../fx/sound-menu";
 import { keep, type TrayItem } from "@/lib/tray";
 import { useTilt } from "@/lib/tilt";
 import { call, useSession } from "@/lib/session";
 import { unpack, type Packed } from "@/lib/pack";
 import { plateImage } from "@/lib/remix";
+import { describePlate } from "@/lib/describe";
 
 export type Tab = "source" | "set" | "paint" | "keep";
 const TABS: { id: Tab; n: string; label: string }[] = [
@@ -172,6 +174,14 @@ export function Press() {
   }, [plate, paper, face, weight, url]);
 
   useEffect(() => () => field.current?.destroy(), []);
+
+  // What a screen reader says about the plate, kept up to date as it's set and painted.
+  const sourceName = source.name;
+  useEffect(() => {
+    const c = canvasRef.current;
+    const d = data.current;
+    if (c) c.setAttribute("aria-label", d ? describePlate(d, sourceName) : `${sourceName}, being set in type`);
+  }, [plate, hist, sourceName, paper, face, weight]);
   const tilt = useTilt(() => (tab === "paint" ? null : field.current));
 
   const { radius, force, spring } = settings;
@@ -516,7 +526,7 @@ export function Press() {
               onPointerLeave={onLeave}
               style={{ cursor: tab === "paint" ? "none" : undefined }}
             >
-              <canvas ref={canvasRef} className="block h-full w-full" role="img" aria-label={`${source.name}, set in type`} />
+              <canvas ref={canvasRef} className="block h-full w-full" role="img" />
               {tab === "paint" && (
                 <div
                   ref={brushRef}
@@ -555,9 +565,10 @@ export function Press() {
 
 function PressNav() {
   const { enabled, user } = useSession();
-  if (!enabled) return <span className="label hidden text-ink-3 md:inline">The press</span>;
+  if (!enabled) return <SoundMenu className="hidden text-ink-3 md:inline-flex" />;
   return (
     <span className="hidden items-center gap-5 md:flex">
+      <SoundMenu className="text-ink-3" />
       <Link href="/gallery" className="label text-ink-3 hover:text-ink">
         Gallery
       </Link>

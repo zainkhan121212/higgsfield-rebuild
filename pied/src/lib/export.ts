@@ -4,6 +4,7 @@ import { clockPlate } from "./clock";
 import { createField, type FieldData } from "./field";
 import { runWallpaper, type WallpaperKind, type WallpaperRun } from "./wallpaper";
 import { runWidgets, type Widget } from "./widgets";
+import { describePlate } from "./describe";
 
 // Everything a plate can leave the site as. All of it is built in the
 // browser; nothing is uploaded.
@@ -55,6 +56,7 @@ export function wallpaperHtml(plates: FieldData[], w: WallpaperOptions) {
   const first = plates[0];
   const safeTitle = w.title.replace(/[<>&"]/g, "");
   const paper = w.kind === "clock" ? "#f4f3ee" : first.paper;
+  const label = (w.kind === "clock" ? `A clock set in type` : w.kind === "slideshow" ? `A slideshow of ${plates.length} plates set in type` : describePlate(first, safeTitle)).replace(/[<>&"]/g, "");
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -68,7 +70,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 </style>
 </head>
 <body>
-<canvas id="pied" aria-label="${safeTitle}, set in type"></canvas>
+<canvas id="pied" role="img" aria-label="${label}"></canvas>
 <div id="desk"></div>
 <script>
 (function () {

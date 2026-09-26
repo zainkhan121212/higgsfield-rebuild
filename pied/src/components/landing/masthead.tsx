@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SoundMenu } from "../fx/sound-menu";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/session";
 import { Scramble } from "../fx/scramble";
@@ -25,6 +26,7 @@ export function Masthead() {
         <Scramble as="p" className="label hidden md:block" text="Nº 001 — Pictures set in loose type" />
         <nav className="pointer-events-auto flex items-center gap-5">
           <span className="label hidden tabular-nums lg:inline">{time || "--:--"}</span>
+          <SoundMenu className="hidden sm:inline-flex" />
           {enabled ? (
             <Link href="/gallery" className="label hidden sm:inline">
               <Scramble text="Gallery" />

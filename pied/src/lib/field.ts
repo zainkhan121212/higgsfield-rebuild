@@ -380,6 +380,10 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     inAct[i] = 1;
     active[nAct++] = i;
   }
+  // Letters the cursor knocked loose since the last frame, for the site's
+  // sound (window.__piedHit, set only when sound is on). The wallpaper file
+  // never sets it, so it stays silent there.
+  let hits = 0;
 
   function wakeNear() {
     const c0 = Math.max(0, Math.floor((pointer.x - R) / cell));
@@ -393,7 +397,10 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
         if (inAct[i] || !styles[i]) continue;
         const dx = (c + 0.5) * cell - pointer.x;
         const dy = (r + 0.5) * cell - pointer.y;
-        if (dx * dx + dy * dy < R2) activate(i);
+        if (dx * dx + dy * dy < R2) {
+          activate(i);
+          hits++;
+        }
       }
     }
   }
@@ -454,6 +461,11 @@ export function createField(canvas: HTMLCanvasElement, data: FieldData, opts: Fi
     const n = Math.min(3, Math.max(1, Math.round(dt / 16.7)));
     let e = 0;
     for (let q = 0; q < n; q++) e = step();
+    if (hits) {
+      const hear = (window as unknown as { __piedHit?: (n: number) => void }).__piedHit;
+      if (hear && !ghost) hear(hits);
+      hits = 0;
+    }
     render();
     if (!ghost && (nAct === 0 || e < 0.01 * nAct)) {
       running = false;

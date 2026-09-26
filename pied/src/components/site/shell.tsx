@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SoundMenu } from "../fx/sound-menu";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useSession } from "@/lib/session";
@@ -38,6 +39,7 @@ export function SiteNav() {
           Pied
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6" aria-label="Main">
+          <SoundMenu className="hidden sm:inline-flex" />
           {item("/make", "Press")}
           {enabled ? item("/gallery", "Gallery") : null}
           {enabled ? (user ? item("/library", "Library") : null) : null}

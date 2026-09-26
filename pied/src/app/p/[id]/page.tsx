@@ -8,6 +8,7 @@ import { canvasBlob, download, renderStill, slug, wallpaperHtml } from "@/lib/ex
 import { DEFAULTS, physics } from "@/lib/plate";
 import { unpack, type Packed } from "@/lib/pack";
 import { call } from "@/lib/session";
+import { describePlate } from "@/lib/describe";
 
 type Full = { id: string; title: string; isPublic: boolean; mine: boolean; by: string; createdAt: string; plate: Packed; remixOf?: { id: string; title: string; by: string } | null };
 
@@ -50,7 +51,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <div className="relative bg-paper-2 p-4 sm:p-8" style={{ aspectRatio: `${data.cols} / ${data.rows}` }}>
-              <LiveField data={data} label={`${p.title}, set in type`} className="h-full w-full" />
+              <LiveField data={data} label={describePlate(data, p.title)} className="h-full w-full" />
             </div>
           </div>
           <aside className="lg:col-span-4">

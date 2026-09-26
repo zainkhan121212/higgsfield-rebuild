@@ -26,7 +26,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     (
       <div style={{ width: "100%", height: "100%", display: "flex", background: "#f4f3ee", color: "#0c0c0b", padding: 48, gap: 48, alignItems: "center" }}>
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={src} width={704} height={396} alt="" style={{ border: "2px solid #0c0c0b" }} />
         ) : null}
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
