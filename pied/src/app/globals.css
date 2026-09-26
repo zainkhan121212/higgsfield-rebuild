@@ -185,3 +185,9 @@ input[type="range"].slug:focus-visible {
   .line-mask > span, .reveal, .rule-draw { transition: none; transform: none; opacity: 1; }
   .set-in [data-l] { animation: none; }
 }
+
+/* The stage timer under the current step of the metamorphosis. */
+@keyframes grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}

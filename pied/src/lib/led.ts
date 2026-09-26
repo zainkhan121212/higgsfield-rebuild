@@ -27,7 +27,7 @@ function rgbOf(hex: string) {
 }
 
 /** Light one cell of `out` from the same cell of `src`. */
-function lamp(src: FieldData, out: FieldData, i: number, tint: LedTint, paper: number[], fixed: number[] | null) {
+function lamp(src: FieldData, out: FieldData, i: number, tint: LedTint, paper: number[], fixed: number[] | null, gain = 1) {
   const j = i * 4;
   const a = src.rgba[j + 3] / 255;
   // What the plate looks like here: its ink over its paper.
@@ -35,7 +35,7 @@ function lamp(src: FieldData, out: FieldData, i: number, tint: LedTint, paper: n
   const g = src.rgba[j + 1] * a + paper[1] * (1 - a);
   const b = src.rgba[j + 2] * a + paper[2] * (1 - a);
   const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  const level = Math.round(Math.pow(lum, 1.4) * STEPS) / STEPS;
+  const level = Math.round(Math.min(1, Math.pow(lum * gain, 1.3)) * STEPS) / STEPS;
   let cr: number, cg: number, cb: number;
   if (fixed) {
     [cr, cg, cb] = fixed;
@@ -58,7 +58,7 @@ function lamp(src: FieldData, out: FieldData, i: number, tint: LedTint, paper: n
 
 export function ledData(src: FieldData, tint: LedTint): FieldData {
   const n = src.cols * src.rows;
-  const out: FieldData = {
+  const out: FieldData & { gain?: number } = {
     cols: src.cols,
     rows: src.rows,
     cell: src.cell,
@@ -71,13 +71,33 @@ export function ledData(src: FieldData, tint: LedTint): FieldData {
   };
   const paper = rgbOf(src.paper);
   const fixed = tint === "full" ? null : rgbOf(LED_TINTS.find((t) => t.value === tint)!.hex);
-  for (let i = 0; i < n; i++) lamp(src, out, i, tint, paper, fixed);
+  // Auto-level: a dark painting shouldn't make a dim sign. The 98th
+  // percentile of brightness is driven to full.
+  const hist = new Uint32Array(64);
+  for (let i = 0; i < n; i++) {
+    const j = i * 4;
+    const a = src.rgba[j + 3] / 255;
+    const l = (0.2126 * (src.rgba[j] * a + paper[0] * (1 - a)) + 0.7152 * (src.rgba[j + 1] * a + paper[1] * (1 - a)) + 0.0722 * (src.rgba[j + 2] * a + paper[2] * (1 - a))) / 255;
+    hist[Math.min(63, Math.floor(l * 64))]++;
+  }
+  let acc = 0;
+  let top = 63;
+  for (let b = 63; b >= 0; b--) {
+    acc += hist[b];
+    if (acc > n * 0.02) {
+      top = b;
+      break;
+    }
+  }
+  const gain = Math.min(3, 64 / Math.max(8, top + 1));
+  out.gain = gain;
+  for (let i = 0; i < n; i++) lamp(src, out, i, tint, paper, fixed, gain);
   return out;
 }
 
 /** Re-light only the cells that changed (painting on an LED plate). */
-export function ledCells(src: FieldData, out: FieldData, tint: LedTint, cells: ArrayLike<number>) {
+export function ledCells(src: FieldData, out: FieldData & { gain?: number }, tint: LedTint, cells: ArrayLike<number>) {
   const paper = rgbOf(src.paper);
   const fixed = tint === "full" ? null : rgbOf(LED_TINTS.find((t) => t.value === tint)!.hex);
-  for (let k = 0; k < cells.length; k++) lamp(src, out, cells[k], tint, paper, fixed);
+  for (let k = 0; k < cells.length; k++) lamp(src, out, cells[k], tint, paper, fixed, out.gain ?? 1);
 }

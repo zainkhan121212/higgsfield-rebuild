@@ -1,6 +1,7 @@
 import { preload } from "react-dom";
 import { Masthead } from "@/components/landing/masthead";
 import { Hero } from "@/components/landing/hero";
+import { Metamorphosis } from "@/components/landing/metamorphosis";
 import { Definition } from "@/components/landing/definition";
 import { Ticker } from "@/components/landing/ticker";
 import { Process } from "@/components/landing/process";
@@ -22,6 +23,7 @@ export default function Home() {
       <TypeTrail />
       <main>
         <Hero />
+        <Metamorphosis />
         <Definition />
         <Ticker />
         <Process />
