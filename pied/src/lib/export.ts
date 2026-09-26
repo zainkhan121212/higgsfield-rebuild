@@ -3,6 +3,7 @@ import { pack } from "./pack";
 import { clockPlate } from "./clock";
 import { createField, type FieldData } from "./field";
 import { runWallpaper, type WallpaperKind, type WallpaperRun } from "./wallpaper";
+import { runWidgets, type Widget } from "./widgets";
 
 // Everything a plate can leave the site as. All of it is built in the
 // browser; nothing is uploaded.
@@ -26,6 +27,8 @@ export type WallpaperOptions = {
   /** answer music in Wallpaper Engine / Lively */
   audio: boolean;
   h24: boolean;
+  /** things placed on the desktop over the type */
+  widgets?: Widget[];
 };
 
 const CLOCK_FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace';
@@ -61,10 +64,12 @@ export function wallpaperHtml(plates: FieldData[], w: WallpaperOptions) {
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:${paper}}
 canvas{display:block;width:100vw;height:100vh;touch-action:none}
+#desk{position:fixed;inset:0;pointer-events:none;overflow:hidden}
 </style>
 </head>
 <body>
 <canvas id="pied" aria-label="${safeTitle}, set in type"></canvas>
+<div id="desk"></div>
 <script>
 (function () {
   function bytes(b64) {
@@ -81,7 +86,12 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
   var runWallpaper = (${runWallpaper.toString()});
   var o = ${scriptSafe(runOptions(w))};
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { o.field.mode = "still"; o.field.assemble = false; o.field.drift = false; }
-  runWallpaper(document.getElementById("pied"), plates, o, createField, clockPlate);
+  var wp = runWallpaper(document.getElementById("pied"), plates, o, createField, clockPlate);
+  var widgets = ${scriptSafe(w.widgets || [])};
+  if (widgets.length) {
+    var runWidgets = (${runWidgets.toString()});
+    runWidgets(document.getElementById("desk"), widgets, { onWeather: wp.weather });
+  }
 })();
 </script>
 </body>

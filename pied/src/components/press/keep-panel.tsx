@@ -9,6 +9,8 @@ import type { TrayItem } from "@/lib/tray";
 import { cn } from "@/lib/utils";
 import { runWallpaper, type WallpaperKind } from "@/lib/wallpaper";
 import { Button, Group, Segmented, Toggle } from "./controls";
+import { DeskStudio, loadDesk } from "./desk-studio";
+import { runWidgets, type Widget } from "@/lib/widgets";
 
 type StillSize = "plate" | "desktop" | "phone";
 
@@ -49,13 +51,20 @@ export function KeepPanel({
   const [still, setStill] = useState<StillSize>(settings.format === "phone" ? "phone" : settings.format === "desktop" ? "desktop" : "plate");
   const [progress, setProgress] = useState<number | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [widgets, setWidgets] = useState<Widget[]>(loadDesk);
   const [previewing, setPreviewing] = useState<{ plates: FieldData[]; w: WallpaperOptions } | null>(null);
   const canRecord = typeof window !== "undefined" && !!recordingMime();
 
   const phys = useMemo(() => physics(settings), [settings]);
   const closePreview = useCallback(() => setPreviewing(null), []);
-  const wp = (): WallpaperOptions => ({ title: title.trim() || "Untitled", ...phys, drift, fit, kind, every, audio, h24 });
+  const wp = (): WallpaperOptions => ({ title: title.trim() || "Untitled", ...phys, drift, fit, kind, every, audio, h24, widgets });
   const file = slug(title);
+  // What the desktop box shows behind the widgets.
+  const backdrop = (): FieldData | null => {
+    if (kind === "clock") return clockPlate(new Date(), runOptions({ ...phys, title: "", drift: false, fit, kind, every, audio: false, h24 }).clock);
+    if (kind === "slideshow" && tray.length) return tray[0].data;
+    return data.current;
+  };
 
   // The plates this wallpaper carries.
   const plates = (): FieldData[] | null => {
@@ -196,6 +205,12 @@ export function KeepPanel({
         ) : null}
 
         <div className="mt-4 border-t border-rule pt-4">
+          <p className="font-serif text-[15px]">On the desktop</p>
+          <p className="mb-2 font-serif text-xs text-ink-3">Add a clock, the weather, a countdown and more, then drag each where you want it. They go in the download.</p>
+          <DeskStudio widgets={widgets} onChange={setWidgets} backdrop={backdrop} backdropKey={`${kind}:${tray.map((t) => t.id).join(",")}:${h24}`} fit={fit} />
+        </div>
+
+        <div className="mt-4 border-t border-rule pt-4">
           <p className="mb-2 font-serif text-[15px]">On the screen</p>
           <Segmented
             label="On the screen"
@@ -285,6 +300,7 @@ export function KeepPanel({
 function Preview({ plates, w, onClose }: { plates: FieldData[]; w: WallpaperOptions; onClose: () => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const deskRef = useRef<HTMLDivElement>(null);
   const handle = useRef<ReturnType<typeof runWallpaper> | null>(null);
   const audio = useRef<{ ctx: AudioContext; el: HTMLAudioElement; raf: number; url: string } | null>(null);
   const [song, setSong] = useState<string | null>(null);
@@ -294,12 +310,15 @@ function Preview({ plates, w, onClose }: { plates: FieldData[]; w: WallpaperOpti
     const el = wrap.current;
     if (!c || !el) return;
     handle.current = runWallpaper(c, plates, { ...runOptions(w), audio: true }, createField, clockPlate);
+    const wx = handle.current.weather;
+    const desk = deskRef.current && w.widgets?.length ? runWidgets(deskRef.current, w.widgets, { onWeather: wx }) : null;
     el.requestFullscreen?.().catch(() => {});
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     const onFs = () => !document.fullscreenElement && onClose();
     window.addEventListener("keydown", onKey);
     document.addEventListener("fullscreenchange", onFs);
     return () => {
+      desk?.destroy();
       handle.current?.destroy();
       handle.current = null;
       stopSong(audio);
@@ -338,6 +357,7 @@ function Preview({ plates, w, onClose }: { plates: FieldData[]; w: WallpaperOpti
   return (
     <div ref={wrap} className="fixed inset-0 z-[80]" style={{ background: paper }} data-cursor="none">
       <canvas ref={canvas} className="block h-full w-full touch-none" aria-label="Wallpaper preview" />
+      <div ref={deskRef} className="pointer-events-none absolute inset-0 overflow-hidden" />
       <div className="absolute right-4 top-4 flex gap-2 opacity-60 transition-opacity hover:opacity-100">
         <label className={cn("label cursor-pointer bg-ink px-3 py-2 text-paper", song && "max-w-56 truncate")}>
           {song ? `♪ ${song}` : "♪ Play a song through it"}

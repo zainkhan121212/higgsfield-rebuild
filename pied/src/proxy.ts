@@ -27,7 +27,8 @@ export function proxy(req: NextRequest) {
     "img-src 'self' blob: data:",
     "media-src 'self' blob:",
     "font-src 'self'",
-    `connect-src 'self'${DEV ? " ws: wss:" : ""}`,
+    // Open-Meteo: the desktop's weather widget (city search and the forecast).
+    `connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com${DEV ? " ws: wss:" : ""}`,
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "form-action 'self'",
