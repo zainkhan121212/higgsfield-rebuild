@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { renderStill } from "@/lib/export";
 import type { FieldData } from "@/lib/field";
 import { cn } from "@/lib/utils";
-import { runWidgets, type Widget, type WidgetType } from "@/lib/widgets";
+import { runWidgets, type Widget, type WidgetLook, type WidgetTint, type WidgetType } from "@/lib/widgets";
 import { Segmented, Toggle } from "./controls";
 
 const KINDS: { type: WidgetType; label: string; note: string }[] = [
@@ -16,6 +16,14 @@ const KINDS: { type: WidgetType; label: string; note: string }[] = [
   { type: "note", label: "Note", note: "anything you write" },
   { type: "music", label: "Now playing", note: "a turning record, in Lively & Wallpaper Engine" },
   { type: "stats", label: "FPS", note: "frames a second (CPU & RAM in Lively)" },
+];
+
+const TINTS: { value: WidgetTint; label: string; hex: string }[] = [
+  { value: "amber", label: "Amber", hex: "#ffae1a" },
+  { value: "green", label: "Green", hex: "#39ff6a" },
+  { value: "red", label: "Red", hex: "#ff3b2f" },
+  { value: "white", label: "White", hex: "#f4f3ee" },
+  { value: "full", label: "Colour", hex: "conic-gradient(#ff3b2f,#ffae1a,#39ff6a,#27e1ff,#a855ff,#ff3b2f)" },
 ];
 
 const MAX = 12;
@@ -105,11 +113,16 @@ export function DeskStudio({
   const selected = widgets.find((w) => w.id === sel) || null;
   const update = (id: string, patch: Partial<Widget>) => onChange(widgets.map((w) => (w.id === id ? { ...w, ...patch } : w)));
 
+  // One look for the whole desktop: letters, or LED lamps in one colour.
+  const look: WidgetLook = widgets[0]?.look ?? "led";
+  const tint: WidgetTint = widgets[0]?.tint ?? "amber";
+  const restyle = (p: { look?: WidgetLook; tint?: WidgetTint }) => onChange(widgets.map((w) => ({ ...w, look: p.look ?? look, tint: p.tint ?? tint })));
+
   const add = (type: WidgetType) => {
     if (widgets.length >= MAX) return;
     const used = widgets.length % SPOTS.length;
     const [x, y] = SPOTS[used];
-    const w: Widget = { id: newId(), type, x, y, size: 1 };
+    const w: Widget = { id: newId(), type, x, y, size: 1, look, tint };
     if (type === "countdown") {
       w.date = inDays(30);
       w.text = "the big day";
@@ -205,6 +218,35 @@ export function DeskStudio({
         ) : null}
         {!widgets.length ? (
           <p className="label pointer-events-none absolute inset-x-0 bottom-3 text-center text-[9px] text-ink-3">Add a widget below, then drag it into place</p>
+        ) : null}
+      </div>
+
+      <div className="mt-3">
+        <Segmented
+          label="Widgets are made of"
+          value={look}
+          onChange={(v) => restyle({ look: v })}
+          options={[
+            { value: "led", label: "LED lamps" },
+            { value: "type", label: "Letters" },
+          ]}
+        />
+        {look === "led" ? (
+          <div className="mt-1.5 grid grid-cols-5 gap-1" role="radiogroup" aria-label="Lamp colour">
+            {TINTS.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                role="radio"
+                aria-checked={tint === t.value}
+                onClick={() => restyle({ tint: t.value })}
+                className={cn("flex items-center justify-center gap-1.5 border px-1 py-1.5", tint === t.value ? "border-ink bg-ink text-paper" : "border-rule hover:border-ink")}
+              >
+                <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: t.hex, boxShadow: `0 0 6px ${t.hex.startsWith("#") ? t.hex : "#fff"}` }} />
+                <span className="label text-[9px]">{t.label}</span>
+              </button>
+            ))}
+          </div>
         ) : null}
       </div>
 
