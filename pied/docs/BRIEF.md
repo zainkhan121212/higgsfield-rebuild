@@ -41,6 +41,9 @@ This file is written so another person or AI model can understand the project qu
   - the cursor sheds tumbling letters, and a click bursts spilled type
   - a proof-reader's ring trails the cursor
   - magnetic buttons, scrambling labels
+  - **sound** (off by default): Typewriter, Chains or Paper, synthesised; every letter the cursor knocks loose clicks, scrolling ticks
+- **Plate of the Day:** one public plate on the front page, the same for everyone until midnight, with a Remix button.
+- **Accessibility:** every plate has a spoken description (letters, colours, finish, where it sits) for screen readers.
   - a composing-stick scroll gauge on the left margin
 
 ### The press (`/make`)
@@ -48,6 +51,8 @@ This file is written so another person or AI model can understand the project qu
 **I. Source**
 - **Write:** a prompt goes to the server, which wraps it in a fixed brief and sends it to fal FLUX. The returned image is auto-framed so the subject fills the plate. Styles: Photograph, Silhouette, Ink, Engraving, Colour.
 - **Upload** or **paste** a picture. It's read in the browser only.
+- **Draw** it yourself: a pen pad, set in type as each stroke lifts.
+- **Remix** a public plate (`/make?remix=<id>`); the saved remix credits the original.
 - **Samples.**
 
 **II. Set**
@@ -60,7 +65,7 @@ This file is written so another person or AI model can understand the project qu
 - motion: reach, push, spring
 
 **III. Paint**
-- **Tools:** Brush, Spray, **Word Brush**, Eraser, Restore. The Word Brush writes a phrase into the letters it passes, reading left to right.
+- **Tools:** Brush, Spray, **Word Brush**, **Stamp** (printer's ornaments pressed in as letters), Eraser, Restore. The Word Brush writes a phrase into the letters it passes, reading left to right.
 - **Finishes:** Ink, **Neon** (a glow around a bright core), **Foil** (gold, silver or copper leaf whose shine follows the cursor like light on metal).
 - Paint stays on the letters unless *Paint on bare paper* is on.
 - Size, strength, colour trays, undo/redo.
@@ -70,9 +75,10 @@ This file is written so another person or AI model can understand the project qu
   - *This picture*
   - *Slideshow* (a tray of plates that morph into each other every 20 s to 15 min)
   - *Clock* (the time in type, spelled in words, dark paper at night)
+- **Desktop Studio:** drag widgets onto the wallpaper — clock, calendar, weather (the letters feel rain, snow, storms and wind), countdown, verse of the day, note, now playing (a turning record with the album cover, in Lively and Wallpaper Engine), FPS (CPU/RAM in Lively).
 - **Options:** whole picture or fill; idle drift; **dance to music** (Wallpaper Engine and Lively send audio to the page).
 - **Full-screen preview**, where you can play a song through it.
-- **Other exports:** PNG (plate ×4, 4K desktop, phone) and a 7 s video.
+- **Other exports:** PNG (plate ×4, 4K desktop, phone), a 7 s video and a looping GIF.
 - **Save to library** (with an account).
 - **Phones:** tilt the phone and the letters slide like sand (iOS asks permission first).
 

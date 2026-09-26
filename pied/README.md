@@ -56,8 +56,9 @@ Then put `DATABASE_URL=postgres://pied:pied-local-only@127.0.0.1:54329/pied` in 
 | Route | What it is |
 |---|---|
 | `/` | The landing page. The hero is the product: a woman pouring water, set in the sentence that describes her. Scrolling spills the type. |
-| `/make` | The press: **I Source** (write / upload / paste / samples) → **II Set** (words, face, detail, format, ink, paper, contrast, cut-off, motion) → **III Paint** (brush, spray, eraser, restore; ink, neon or foil finish; size, strength, colours, undo; paint stays on the letters unless *Paint on bare paper* is on) → **IV Keep** (exports). |
-| `/gallery`, `/library`, `/p/[id]` | Public plates · your saved plates (publish, share, slideshow) · a plate's share page |
+| `/make` | The press: **I Source** (write / upload / paste / **draw** / samples) → **II Set** (words, face, detail, format, ink, paper, contrast, cut-off, motion) → **III Paint** (brush, spray, eraser, restore; ink, neon or foil finish; size, strength, colours, undo; paint stays on the letters unless *Paint on bare paper* is on; **Stamp** presses a printer's ornament in) → **IV Keep** (the **Desktop Studio**: drag a clock, calendar, weather, countdown, verse, note, now-playing record or FPS onto the wallpaper; exports incl. a looping GIF). `/make?remix=<id>` remixes a public plate. |
+| `/gallery`, `/library`, `/p/[id]` | Public plates · your saved plates (publish, share, slideshow) · a plate's share page (Remix button, "remixed from" credit, its own link preview) |
+| `GET /api/gallery/today` | The Plate of the Day on the front page: one public plate, the same for everyone until midnight |
 | `/signin`, `/signup`, `/forgot`, `/reset`, `/verify`, `/account` | Accounts |
 | `POST /api/imagine` | `{prompt, look, format}` → image bytes from our own origin, so the canvas can read the pixels. Same-origin only, size-capped, rate-limited and spend-capped; see SECURITY.md. |
 
@@ -92,6 +93,8 @@ Exports (`src/lib/export.ts`), all built in the browser:
 - **Live wallpaper (.html).** One ~100–300 KB self-contained file: plate data as base64, the engine inline, system fonts only, works offline. It has optional *idle drift*, a slow invisible hand that stirs the type when you're away, and it respects `prefers-reduced-motion`.
 - **Wallpaper kit (.zip).** `index.html` + `LivelyInfo.json` + `project.json` + `preview.jpg` + `README.txt`. It uses a tiny store-only ZIP writer, so there's no dependency.
 - **Still (.png).** Plate ×4, a 4K desktop, or a phone size.
+- **Desktop widgets.** `src/lib/widgets.ts` (`runWidgets`) is self-contained like the engine and embedded in the file. Weather comes from Open-Meteo (free, no key); rain, snow, storms and wind move the letters. *Now playing* uses Wallpaper Engine's media listeners and Lively's `livelyCurrentTrack`; *FPS* works everywhere, CPU/RAM only where Lively sends `livelySystemInformation`.
+- **Looping GIF.** 5 seconds at 12 fps, encoded in the browser (`src/lib/gif.ts`).
 - **Motion (.mp4 / .webm).** A 7-second `MediaRecorder` capture: the type assembles, an invisible hand sweeps a figure-eight through it, and it settles again, so it loops.
 
 ## Design

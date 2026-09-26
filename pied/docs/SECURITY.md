@@ -53,6 +53,9 @@ There are **no payments**. Uploaded photographs are read in the browser and neve
 | Pagination | ✅ | Keyset cursors, 12 per page, for the library and the gallery |
 | Encrypt data | ✅ / ⚠️ | TLS in transit (HSTS; `sslmode=require` to Supabase). Supabase encrypts storage at rest. Passwords are hashed and tokens hashed. |
 | Backups and restore | ⚠️ | Supabase: turn on daily backups / PITR, and do a test restore once |
+| Remix credit | ✅ | `remixOf` is only stored if the saver can see that plate (public or their own), and the credit is only shown to viewers who can see the original — a private plate's title never leaks through a remix. |
+| Link previews | ✅ | A plate's share image is drawn only for public plates; private and missing ids get the plain card. |
+| Plate of the Day | ✅ | Public plates only, and only title, display name and plate data. |
 | Gallery privacy | ✅ | Public cards carry only title, display name, date and thumbnail, never an email or user id (tested) |
 
 ## The AI endpoint
@@ -71,6 +74,7 @@ There are **no payments**. Uploaded photographs are read in the browser and neve
 | Item | Status | Where / how |
 |---|---|---|
 | HSTS | ✅ | 2 years, includeSubDomains, preload |
+| Third-party connections | ✅ | The CSP's `connect-src` allows only the site itself and Open-Meteo (`api.open-meteo.com`, `geocoding-api.open-meteo.com`) for the weather widget: keyless, no cookies, only a city name or coordinates are sent. |
 | Missing security headers | ✅ | Nonce CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, Permissions-Policy, COOP, CORP (`src/proxy.ts`). Tested. |
 | CSRF (platform) | ✅ | Cross-site writes to `/api` are refused in `proxy.ts` before any handler runs |
 | Insecure cookie settings | ✅ | `__Host-` prefix, HttpOnly, Secure, SameSite=Lax |
