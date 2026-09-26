@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { STATIC } from "@/lib/claude";
+import { drawWithClaude } from "@/lib/draw";
 import type { Settings, Source } from "@/lib/plate";
 import { cn } from "@/lib/utils";
 import { Button, Group, Segmented } from "./controls";
@@ -87,9 +89,15 @@ export function SourcePanel({
       return;
     }
     setErr(null);
-    setBusy("Composing your picture");
+    setBusy(STATIC ? "Claude is drawing it" : "Composing your picture");
     try {
       const { w, h } = dims(format);
+      if (STATIC) {
+        const url = URL.createObjectURL(await drawWithClaude(p, style, w, h));
+        objectUrls.current.push(url);
+        onSource({ url, name: p.slice(0, 40) }, p);
+        return;
+      }
       const suffix = STYLES.find((s) => s.id === style)!.suffix;
       const q = new URLSearchParams({ prompt: `${p}, ${suffix}`, w: String(w), h: String(h), seed: String(Math.floor(Math.random() * 1e9)) });
       const res = await fetch(`/api/imagine?${q}`);
@@ -157,10 +165,14 @@ export function SourcePanel({
                 </button>
               ))}
             </div>
-            <p className="mt-3 font-serif text-sm text-ink-3">Strong contrast and a plain background print best.</p>
+            <p className="mt-3 font-serif text-sm text-ink-3">
+              {STATIC
+                ? "In this version Claude draws your picture as a bold illustration, which prints well as type. It uses your Claude account and asks you first."
+                : "Strong contrast and a plain background print best."}
+            </p>
           </Group>
           <Button onClick={generate} disabled={!!busy} className="mt-2 w-full py-4">
-            {busy ? "Composing…" : "Make the picture →"}
+            {busy ? "Composing…" : STATIC ? "Draw it with Claude →" : "Make the picture →"}
           </Button>
           <p className="label mt-2 text-center text-ink-3">⌘ + Enter</p>
         </div>

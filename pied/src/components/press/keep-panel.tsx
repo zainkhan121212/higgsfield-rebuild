@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type RefObject } from "react";
-import type { FieldData } from "@/lib/field";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { createField, type FieldData } from "@/lib/field";
 import { canvasBlob, download, recordClip, recordingMime, renderStill, slug, wallpaperHtml, wallpaperKit } from "@/lib/export";
 import { physics, type Settings } from "@/lib/plate";
 import { Button, Group, Segmented, Toggle } from "./controls";
@@ -14,9 +14,11 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
   const [still, setStill] = useState<StillSize>(settings.format === "phone" ? "phone" : settings.format === "desktop" ? "desktop" : "plate");
   const [progress, setProgress] = useState<number | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState<FieldData | null>(null);
   const canRecord = typeof window !== "undefined" && !!recordingMime();
 
-  const phys = physics(settings);
+  const phys = useMemo(() => physics(settings), [settings]);
+  const closePreview = useCallback(() => setPreviewing(null), []);
   const wp = () => ({ title: title.trim() || "Untitled", ...phys, drift });
   const file = slug(title);
 
@@ -26,22 +28,27 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
     return d;
   };
 
+  const save = async (make: () => Blob | Promise<Blob>, name: string) => {
+    setMsg(null);
+    try {
+      const ok = await download(await make(), name);
+      setMsg(ok ? `Saved ${name}` : "Not saved.");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Could not save the file.");
+    }
+  };
+
   const saveHtml = () => {
     const d = need();
-    if (!d) return;
-    download(new Blob([wallpaperHtml(d, wp())], { type: "text/html" }), `${file}.html`);
+    if (d) save(() => new Blob([wallpaperHtml(d, wp())], { type: "text/html" }), `${file}.html`);
   };
   const preview = () => {
     const d = need();
-    if (!d) return;
-    const url = URL.createObjectURL(new Blob([wallpaperHtml(d, wp())], { type: "text/html" }));
-    window.open(url, "_blank", "noopener");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    if (d) setPreviewing(d);
   };
-  const saveKit = async () => {
+  const saveKit = () => {
     const d = need();
-    if (!d) return;
-    download(await wallpaperKit(d, wp()), `${file}-wallpaper.zip`);
+    if (d) save(() => wallpaperKit(d, wp()), `${file}-wallpaper.zip`);
   };
   const saveStill = async () => {
     const d = need();
@@ -50,7 +57,7 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
     const H = d.rows * d.cell;
     const [w, h, fit] =
       still === "desktop" ? [3840, 2160, "auto" as const] : still === "phone" ? [1290, 2796, "auto" as const] : [Math.round(W * 4), Math.round(H * 4), "contain" as const];
-    download(await canvasBlob(renderStill(d, w, h, fit)), `${file}-${still}.png`);
+    save(() => canvasBlob(renderStill(d, w, h, fit)), `${file}-${still}.png`);
   };
   const saveClip = async () => {
     const d = need();
@@ -62,7 +69,8 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
     try {
       setProgress(0);
       const { blob, ext } = await recordClip(d, w, h, phys, 7, setProgress);
-      download(blob, `${file}.${ext}`);
+      setProgress(null);
+      await save(() => blob, `${file}.${ext}`);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Recording failed.");
     } finally {
@@ -96,7 +104,7 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Button onClick={saveHtml}>Download</Button>
           <Button variant="line" onClick={preview}>
-            Full-screen ↗
+            Try it full screen
           </Button>
         </div>
       </Card>
@@ -140,7 +148,12 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
         )}
       </Card>
 
-      {msg ? <p className="label mt-4 border-l-2 border-ink pl-3 normal-case tracking-normal">{msg}</p> : null}
+      {msg ? (
+        <p className="label mt-4 border-l-2 border-ink pl-3 normal-case tracking-normal" role="status">
+          {msg}
+        </p>
+      ) : null}
+      {previewing ? <Preview data={previewing} physics={phys} drift={drift} onClose={closePreview} /> : null}
 
       <Group title="Setting it as your wallpaper" className="mt-6">
         <Guide os="Windows · Lively Wallpaper (free)" steps={["Install Lively from the Microsoft Store.", "Drag the kit (.zip) onto Lively's window.", "Settings → Wallpaper → Wallpaper input: Mouse."]} />
@@ -155,15 +168,50 @@ export function KeepPanel({ data, settings, name }: { data: RefObject<FieldData 
   );
 }
 
+/**
+ * The wallpaper as it will run: the whole screen, the same engine, the same
+ * fit. Drawn in the page rather than a new window, so it also works where
+ * pop-ups are blocked.
+ */
+function Preview({ data, physics: p, drift, onClose }: { data: FieldData; physics: { radius: number; force: number; spring: number }; drift: boolean; onClose: () => void }) {
+  const wrap = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = canvas.current;
+    const w = wrap.current;
+    if (!c || !w) return;
+    const field = createField(c, data, { fit: "auto", listen: "window", assemble: true, drift, ...p });
+    w.requestFullscreen?.().catch(() => {});
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onFs = () => !document.fullscreenElement && onClose();
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => {
+      field.destroy();
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onFs);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    };
+  }, [data, p, drift, onClose]);
+  return (
+    <div ref={wrap} className="fixed inset-0 z-[80]" style={{ background: data.paper }} data-cursor="none">
+      <canvas ref={canvas} className="block h-full w-full touch-none" aria-label="Wallpaper preview" />
+      <button type="button" onClick={onClose} className="label absolute right-4 top-4 bg-ink px-3 py-2 text-paper opacity-60 transition-opacity hover:opacity-100">
+        Close · Esc
+      </button>
+    </div>
+  );
+}
+
 function Card({ n, title, meta, children }: { n: string; title: string; meta: string; children: React.ReactNode }) {
   return (
     <section className="mt-4 border border-ink p-4">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
+      <div className="mb-3">
         <h3 className="font-display text-2xl">
           <span className="label mr-2 align-middle text-ink-3">{n}</span>
           {title}
         </h3>
-        <span className="label text-right text-[10px] text-ink-3">{meta}</span>
+        <p className="label mt-1 text-[10px] text-ink-3">{meta}</p>
       </div>
       {children}
     </section>

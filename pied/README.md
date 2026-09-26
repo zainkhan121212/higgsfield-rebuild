@@ -16,6 +16,15 @@ Nothing else is needed. Prompt → picture uses Pollinations' keyless FLUX endpo
 
 To deploy on Vercel, import the repo and set **Root Directory** to `pied`.
 
+### As a claude.ai artifact
+
+`node scripts/artifact.mjs` builds both pages into one self-contained document (`artifact/index.html` plus `artifact/samples/`), for publishing as a claude.ai artifact. Inside the artifact frame a few things work differently, and the app handles each one:
+
+- **Routes.** `/make` becomes `#make`; `next/link` is swapped for a hash link.
+- **Downloads.** The frame blocks downloads a page starts itself, so files go through the viewer's `downloads` capability, which asks the viewer to confirm.
+- **Prompt → picture.** The artifact has no network, so it can't reach an image model. Instead Claude draws the subject as a bold SVG through the viewer's `sample` capability.
+- **Dialogs and pop-ups.** `confirm()` and `window.open` don't work in the frame. The full-screen preview and the "clear paint?" question are both built into the page, which also makes them better on the normal site.
+
 ## Pages
 
 | Route | What it is |

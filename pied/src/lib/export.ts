@@ -1,3 +1,4 @@
+import { capability, type Downloads } from "./claude";
 import { createField, type FieldData } from "./field";
 
 // Everything a plate can leave the site as. All of it is built in the
@@ -266,7 +267,24 @@ export function recordClip(
   });
 }
 
-export function download(blob: Blob, name: string) {
+/**
+ * Save a file. Inside a claude.ai artifact the frame blocks page-started
+ * downloads, so the file goes through the viewer's `downloads` capability
+ * (the viewer confirms it); everywhere else a plain link click does it.
+ * Resolves false when the viewer declined.
+ */
+export async function download(blob: Blob, name: string): Promise<boolean> {
+  const dl = await capability<Downloads>("downloads");
+  if (dl) {
+    try {
+      await dl.save({ filename: name, data: blob });
+      return true;
+    } catch (e) {
+      const code = (e as { code?: string })?.code;
+      if (code === "declined") return false;
+      throw new Error("This view can't save files.");
+    }
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -275,6 +293,7 @@ export function download(blob: Blob, name: string) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  return true;
 }
 
 export function slug(s: string) {

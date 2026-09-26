@@ -304,12 +304,22 @@ export function Press() {
     return () => window.removeEventListener("keydown", onKey);
   }, [doUndo, doRedo]);
 
+  // A new grid can't carry the paint over, so ask first — in the page, since
+  // browser dialogs are unavailable inside an artifact.
+  const [pendingGrid, setPendingGrid] = useState<{ k: "cols" | "format"; v: Settings["cols"] | Settings["format"] } | null>(null);
   const changeGrid = useCallback(
     <K extends "cols" | "format">(k: K, v: Settings[K]) => {
-      if (hist.painted && !window.confirm("Changing the grid lifts all the paint off the plate. Continue?")) return;
-      set(k, v);
+      if (hist.painted) setPendingGrid({ k, v });
+      else set(k, v);
     },
     [set, hist.painted],
+  );
+  const resolveGrid = useCallback(
+    (apply: boolean) => {
+      if (apply && pendingGrid) setSettings((s) => ({ ...s, [pendingGrid.k]: pendingGrid.v }));
+      setPendingGrid(null);
+    },
+    [pendingGrid],
   );
 
   const letterCount = useMemo(() => {
@@ -371,7 +381,7 @@ export function Press() {
               onNext={() => setTab("set")}
             />
           )}
-          {tab === "set" && <SetPanel settings={settings} set={set} changeGrid={changeGrid} onNext={() => setTab("paint")} />}
+          {tab === "set" && <SetPanel settings={settings} set={set} changeGrid={changeGrid} pendingGrid={!!pendingGrid} resolveGrid={resolveGrid} onNext={() => setTab("paint")} />}
           {tab === "paint" && (
             <PaintPanel
               tool={tool}

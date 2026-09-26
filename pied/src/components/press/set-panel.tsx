@@ -7,11 +7,15 @@ export function SetPanel({
   settings: s,
   set,
   changeGrid,
+  pendingGrid,
+  resolveGrid,
   onNext,
 }: {
   settings: Settings;
   set: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
   changeGrid: <K extends "cols" | "format">(k: K, v: Settings[K]) => void;
+  pendingGrid: boolean;
+  resolveGrid: (apply: boolean) => void;
   onNext: () => void;
 }) {
   return (
@@ -72,6 +76,17 @@ export function SetPanel({
         <div className="mt-4">
           <Slider label="Detail" value={s.cols} min={60} max={240} step={10} onChange={(v) => changeGrid("cols", v)} format={(v) => `${v} col`} />
         </div>
+        {pendingGrid ? (
+          <div role="alertdialog" aria-label="Clear the paint?" className="mt-4 border border-ink p-3">
+            <p className="font-serif text-sm">A new grid can&apos;t keep your paint. Change it and wash the paint off?</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button onClick={() => resolveGrid(true)}>Change grid</Button>
+              <Button variant="line" onClick={() => resolveGrid(false)}>
+                Keep paint
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </Group>
 
       <Group title="Ink & paper">
